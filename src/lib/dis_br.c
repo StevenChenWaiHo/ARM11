@@ -12,7 +12,7 @@ int funcCounter = 1;
 void dis_br(Instr i, char *cond) {
   Instr offset = br_offset_mask(i);
   offset <<= 2;
-  if ((offset >> 23) & 0x1) {
+  if ((offset >> 25) & 0x1) {
     offset |= 0xFC000000;
   }
 
