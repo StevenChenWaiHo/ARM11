@@ -37,6 +37,9 @@ $(TIMESTAMP): Makefile
 	mkdir -p $(BUILD_DIR)/lib
 	touch $@
 
+lib/mask.c: maskgen.py 
+	python maskgen.py
+
 debug:
 	@echo "CMD_SRC = $(CMD_SRC)"
 	@echo "CMD_OBJ = $(CMD_OBJ)"
@@ -44,6 +47,8 @@ debug:
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -f lib/mask.c
+	rm -f include/mask.h
 
 .PHONY: clean debug
 

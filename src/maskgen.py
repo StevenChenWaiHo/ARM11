@@ -1,11 +1,19 @@
+mask_c = """#include "mask.h"\n#include "core.h"\n\n"""
+mask_h = """#ifndef AEMU_MASK_H
+#define AEMU_MASK_H
+
+#include "core.h"\n\n"""
+
 def maskgen(name, start, l):
+    global mask_h
+    global mask_c
     bits = "1" * l + "0" * start
     shift = start 
     h = hex(eval("0b" + bits))
     #return f"const Instr {name.upper()}_MASK = {h};"
     name += "_mask"
-    func = f"Instr {name:20}(Instr i) {{ return (i & {h:10})>> {shift:3}; }}"
-    return func
+    mask_c += f"Instr {name}(Instr i) {{ return (i & {h}) >> {shift}; }}\n"
+    mask_h += f"Instr {name}(Instr);\n"
 
 
 if __name__ == "__main__":
@@ -19,4 +27,7 @@ if __name__ == "__main__":
         ("dp_rd", 12, 4),
         ("dp_operand2", 0, 12),
     ]:
-        print(maskgen(*i))
+        maskgen(*i)
+    mask_h += "#endif\n"
+    open("lib/mask.c", "w").write(mask_c)
+    open("include/mask.h", "w").write(mask_h)

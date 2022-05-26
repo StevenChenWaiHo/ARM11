@@ -3,13 +3,12 @@
 
 #include "core.h"
 
-Instr cond_mask(Instr i);
-Instr type_mask(Instr i);
-Instr dp_opcode_mask(Instr i);
-Instr dp_i_mask(Instr i);
-Instr dp_s_mask(Instr i);
-Instr dp_rn_mask(Instr i);
-Instr dp_rd_mask(Instr i);
-Instr dp_operand2_mask(Instr i);
-
+Instr cond_mask(Instr);
+Instr type_mask(Instr);
+Instr dp_opcode_mask(Instr);
+Instr dp_i_mask(Instr);
+Instr dp_s_mask(Instr);
+Instr dp_rn_mask(Instr);
+Instr dp_rd_mask(Instr);
+Instr dp_operand2_mask(Instr);
 #endif
