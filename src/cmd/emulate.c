@@ -3,9 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef uint32_t Instr;
-
-#include "mask.inc"
+#include "core.h"
+#include "mask.h"
 
 void decode_dp(Instr i, char *cond) {
   Instr opcodeno = dp_opcode_mask(i);
