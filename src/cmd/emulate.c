@@ -16,12 +16,14 @@ int main(int argc, char **argv) {
 
   FILE *in = fopen(input, "r");
   fseek(in, 0, SEEK_END);
-  long len = ftell(in) / sizeof(Instr);
+  long lenb = ftell(in);
   fseek(in, 0, SEEK_SET);
   // TODO: Handle errors
 
-  Instr *code = malloc(len);
+  Instr *code = malloc(lenb);
   // TODO: Handle alloc failure
+
+  long len = lenb / sizeof(Instr);
 
   fread(code, sizeof(Instr), len, in);
   // TODO: Handle error, TOCTOU
