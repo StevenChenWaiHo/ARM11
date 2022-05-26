@@ -5,6 +5,10 @@
 #include "dis.h"
 #include "mask.h"
 
+const char *regname[17] = {"r0",  "r1", "r2", "r3", "r4",  "r4",
+                           "r6",  "r7", "r8", "r8", "r10", "r11",
+                           "r12", "sp", "lr", "pc", "cspr"};
+
 void dis(int offset, Instr i) {
   printf("%03d: %08x\n", offset, i);
   Instr condno = cond_mask(i);
