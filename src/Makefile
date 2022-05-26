@@ -2,7 +2,7 @@ CC      = gcc
 CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 
 
 CMD_SRC = assemble.c emulate.c
-LIB_SRC = mask.c dis.c dis_br.c dis_dp.c dis_mul.c
+LIB_SRC = mask.c dis.c dis_br.c dis_dp.c dis_mul.c dis_sdt.c
 
 BUILD_DIR = build
 
@@ -12,6 +12,12 @@ MAKEFLAGS += --no-builtin-rules # No Implict rules
 .SECONDARY: # Don't remove object files
 
 CFLAGS += -I include
+
+ifdef ASAN
+	CFLAGS += -fsanitize=address
+	CC = clang
+	BUILD_DIR = build-asan
+endif
 
 CMD_OBJ = $(CMD_SRC:%.c=$(BUILD_DIR)/cmd/%.o)
 CMD_BIN = $(CMD_SRC:%.c=$(BUILD_DIR)/bin/%)
@@ -38,7 +44,12 @@ $(TIMESTAMP): Makefile
 	touch $@
 
 lib/mask.c: maskgen.py 
+<<<<<<< src/Makefile
+	python maskgen.py
+include/mask.h: lib/mask.c
+=======
 	python3 maskgen.py
+>>>>>>> src/Makefile
 
 debug:
 	@echo "CMD_SRC = $(CMD_SRC)"
@@ -50,6 +61,10 @@ clean:
 	rm -f lib/mask.c
 	rm -f include/mask.h
 
-.PHONY: clean debug
+fmt:
+	find -name '*.c' -o -name '*.h' | xargs clang-format -i
+	black .
+
+.PHONY: clean debug fmt
 
 -include $(DEPS)

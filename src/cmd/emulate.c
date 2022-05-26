@@ -16,18 +16,18 @@ int main(int argc, char **argv) {
 
   FILE *in = fopen(input, "r");
   if (!in) {
-    fprintf(stderr, "Cannot open %s\n", input);
+    fprintf(stderr, "Failed to open %s\n", input);
     return EXIT_FAILURE;
   }
   fseek(in, 0, SEEK_END);
-  long lenb = ftell(in) ;
+  long lenb = ftell(in);
   fseek(in, 0, SEEK_SET);
   // TODO: Handle errors
 
   Instr *code = malloc(lenb);
   // TODO: Handle alloc failure
 
-  long len = lenb/sizeof(Instr);
+  long len = lenb / sizeof(Instr);
 
   fread(code, sizeof(Instr), len, in);
   // TODO: Handle error, TOCTOU
@@ -40,4 +40,6 @@ int main(int argc, char **argv) {
   for (int i = 0; i < len; i++) {
     dis(i, code[i]);
   }
+
+  free(code);
 }

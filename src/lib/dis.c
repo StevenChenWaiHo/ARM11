@@ -35,13 +35,11 @@ void dis(int offset, Instr i) {
     fprintf(stderr, "Unknown cond %x\n", condno);
     exit(EXIT_FAILURE);
   }
-  // printf(" cond: %s\n", cond);
-  Instr type = type_mask(i);
-  printf(" type: %d\n", type);
+
   Instr type_mul = type_mul_mask(i);
+  
   switch (type) {
   case 0: // Data processing or multiply
-          // TODO: Is this data processing or multiply?
     if (type_mul == 9){
       dis_mul(i, cond);
     }
@@ -50,6 +48,8 @@ void dis(int offset, Instr i) {
     }
     break;
   case 1: // Single data transfer
+    dis_sdt(i, cond);
+    break;
   case 2: // Branch
     dis_br(i, cond);
     break;
