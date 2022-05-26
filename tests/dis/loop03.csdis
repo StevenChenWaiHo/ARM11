@@ -1,0 +1,4 @@
+ 0  0a 20 a0 e3  mov	r2, #0xa
+ 4  01 20 42 e2  sub	r2, r2, #1
+ 8  00 00 52 e3  cmp	r2, #0
+ c  fc ff ff 1a  bne	#4

@@ -1,0 +1,5 @@
+ 0  0c 10 a0 e3  mov	r1, #0xc
+ 4  0a 20 a0 e3  mov	r2, #0xa
+ 8  0e 30 a0 e3  mov	r3, #0xe
+ c  00 40 93 e5  ldr	r4, [r3]
+10  22 51 91 e7  ldr	r5, [r1, r2, lsr #2]

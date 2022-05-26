@@ -1,0 +1,3 @@
+ 0  0f 10 a0 e3  mov	r1, #0xf
+ 4  ff 20 a0 e3  mov	r2, #0xff
+ 8  02 30 21 e0  eor	r3, r1, r2
