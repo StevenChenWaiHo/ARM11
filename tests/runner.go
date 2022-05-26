@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"gitlab.doc.ic.ac.uk/lab2122_summer/arm11_39/tests/runner"
 )
@@ -31,7 +32,7 @@ func main() {
 	}*/
 
 	// aemu bless
-	for _, p := range paths {
+	/*for _, p := range paths {
 		if !p.IsDir() && path.Ext(p.Name()) == "" {
 			aemuDis, err := runner.AemuDis("tests/dis/" + p.Name())
 			if err != nil {
@@ -39,6 +40,23 @@ func main() {
 			} else {
 				runner.Must(os.WriteFile("tests/dis/"+p.Name()+".aemudis", []byte(aemuDis), 0644))
 			}
+		}
+	}*/
+	for _, p := range paths {
+		if !p.IsDir() && path.Ext(p.Name()) == "" {
+			aemuDis, err := os.ReadFile("tests/dis/" + p.Name() + ".aemudis")
+			if err != nil {
+				log.Printf("Fail to get output for `%s`", p.Name())
+				continue
+			}
+			csDis, err := os.ReadFile("tests/dis/" + p.Name() + ".csdis")
+			if err != nil {
+				log.Printf("CS FAIL %s", p.Name())
+				continue
+			}
+			runner.CompareDis(p.Name(),
+				strings.TrimSpace(string(aemuDis)),
+				strings.TrimSpace(string(csDis)))
 		}
 	}
 }
