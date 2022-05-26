@@ -2,7 +2,7 @@ CC      = gcc
 CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 
 
 CMD_SRC = assemble.c emulate.c
-LIB_SRC = mask.c dis.c dis_dp.c
+LIB_SRC = mask.c dis.c dis_dp.c dis_sdt.c
 
 BUILD_DIR = build
 
@@ -12,6 +12,12 @@ MAKEFLAGS += --no-builtin-rules # No Implict rules
 .SECONDARY: # Don't remove object files
 
 CFLAGS += -I include
+
+ifdef ASAN
+	CFLAGS += -fsanitize=address
+	CC = clang
+	BUILD_DIR = build-asan
+endif
 
 CMD_OBJ = $(CMD_SRC:%.c=$(BUILD_DIR)/cmd/%.o)
 CMD_BIN = $(CMD_SRC:%.c=$(BUILD_DIR)/bin/%)
