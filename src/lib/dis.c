@@ -38,10 +38,11 @@ void dis(int offset, Instr i) {
 
   Instr type = type_mask(i);
   Instr type_mul = type_mul_mask(i);
-
+  Instr type_mul2 = type_mul2_mask(i);
+  
   switch (type) {
   case 0: // Data processing or multiply
-    if (type_mul == 9) {
+    if (type_mul == 0 && type_mul2 == 9) {
       dis_mul(i, cond);
     } else {
       dis_dp(i, cond);

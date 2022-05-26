@@ -6,6 +6,7 @@
 Instr cond_mask(Instr);
 Instr type_mask(Instr);
 Instr type_mul_mask(Instr);
+Instr type_mul2_mask(Instr);
 Instr dp_opcode_mask(Instr);
 Instr dp_i_mask(Instr);
 Instr dp_s_mask(Instr);
