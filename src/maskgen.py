@@ -22,7 +22,8 @@ if __name__ == "__main__":
         # Top level dispatch
         ("cond", 28, 4),
         ("type", 26, 2),
-        ("type_mul", 4, 4),
+        ("type_mul", 22, 4),
+        ("type_mul2", 4, 4),
         # Data processing
         ("dp_opcode", 21, 4),
         ("dp_i", 25, 1),

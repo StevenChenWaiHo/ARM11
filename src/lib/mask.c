@@ -3,7 +3,8 @@
 
 Instr cond_mask(Instr i) { return (i & 0xf0000000) >> 28; }
 Instr type_mask(Instr i) { return (i & 0xc000000) >> 26; }
-Instr type_mul_mask(Instr i) { return (i & 0xf0) >> 4; }
+Instr type_mul_mask(Instr i) { return (i & 0x3c00000) >> 22; }
+Instr type_mul2_mask(Instr i) { return (i & 0xf0) >> 4; }
 Instr dp_opcode_mask(Instr i) { return (i & 0x1e00000) >> 21; }
 Instr dp_i_mask(Instr i) { return (i & 0x2000000) >> 25; }
 Instr dp_s_mask(Instr i) { return (i & 0x100000) >> 20; }
