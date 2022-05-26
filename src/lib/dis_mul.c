@@ -14,9 +14,9 @@ void dis_mul(Instr i, char *cond) {
   Instr rs = mul_rs_mask(i);
   Instr rm = mul_rm_mask(i);
 
-  if (a){
+  if (a) {
     printf("mla%s r%d, r%d, r%d, r%d\n", cond, rd, rm, rs, rn);
-  }else{
+  } else {
     printf("mul%s  r%d, r%d, r%d\n", cond, rd, rm, rs);
   }
 }

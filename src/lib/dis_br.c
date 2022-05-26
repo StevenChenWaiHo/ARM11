@@ -10,13 +10,12 @@
 int funcCounter = 1;
 
 void dis_br(Instr i, char *cond) {
-    Instr offset = dp_branch_mask(i);
-    offset <<= 2;
-    if ((offset>>23) & 0x1) {
-        offset |= 0xFC000000;
-    }
+  Instr offset = dp_branch_mask(i);
+  offset <<= 2;
+  if ((offset >> 23) & 0x1) {
+    offset |= 0xFC000000;
+  }
 
-    // branch command
-    printf("b%s #%d\n", cond, offset + 8);
-
+  // branch command
+  printf("b%s #%d\n", cond, offset + 8);
 }

@@ -6,6 +6,7 @@
 Instr cond_mask(Instr);
 Instr type_mask(Instr);
 Instr dp_opcode_mask(Instr);
+Instr type_mul_mask(Instr);
 Instr dp_i_mask(Instr);
 Instr dp_s_mask(Instr);
 Instr dp_rn_mask(Instr);
@@ -18,11 +19,11 @@ Instr sdt_rn_mask(Instr);
 Instr sdt_rd_mask(Instr);
 Instr sdt_offset_mask(Instr);
 Instr sdt_l_mask(Instr);
-Instr type_mul_mask(Instr);
 Instr mul_a_mask(Instr);
 Instr mul_s_mask(Instr);
 Instr mul_rd_mask(Instr);
 Instr mul_rn_mask(Instr);
 Instr mul_rs_mask(Instr);
 Instr mul_rm_mask(Instr);
+Instr dp_branch_mask(Instr);
 #endif
