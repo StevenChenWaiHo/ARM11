@@ -57,6 +57,10 @@ clean:
 	rm -f lib/mask.c
 	rm -f include/mask.h
 
-.PHONY: clean debug
+fmt:
+	find -name '*.c' -o -name '*.h' | xargs clang-format -i
+	black .
+
+.PHONY: clean debug fmt
 
 -include $(DEPS)
