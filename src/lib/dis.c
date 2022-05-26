@@ -38,10 +38,16 @@ void dis(int offset, Instr i) {
   // printf(" cond: %s\n", cond);
   Instr type = type_mask(i);
   printf(" type: %d\n", type);
+  Instr type_mul = type_mul_mask(i);
   switch (type) {
   case 0: // Data processing or multiply
           // TODO: Is this data processing or multiply?
-    dis_dp(i, cond);
+    if (type_mul == 9){
+      dis_mul(i, cond);
+    }
+    else{
+      dis_dp(i, cond);
+    }
     break;
   case 1: // Single data transfer
   case 2: // Branch

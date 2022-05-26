@@ -15,16 +15,23 @@ int main(int argc, char **argv) {
   char *output = argv[2];
 
   FILE *in = fopen(input, "r");
+  if (!in) {
+    fprintf(stderr, "Cannot open %s\n", input);
+    return EXIT_FAILURE;
+  }
   fseek(in, 0, SEEK_END);
-  long len = ftell(in) / sizeof(Instr);
+  long lenb = ftell(in) ;
   fseek(in, 0, SEEK_SET);
   // TODO: Handle errors
 
-  Instr *code = malloc(len);
+  Instr *code = malloc(lenb);
   // TODO: Handle alloc failure
+
+  long len = lenb/sizeof(Instr);
 
   fread(code, sizeof(Instr), len, in);
   // TODO: Handle error, TOCTOU
+
 
   for (int i = 0; i < len; i++) {
     printf("%d: %08x\n", i, code[i]);

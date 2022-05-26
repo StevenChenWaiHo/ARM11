@@ -11,4 +11,11 @@ Instr dp_s_mask(Instr);
 Instr dp_rn_mask(Instr);
 Instr dp_rd_mask(Instr);
 Instr dp_operand2_mask(Instr);
+Instr type_mul_mask(Instr);
+Instr mul_a_mask(Instr);
+Instr mul_s_mask(Instr);
+Instr mul_rd_mask(Instr);
+Instr mul_rn_mask(Instr);
+Instr mul_rs_mask(Instr);
+Instr mul_rm_mask(Instr);
 #endif
