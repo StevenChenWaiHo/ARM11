@@ -26,6 +26,7 @@ if __name__ == "__main__":
         ("dp_rn", 16, 4),
         ("dp_rd", 12, 4),
         ("dp_operand2", 0, 12),
+        ("dp_branch", 0, 24)
     ]:
         maskgen(*i)
     mask_h += "#endif\n"
