@@ -51,6 +51,8 @@ void dis(int offset, Instr i) {
     break;
   case 1: // Single data transfer
   case 2: // Branch
+    dis_br(i, cond);
+    break;
     printf("TODO\n");
     exit(-1);
   }
