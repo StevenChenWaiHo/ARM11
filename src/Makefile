@@ -45,6 +45,7 @@ $(TIMESTAMP): Makefile
 
 lib/mask.c: maskgen.py 
 	python maskgen.py
+include/mask.h: lib/mask.c
 
 debug:
 	@echo "CMD_SRC = $(CMD_SRC)"
