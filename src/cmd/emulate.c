@@ -15,6 +15,10 @@ int main(int argc, char **argv) {
   char *output = argv[2];
 
   FILE *in = fopen(input, "r");
+  if (!in) {
+    fprintf(stderr, "Failed to open %s\n", input);
+    return EXIT_FAILURE;
+  }
   fseek(in, 0, SEEK_END);
   long lenb = ftell(in);
   fseek(in, 0, SEEK_SET);
@@ -35,4 +39,6 @@ int main(int argc, char **argv) {
   for (int i = 0; i < len; i++) {
     dis(i, code[i]);
   }
+
+  free(code);
 }
