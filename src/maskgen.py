@@ -22,6 +22,7 @@ if __name__ == "__main__":
         ("cond", 28, 4),
         ("type", 26, 2),
         ("dp_opcode", 21, 4),
+        ("type_mul", 4, 4),
         ("dp_i", 25, 1),
         ("dp_s", 20, 1),
         ("dp_rn", 16, 4),
@@ -34,6 +35,13 @@ if __name__ == "__main__":
         ("sdt_rd", 12, 4),
         ("sdt_offset", 0, 12),
         ("sdt_l", 20, 1),
+        ("mul_a", 21, 1),
+        ("mul_s", 20, 1),
+        ("mul_rd", 16, 4),
+        ("mul_rn", 12, 4),
+        ("mul_rs", 8, 4),
+        ("mul_rm", 0, 4),
+        ("dp_branch", 0, 24),
     ]:
         maskgen(*i)
     mask_h += "#endif\n"

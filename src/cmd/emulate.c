@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
   fread(code, sizeof(Instr), len, in);
   // TODO: Handle error, TOCTOU
 
+
   for (int i = 0; i < len; i++) {
     printf("%d: %08x\n", i, code[i]);
   }

@@ -18,4 +18,11 @@ Instr sdt_rn_mask(Instr);
 Instr sdt_rd_mask(Instr);
 Instr sdt_offset_mask(Instr);
 Instr sdt_l_mask(Instr);
+Instr type_mul_mask(Instr);
+Instr mul_a_mask(Instr);
+Instr mul_s_mask(Instr);
+Instr mul_rd_mask(Instr);
+Instr mul_rn_mask(Instr);
+Instr mul_rs_mask(Instr);
+Instr mul_rm_mask(Instr);
 #endif
