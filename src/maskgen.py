@@ -4,13 +4,14 @@ mask_h = """#ifndef AEMU_MASK_H
 
 #include "core.h"\n\n"""
 
+
 def maskgen(name, start, l):
     global mask_h
     global mask_c
     bits = "1" * l + "0" * start
-    shift = start 
+    shift = start
     h = hex(eval("0b" + bits))
-    #return f"const Instr {name.upper()}_MASK = {h};"
+    # return f"const Instr {name.upper()}_MASK = {h};"
     name += "_mask"
     mask_c += f"Instr {name}(Instr i) {{ return (i & {h}) >> {shift}; }}\n"
     mask_h += f"Instr {name}(Instr);\n"
@@ -26,6 +27,13 @@ if __name__ == "__main__":
         ("dp_rn", 16, 4),
         ("dp_rd", 12, 4),
         ("dp_operand2", 0, 12),
+        ("type_mul", 4, 4),
+        ("mul_a", 21, 1),
+        ("mul_s", 20, 1),
+        ("mul_rd", 16, 4),
+        ("mul_rn", 12, 4),
+        ("mul_rs", 8, 4),
+        ("mul_rm", 0, 4),
     ]:
         maskgen(*i)
     mask_h += "#endif\n"
