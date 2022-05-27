@@ -39,22 +39,20 @@ void dis(int offset, Instr i) {
   Instr type = type_mask(i);
   Instr type_mul = type_mul_mask(i);
   Instr type_mul2 = type_mul2_mask(i);
-  
+
   switch (type) {
   case 0: // Data processing or multiply
-    if (type_mul == 0 && type_mul2 == 9) {
-      dis_mul(i, cond);
-    } else {
-      dis_dp(i, cond);
-    }
-    break;
+    if (type_mul == 0 && type_mul2 == 9)
+      return dis_mul(i, cond);
+    else
+      return dis_dp(i, cond);
   case 1: // Single data transfer
-    dis_sdt(i, cond);
+    return dis_sdt(i, cond);
     break;
   case 2: // Branch
-    dis_br(i, cond);
-    break;
-    printf("TODO\n");
-    exit(-1);
+    return dis_br(i, cond);
+  default:
+    fprintf(stderr, "Unknown type %x\n", type);
+    exit(EXIT_FAILURE);
   }
 }
