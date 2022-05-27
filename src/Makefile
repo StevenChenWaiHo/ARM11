@@ -17,6 +17,14 @@ ifdef ASAN
 	CFLAGS += -fsanitize=address
 	CC = clang
 	BUILD_DIR = build-asan
+else ifdef MSAN 
+	CFLAGS += -fsanitize=memory
+	CC = clang
+	BUILD_DIR = build-msan
+else ifdef UBSAN
+	CFLAGS += -fsanitize=undefined
+	CC = clang
+	BUILD_DIR = build-ubsan
 endif
 
 CMD_OBJ = $(CMD_SRC:%.c=$(BUILD_DIR)/cmd/%.o)
@@ -62,5 +70,12 @@ fmt:
 	black .
 
 .PHONY: clean debug fmt
+
+asan:
+	$(MAKE) ASAN=1
+msan:
+	$(MAKE) MSAN=1
+ubsan:
+	$(MAKE) UBSAN=1
 
 -include $(DEPS)
