@@ -9,8 +9,8 @@ sub r1, r1, #1
 004: e1510002
 cmp r1, r0, #2
 005: 1afffffc
-bne #-8
+bne #0xc
 006: e3520000
 cmp r2, r0, #0
 007: 1afffff8
-bne #-24
+bne #0x4

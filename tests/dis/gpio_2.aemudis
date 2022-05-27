@@ -23,6 +23,6 @@ cmp r2, r0, #0
 011: e580101c
 str r1, [r0, #28]
 012: 1afffffa
-bne #-16
+bne #0x20
 013: 00000000
 andeq r0, r0, #0
