@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"io/ioutil"
 	"log"
 	"os"
@@ -18,7 +19,7 @@ func main() {
 	runner.Must(err)
 
 	// cstool bless
-	/*for _, p := range paths {
+	for _, p := range paths {
 		if !p.IsDir() && path.Ext(p.Name()) == "" {
 			f, err := os.Open("tests/dis/" + p.Name())
 			runner.Must(err)
@@ -29,10 +30,10 @@ func main() {
 			err = os.WriteFile("tests/dis/"+p.Name()+".csdis", []byte(csDis), 0644)
 			runner.Must(err)
 		}
-	}*/
+	}
 
 	// aemu bless
-	/*for _, p := range paths {
+	for _, p := range paths {
 		if !p.IsDir() && path.Ext(p.Name()) == "" {
 			aemuDis, err := runner.AemuDis("tests/dis/" + p.Name())
 			if err != nil {
@@ -41,7 +42,7 @@ func main() {
 				runner.Must(os.WriteFile("tests/dis/"+p.Name()+".aemudis", []byte(aemuDis), 0644))
 			}
 		}
-	}*/
+	}
 	for _, p := range paths {
 		if !p.IsDir() && path.Ext(p.Name()) == "" {
 			aemuDis, err := os.ReadFile("tests/dis/" + p.Name() + ".aemudis")
