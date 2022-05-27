@@ -5,40 +5,16 @@
 #include "dis.h"
 #include "mask.h"
 
-const char *regname[17] = {"r0",  "r1", "r2", "r3", "r4",  "r5",
-                           "r6",  "r7", "r8", "r8", "r10", "r11",
-                           "r12", "sp", "lr", "pc", "cspr"};
+const char *regname[] = {"r0",  "r1", "r2", "r3", "r4",  "r5",
+                         "r6",  "r7", "r8", "r8", "r10", "r11",
+                         "r12", "sp", "lr", "pc", "cspr"};
+const char *condname[] = {[0] = "eq",  [1] = "ne",  [10] = "ge", [11] = "lt",
+                          [12] = "gt", [13] = "le", [14] = ""};
 
 void dis(int offset, Instr i) {
   printf("%03d: %08x\n", offset, i);
   Instr condno = cond_mask(i);
-  char *cond;
-  switch (condno) {
-  case 0:
-    cond = "eq";
-    break;
-  case 1:
-    cond = "ne";
-    break;
-  case 10:
-    cond = "ge";
-    break;
-  case 11:
-    cond = "lt";
-    break;
-  case 12:
-    cond = "gt";
-    break;
-  case 13:
-    cond = "le";
-    break;
-  case 14:
-    cond = "";
-    break;
-  default:
-    fprintf(stderr, "Unknown cond %x\n", condno);
-    exit(EXIT_FAILURE);
-  }
+  char *cond = condname[condno];
 
   Instr type = type_mask(i);
   Instr type_mul = type_mul_mask(i);

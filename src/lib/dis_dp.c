@@ -38,44 +38,15 @@ void print_type_2_args(Instr imm, char *opcode, char *cond, Instr rn,
   }
 }
 
+static char *opcodename[] = {
+    [0] = "and",  [1] = "eor",  [2] = "sub",  [3] = "rsb",
+    [4] = "add",  [8] = "tst",  [9] = "teq",  [10] = "cmp",
+    [11] = "cmp", [12] = "orr", [13] = "mov",
+};
+
 void dis_dp(Instr i, char *cond) {
   Instr opcodeno = dp_opcode_mask(i);
-  char *opcode;
-  switch (opcodeno) {
-  case 0:
-    opcode = "and";
-    break;
-  case 1:
-    opcode = "eor";
-    break;
-  case 2:
-    opcode = "sub";
-    break;
-  case 3:
-    opcode = "rsb";
-    break;
-  case 4:
-    opcode = "add";
-    break;
-  case 8:
-    opcode = "tst";
-    break;
-  case 9:
-    opcode = "teq";
-    break;
-  case 10:
-    opcode = "cmp";
-    break;
-  case 12:
-    opcode = "orr";
-    break;
-  case 13:
-    opcode = "mov";
-    break;
-  default:
-    printf("Unknown opcode %d\n", opcodeno);
-    exit(-1);
-  }
+  char *opcode = opcodename[opcodeno];
 
   Instr imm = dp_i_mask(i);
   Instr rn = dp_rn_mask(i);
