@@ -35,8 +35,10 @@ void dis_sdt(Instr instr, char *cond) {
   Instr offset = sdt_offset_mask(instr);
 
   char *iname = l ? "ldr" : "str";
+  char *sign = u ? "" : "-";
 
   // See "Arm Assembly Language: Fundamentals and Tecniques" by William Hohl
+  // TODO: Compine ip to single mask
   if (!i && p) {
     // 01 01
     // Immediate offset p306
@@ -52,13 +54,12 @@ void dis_sdt(Instr instr, char *cond) {
     // Register offset p307/308
     // think about UBL
     Instr rm = sdt_rm_mask(instr);
-    char *sign = u ? "" : "-";
     if (std_noshift_mask(instr)) {
       // 308
       Instr shift_imm = sdt_shift_imm_mask(instr);
       Instr shift = sdt_shift_mask(instr);
 
-      printf("%s%s %s, [%s, %s%s, %s #%d", iname, cond, regname[rd],
+      printf("%s%s %s, [%s, %s%s, %s #%d]\n", iname, cond, regname[rd],
              regname[rn], sign, regname[rm], shift_name(shift), shift_imm);
     } else {
       // 307
@@ -69,8 +70,8 @@ void dis_sdt(Instr instr, char *cond) {
     // 01 00
     // Imediate Post indexed p312
     // think about UBL
-    printf("TODO");
-    exit(-1);
+    printf("%s%s %s, [%s], #%s%d\n", iname, cond, regname[rd], regname[rn],
+           sign, offset);
   } else if (i && !p) {
     // 01 10
     // Register post indexed p313/314
@@ -82,8 +83,6 @@ void dis_sdt(Instr instr, char *cond) {
     } else {
       // 313
       Instr rm = sdt_rm_mask(instr);
-      char *sign = u ? "" : "-";
-
       printf("%s%s %s, [%s], %s%s\n", iname, cond, regname[rd], regname[rn],
              sign, regname[rm]);
     }
