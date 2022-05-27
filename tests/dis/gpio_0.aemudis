@@ -3,6 +3,6 @@ ldr r0, [pc, #8]
 001: e5902000
 ldr r2, [r0]
 002: e1520000
-cmp r2, r0, #0
+cmp r2, r0
 003: 00000000
-andeq r0, r0, #0
+andeq r0, r0, r0

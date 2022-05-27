@@ -1,4 +1,4 @@
 000: e3a01000
-mov r0, r1, #0
+mov r1, #0x0
 001: e38120ab
-orr r1, r2, #171
+orr r2, r1, #0xab

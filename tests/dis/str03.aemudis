@@ -1,15 +1,15 @@
 000: e3a02002
-mov r0, r2, #2
+mov r2, #0x2
 001: e3a00001
-mov r0, r0, #1
+mov r0, #0x1
 002: e3a01063
-mov r0, r1, #99
+mov r1, #0x63
 003: e5801003
 str r1, [r0, #3]
 004: e2422001
-sub r2, r2, #1
+sub r2, r2, #0x1
 005: e3520000
-cmp r2, r0, #0
+cmp r2, #0x0
 006: e5801008
 str r1, [r0, #8]
 007: 1afffffb

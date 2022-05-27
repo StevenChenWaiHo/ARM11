@@ -1,8 +1,8 @@
 000: e3a01001
-mov r0, r1, #1
+mov r1, #0x1
 001: e3a02002
-mov r0, r2, #2
+mov r2, #0x2
 002: e0813002
-add r1, r3, #2
+add r3, r1, r2
 003: e2834004
-add r3, r4, #4
+add r4, r3, #0x4
