@@ -1,0 +1,2 @@
+ 0  00 10 a0 e3  mov	r1, #0
+ 4  ab 20 81 e3  orr	r2, r1, #0xab

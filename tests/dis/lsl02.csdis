@@ -1,0 +1,2 @@
+ 0  ff 10 a0 e3  mov	r1, #0xff
+ 4  81 1f a0 e1  lsl	r1, r1, #0x1f

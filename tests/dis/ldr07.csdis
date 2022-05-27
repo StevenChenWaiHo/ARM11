@@ -1,0 +1,3 @@
+ 0  00 20 9f e5  ldr	r2, [pc]
+ 4  00 00 00 00  andeq	r0, r0, r0
+ 8  20 00 20 20  eorhs	r0, r0, r0, lsr #32

@@ -1,0 +1,4 @@
+ 0  04 00 9f e5  ldr	r0, [pc, #4]
+ 4  1c 00 81 e5  str	r0, [r1, #0x1c]
+ 8  00 00 00 00  andeq	r0, r0, r0
+ c  00 00 20 20  eorhs	r0, r0, r0

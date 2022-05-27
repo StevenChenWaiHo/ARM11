@@ -1,0 +1,11 @@
+ 0  20 00 9f e5  ldr	r0, [pc, #0x20]
+ 4  01 10 a0 e3  mov	r1, #1
+ 8  01 13 a0 e1  lsl	r1, r1, #6
+ c  08 10 80 e5  str	r1, [r0, #8]
+10  01 10 a0 e3  mov	r1, #1
+14  01 1b a0 e1  lsl	r1, r1, #0x16
+18  28 10 80 e5  str	r1, [r0, #0x28]
+1c  01 20 42 e2  sub	r2, r2, #1
+20  1c 10 80 e5  str	r1, [r0, #0x1c]
+24  00 00 00 00  andeq	r0, r0, r0
+28  00 00 20 20  eorhs	r0, r0, r0

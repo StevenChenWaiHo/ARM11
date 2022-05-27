@@ -1,0 +1,9 @@
+ 0  01 00 a0 e3  mov	r0, #1
+ 4  05 10 a0 e3  mov	r1, #5
+ 8  91 00 02 e0  mul	r2, r1, r0
+ c  02 00 a0 e1  mov	r0, r2
+10  01 10 41 e2  sub	r1, r1, #1
+14  00 00 51 e3  cmp	r1, #0
+18  fa ff ff 1a  bne	#8
+1c  01 3c a0 e3  mov	r3, #0x100
+20  00 20 83 e5  str	r2, [r3]

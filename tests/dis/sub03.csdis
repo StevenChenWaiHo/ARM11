@@ -1,0 +1,2 @@
+ 0  ff 10 a0 e3  mov	r1, #0xff
+ 4  01 20 41 e0  sub	r2, r1, r1

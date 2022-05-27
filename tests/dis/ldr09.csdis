@@ -1,0 +1,5 @@
+ 0  08 20 9f e5  ldr	r2, [pc, #8]
+ 4  02 10 82 e2  add	r1, r2, #2
+ 8  02 00 33 e3  teq	r3, #2
+ c  00 00 00 00  andeq	r0, r0, r0
+10  20 00 20 20  eorhs	r0, r0, r0, lsr #32
