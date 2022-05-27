@@ -13,6 +13,8 @@ Instr dp_s_mask(Instr);
 Instr dp_rn_mask(Instr);
 Instr dp_rd_mask(Instr);
 Instr dp_operand2_mask(Instr);
+Instr dp_operand2_rotate_mask(Instr);
+Instr dp_operand2_imm_mask(Instr);
 Instr sdt_mode_mask(Instr);
 Instr sdt_u_mask(Instr);
 Instr sdt_l_mask(Instr);

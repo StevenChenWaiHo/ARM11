@@ -3,6 +3,6 @@ ldr r0, [pc, #8]
 001: e59f2008
 ldr r2, [pc, #8]
 002: e2822008
-add r2, r2, #8
+add r2, r2, #0x8
 003: 00000000
-andeq r0, r0, #0
+andeq r0, r0, r0

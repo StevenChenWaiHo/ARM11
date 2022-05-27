@@ -1,8 +1,8 @@
 000: e3a0283f
-mov r0, r2, #2111
+mov r2, #0x3f0000
 001: e2422001
-sub r2, r2, #1
+sub r2, r2, #0x1
 002: e35200ff
-cmp r2, r0, #255
+cmp r2, #0xff
 003: 1afffffc
 bne #0x4

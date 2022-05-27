@@ -3,4 +3,4 @@ ldr r0, [pc, #4]
 001: e581001c
 str r0, [r1, #28]
 002: 00000000
-andeq r0, r0, #0
+andeq r0, r0, r0

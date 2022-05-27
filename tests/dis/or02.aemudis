@@ -1,6 +1,6 @@
 000: e3a0100f
-mov r0, r1, #15
+mov r1, #0xf
 001: e3a020ab
-mov r0, r2, #171
+mov r2, #0xab
 002: e1813002
-orr r1, r3, #2
+orr r3, r1, r2
