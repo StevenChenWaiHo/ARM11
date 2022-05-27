@@ -11,19 +11,7 @@ ldr Load register Rd := (address) Single Data Transfer
 str Store register (address) := Rd Single Data Transfer
 */
 
-static char *shift_name(Instr s) {
-  switch (s) {
-  case 0:
-    return "lsl";
-  case 1:
-    return "lsr";
-  case 2:
-    return "asr";
-  case 3:
-    return "ror"; // TODO: ROR or RRX?
-  }
-  assert(0); // Invariant
-}
+static char *shiftname[] = {[0] = "lsl", [1] = "lsr", [2] = "asr", [3] = "ror"};
 
 void dis_sdt(Instr instr, char *cond) {
   Instr amode = sdt_mode_mask(instr);
@@ -66,7 +54,7 @@ void dis_sdt(Instr instr, char *cond) {
       Instr shift_imm = sdt_shift_imm_mask(instr);
       Instr shift = sdt_shift_mask(instr);
       printf("%s%s %s, [%s, %s%s, %s #%d]\n", iname, cond, regname[rd],
-             regname[rn], sign, regname[rm], shift_name(shift), shift_imm);
+             regname[rn], sign, regname[rm], shiftname[shift], shift_imm);
     } else { // 307
       printf("%s%s %s, [%s, %s%s]\n", iname, cond, regname[rd], regname[rn],
              sign, regname[rm]);
