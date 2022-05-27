@@ -32,8 +32,7 @@ if __name__ == "__main__":
         ("dp_rd", 12, 4),
         ("dp_operand2", 0, 12),
         # Signle data transfer
-        ("sdt_i", 25, 1),
-        ("sdt_p", 24, 1),
+        ("sdt_mode", 24, 2),
         ("sdt_u", 23, 1),
         ("sdt_l", 20, 1),
         ("sdt_rn", 16, 4),
