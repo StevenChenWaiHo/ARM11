@@ -14,10 +14,12 @@ var lexer = regexp.MustCompile(`[\s\t\[\]]+`)
 func CompareDis(name, aemuDis, csDis string) {
 	aLines := strings.Split(aemuDis, "\n")
 	for i, csLine := range strings.Split(csDis, "\n") {
-		// println(i, csLine)
 		aLine := aLines[i*2+1]
 		if compareLines(name, aLine, csLine) {
 			return
+		}
+		if strings.Contains(csLine, "00 00 00 00  andeq	r0, r0, r0") {
+			return // End of assebmly, start of data
 		}
 	}
 }
