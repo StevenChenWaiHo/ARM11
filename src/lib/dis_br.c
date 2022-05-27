@@ -9,13 +9,15 @@
 
 int funcCounter = 1;
 
-void dis_br(Instr i, char *cond) {
+void dis_br(Instr i, char *cond, int pc) {
   Instr offset = br_offset_mask(i);
   offset <<= 2;
   if ((offset >> 25) & 0x1) {
     offset |= 0xFC000000;
   }
 
+  int dest_addr = pc * 4 + offset + 8;
+
   // branch command
-  printf("b%s #%d\n", cond, offset + 8);
+  printf("b%s #0x%x\n", cond, dest_addr);
 }

@@ -13,4 +13,4 @@ cmp r2, r0, #0
 006: e5801008
 str r1, [r0, #8]
 007: 1afffffb
-bne #-12
+bne #0x10

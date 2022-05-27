@@ -5,7 +5,7 @@
 
 extern const char *regname[17];
 
-void dis_br(Instr i, char *cond);
+void dis_br(Instr i, char *cond, int pc);
 void dis_dp(Instr i, char *cond);
 void dis_mul(Instr i, char *cond);
 void dis_sdt(Instr i, char *cond);

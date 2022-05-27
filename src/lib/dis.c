@@ -55,7 +55,7 @@ void dis(int offset, Instr i) {
     dis_sdt(i, cond);
     break;
   case 2: // Branch
-    dis_br(i, cond);
+    dis_br(i, cond, offset);
     break;
   default:
     fprintf(stderr, "Unknown type %x\n", type);
