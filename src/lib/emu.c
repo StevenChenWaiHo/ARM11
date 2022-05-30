@@ -39,9 +39,11 @@ void emu(CpuState *cpu) {
         emu_mul(cpu, i);
       else
         emu_dp(cpu, i);
+      cpu->regs[REG_PC] += 4; 
       break;
     case 1: // Single data transfer
       emu_sdt(cpu, i);
+      cpu->regs[REG_PC] += 4; 
       break;
     case 2: // Branch
       emu_br(cpu, i);
@@ -50,8 +52,6 @@ void emu(CpuState *cpu) {
       fprintf(stderr, "Unknown type %x\n", type);
       exit(EXIT_FAILURE);
     }
-
-    cpu->regs[REG_PC] += 4; // TODO: When does this need to be chaned
   }
 }
 
