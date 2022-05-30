@@ -51,6 +51,7 @@ void emu(CpuState *cpu) {
         emu_sdt(cpu, decode);
         break;
       case 2: // Branch
+        fetch_empty = true;
         decode_empty = true;
         emu_br(cpu, decode);
         break;
