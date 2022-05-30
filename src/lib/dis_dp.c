@@ -3,13 +3,15 @@
 
 #include "core.h"
 #include "dis.h"
+#include "dp.h"
 #include "mask.h"
 
 // Dissasseble Data Processing Instructions
 
 static char *opcodename[] = {
-    [0] = "and", [1] = "eor", [2] = "sub",  [3] = "rsb",  [4] = "add",
-    [8] = "tst", [9] = "teq", [10] = "cmp", [12] = "orr", [13] = "mov"};
+    [DP_AND] = "and", [DP_EOR] = "eor", [DP_SUB] = "sub", [DP_RSB] = "rsb",
+    [DP_ADD] = "add", [DP_TST] = "tst", [DP_TEQ] = "teq", [DP_CMP] = "cmp",
+    [DP_ORR] = "orr", [DP_MOV] = "mov"};
 
 static Instr rotation_right(Instr n, Instr d) {
   return (n >> d) | (n << (32 - d));

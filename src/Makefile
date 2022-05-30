@@ -25,6 +25,9 @@ else ifdef UBSAN
 	CFLAGS += -fsanitize=undefined
 	CC = clang
 	BUILD_DIR = build-ubsan
+else ifdef TRACE
+	CFLAGS += -DAEMU_TRACE
+	BUILD_DIR = build-trace
 endif
 
 CMD_OBJ = $(CMD_SRC:%.c=$(BUILD_DIR)/cmd/%.o)
@@ -77,5 +80,7 @@ msan:
 	$(MAKE) MSAN=1
 ubsan:
 	$(MAKE) UBSAN=1
+trace:
+	$(MAKE) TRACE=1
 
 -include $(DEPS)
