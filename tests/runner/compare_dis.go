@@ -25,7 +25,7 @@ func CompareDis(name, aemuDis, csDis string) {
 }
 
 func isBusted(aLine string) bool {
-	for _, pre := range []string{"mov", "tst"} {
+	for _, pre := range []string{} {
 		if strings.HasPrefix(aLine, pre) {
 			return true
 		}

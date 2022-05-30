@@ -11,8 +11,6 @@ ldr Load register Rd := (address) Single Data Transfer
 str Store register (address) := Rd Single Data Transfer
 */
 
-static char *shiftname[] = {[0] = "lsl", [1] = "lsr", [2] = "asr", [3] = "ror"};
-
 void dis_sdt(Instr instr, char *cond) {
   Instr amode = sdt_mode_mask(instr);
   Instr ispos = sdt_u_mask(instr);
