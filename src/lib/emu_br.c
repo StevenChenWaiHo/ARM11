@@ -7,5 +7,5 @@ void emu_br(CpuState *cpu, Instr i) {
     offset |= 0xFC000000;
   }
   offset += 8;
-  cpu -> regs[REG_PC] += offset;
+  cpu->regs[REG_PC] += offset;
 }
