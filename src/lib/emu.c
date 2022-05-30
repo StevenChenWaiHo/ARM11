@@ -5,6 +5,9 @@
 #include <stdlib.h>
 
 #include "emu.h"
+#ifdef AEMU_TRACE
+#include "dis.h"
+#endif
 
 typedef bool (*CpuCondFn)(CpuState *);
 
@@ -20,15 +23,18 @@ void emu(CpuState *cpu) {
   for (;;) {
     Instr i = imem[cpu->regs[REG_PC] >> 2];
 #ifdef AEMU_TRACE
-    fprintf(stderr, "0x%x: %x\n", cpu->regs[REG_PC], i);
+    dis(cpu->regs[REG_PC] / 4, i);
+    printf("CSPR: %08x\n\n", cpu->regs[REG_CPSR]);
 #endif
     if (!i) // HLT special case
       break;
 
     Instr condno = cond_mask(i);
     CpuCondFn cond = condfns[condno];
-    if (!cond(cpu))
+    if (!cond(cpu)) {
+      cpu->regs[REG_PC] += 4;
       continue;
+    }
 
     Instr type = type_mask(i);
     Instr type_mul = type_mul_mask(i);
@@ -39,11 +45,11 @@ void emu(CpuState *cpu) {
         emu_mul(cpu, i);
       else
         emu_dp(cpu, i);
-      cpu->regs[REG_PC] += 4; 
+      cpu->regs[REG_PC] += 4;
       break;
     case 1: // Single data transfer
       emu_sdt(cpu, i);
-      cpu->regs[REG_PC] += 4; 
+      cpu->regs[REG_PC] += 4;
       break;
     case 2: // Branch
       emu_br(cpu, i);

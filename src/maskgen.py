@@ -2,6 +2,7 @@ mask_c = """#include "mask.h"\n#include "core.h"\n\n"""
 mask_h = """#ifndef AEMU_MASK_H
 #define AEMU_MASK_H
 
+#include <stdbool.h>
 #include "core.h"\n\n"""
 
 
@@ -9,12 +10,18 @@ def maskgen(name, start, l):
     global mask_h
     global mask_c
     bits = "1" * l + "0" * start
+    bits = eval("0b" + bits)
     shift = start
-    h = hex(eval("0b" + bits))
+    comp = 0xFFFF ^ bits
+    h = hex(bits)
     # return f"const Instr {name.upper()}_MASK = {h};"
-    name += "_mask"
-    mask_c += f"Instr {name}(Instr i) {{ return (i & {h}) >> {shift}; }}\n"
-    mask_h += f"Instr {name}(Instr);\n"
+    mask_name = name + "_mask"
+    mask_c += f"Instr {mask_name}(Instr i) {{ return (i & {h}) >> {shift}; }}\n"
+    mask_h += f"Instr {mask_name}(Instr);\n"
+    if l == 1:  # TODO: Generalizer setters.
+        set_name = "set_" + name
+        mask_h += f"Instr {set_name}(Instr, bool);\n"
+        mask_c += f"Instr {set_name}(Instr i, bool b) {{ return (i & ~{h}) | (b << {shift}); }}\n"
 
 
 if __name__ == "__main__":
