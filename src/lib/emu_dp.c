@@ -4,15 +4,15 @@
 
 typedef Instr (*EmuDpFn)(CpuState *, Instr, Instr);
 
-static Instr emu_dp_and(CpuState *cpu, Instr rn, Instr op2) { assert(0); }
-static Instr emu_dp_eor(CpuState *cpu, Instr rn, Instr op2) { assert(0); }
-static Instr emu_dp_sub(CpuState *cpu, Instr rn, Instr op2) { assert(0); }
-static Instr emu_dp_rsb(CpuState *cpu, Instr rn, Instr op2) { assert(0); }
+static Instr emu_dp_and(CpuState *cpu, Instr rn, Instr op2) { return rn & op2; }
+static Instr emu_dp_eor(CpuState *cpu, Instr rn, Instr op2) { return rn ^ op2; }
+static Instr emu_dp_sub(CpuState *cpu, Instr rn, Instr op2) { return rn - op2; }
+static Instr emu_dp_rsb(CpuState *cpu, Instr rn, Instr op2) { return op2 - rn; }
 static Instr emu_dp_add(CpuState *cpu, Instr rn, Instr op2) { return rn + op2; }
 static Instr emu_dp_tst(CpuState *cpu, Instr rn, Instr op2) { assert(0); }
 static Instr emu_dp_teq(CpuState *cpu, Instr rn, Instr op2) { assert(0); }
 static Instr emu_dp_cmp(CpuState *cpu, Instr rn, Instr op2) { assert(0); }
-static Instr emu_dp_orr(CpuState *cpu, Instr rn, Instr op2) { assert(0); }
+static Instr emu_dp_orr(CpuState *cpu, Instr rn, Instr op2) { return rn | op2; }
 static Instr emu_dp_mov(CpuState *cpu, Instr rn, Instr op2) { return op2; }
 
 static EmuDpFn opcodefn[] = {
