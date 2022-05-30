@@ -13,6 +13,11 @@ Instr dp_rd_mask(Instr i) { return (i & 0xf000) >> 12; }
 Instr dp_operand2_mask(Instr i) { return (i & 0xfff) >> 0; }
 Instr dp_operand2_rotate_mask(Instr i) { return (i & 0xf00) >> 8; }
 Instr dp_operand2_imm_mask(Instr i) { return (i & 0xff) >> 0; }
+Instr dp_operand2_rm_mask(Instr i) { return (i & 0xf) >> 0; }
+Instr dp_operand2_shift_type_mask(Instr i) { return (i & 0x60) >> 5; }
+Instr dp_operand2_shift_ind_mask(Instr i) { return (i & 0x10) >> 4; }
+Instr dp_operand2_shift_const_mask(Instr i) { return (i & 0x3ff80) >> 7; }
+Instr dp_operand2_shift_rs_mask(Instr i) { return (i & 0x700) >> 8; }
 Instr sdt_mode_mask(Instr i) { return (i & 0x3000000) >> 24; }
 Instr sdt_u_mask(Instr i) { return (i & 0x800000) >> 23; }
 Instr sdt_l_mask(Instr i) { return (i & 0x100000) >> 20; }

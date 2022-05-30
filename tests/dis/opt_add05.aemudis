@@ -7,4 +7,4 @@ add r3, r1, r2
 003: e2834004
 add r4, r3, #0x4
 004: e0445233
-sub r5, r4, r563
+sub r5, r4, r3, lsr r2

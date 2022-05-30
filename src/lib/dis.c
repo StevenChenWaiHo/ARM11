@@ -10,6 +10,7 @@ const char *regname[] = {"r0",  "r1", "r2", "r3", "r4",  "r5",
                          "r12", "sp", "lr", "pc", "cspr"};
 const char *condname[] = {[0] = "eq",  [1] = "ne",  [10] = "ge", [11] = "lt",
                           [12] = "gt", [13] = "le", [14] = ""};
+const char *shiftname[] = {[0] = "lsl", [1] = "lsr", [2] = "asr", [3] = "ror"};
 
 void dis(int offset, Instr i) {
   printf("%03d: %08x\n", offset, i);
