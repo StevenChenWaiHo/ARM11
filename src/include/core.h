@@ -5,6 +5,6 @@
 
 typedef uint32_t Instr;
 
-enum Reg { REG_PC = 15 };
+enum Reg { REG_PC = 15, REG_CPSR = 16 };
 
 #endif

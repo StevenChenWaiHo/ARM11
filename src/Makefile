@@ -2,7 +2,7 @@ CC      = gcc
 CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 
 
 CMD_SRC = assemble.c emulate.c disassemble.c
-LIB_SRC = mask.c dis.c dis_br.c dis_dp.c dis_mul.c dis_sdt.c
+LIB_SRC = dis.c dis_br.c dis_dp.c dis_mul.c dis_sdt.c  emu.c emu_br.c emu_dp.c emu_mul.c emu_sdt.c emu_cond.c mask.c
 
 BUILD_DIR = build
 
