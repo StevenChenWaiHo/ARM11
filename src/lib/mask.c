@@ -18,7 +18,10 @@ Instr dp_operand2_shift_type_mask(Instr i) { return (i & 0x60) >> 5; }
 Instr dp_operand2_shift_ind_mask(Instr i) { return (i & 0x10) >> 4; }
 Instr dp_operand2_shift_const_mask(Instr i) { return (i & 0x3ff80) >> 7; }
 Instr dp_operand2_shift_rs_mask(Instr i) { return (i & 0x700) >> 8; }
+Instr dp_bit_31_mask(Instr i) { return (i & 0x80000000) >> 31; }
 Instr sdt_mode_mask(Instr i) { return (i & 0x3000000) >> 24; }
+Instr sdt_i_mask(Instr i) { return (i & 0x2000000) >> 25; }
+Instr sdt_p_mask(Instr i) { return (i & 0x1000000) >> 24; }
 Instr sdt_u_mask(Instr i) { return (i & 0x800000) >> 23; }
 Instr sdt_l_mask(Instr i) { return (i & 0x100000) >> 20; }
 Instr sdt_rn_mask(Instr i) { return (i & 0xf0000) >> 16; }
