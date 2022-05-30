@@ -1,5 +1,6 @@
 #include <assert.h>
 
+#include "dp.h"
 #include "emu.h"
 
 typedef Instr (*EmuDpFn)(CpuState *, Instr, Instr);
@@ -16,9 +17,10 @@ static Instr emu_dp_orr(CpuState *cpu, Instr rn, Instr op2) { return rn | op2; }
 static Instr emu_dp_mov(CpuState *cpu, Instr rn, Instr op2) { return op2; }
 
 static EmuDpFn opcodefn[] = {
-    [0] = emu_dp_and,  [1] = emu_dp_eor, [2] = emu_dp_sub, [3] = emu_dp_rsb,
-    [4] = emu_dp_add,  [8] = emu_dp_tst, [9] = emu_dp_teq, [10] = emu_dp_cmp,
-    [12] = emu_dp_orr, [13] = emu_dp_mov};
+    [DP_AND] = emu_dp_and, [DP_EOR] = emu_dp_eor, [DP_SUB] = emu_dp_sub,
+    [DP_RSB] = emu_dp_rsb, [DP_ADD] = emu_dp_add, [DP_TST] = emu_dp_tst,
+    [DP_TEQ] = emu_dp_teq, [DP_CMP] = emu_dp_cmp, [DP_ORR] = emu_dp_orr,
+    [DP_MOV] = emu_dp_mov};
 
 static Instr rotation_right(Instr n, Instr d) {
   return (n >> d) | (n << (32 - d));
