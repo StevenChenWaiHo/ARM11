@@ -5,7 +5,7 @@
 #include "core.h"
 #include "mask.h"
 
-// Disaseble Data Branch
+// Disasseble Data Branch
 
 int funcCounter = 1;
 

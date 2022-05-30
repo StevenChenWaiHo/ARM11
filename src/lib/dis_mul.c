@@ -4,7 +4,7 @@
 #include "core.h"
 #include "mask.h"
 
-// Disaseble Multiply
+// Disasseble Multiply
 
 void dis_mul(Instr i, char *cond) {
   Instr a = mul_a_mask(i);
