@@ -38,8 +38,11 @@ if __name__ == "__main__":
         ("dp_operand2_shift_ind", 4, 1),
         ("dp_operand2_shift_const", 7, 11),
         ("dp_operand2_shift_rs", 8, 3),
+        ("dp_bit_31", 31, 1),
         # Signle data transfer
         ("sdt_mode", 24, 2),
+        ("sdt_i", 25, 1),
+        ("sdt_p", 24, 1),
         ("sdt_u", 23, 1),
         ("sdt_l", 20, 1),
         ("sdt_rn", 16, 4),

@@ -8,9 +8,8 @@
 // Dissasseble Data Processing Instructions
 
 static char *opcodename[] = {
-    [0] = "and",  [1] = "eor",  [2] = "sub", [3] = "rsb",
-    [4] = "add",  [8] = "tst",  [9] = "teq", [10] = "cmp",
-    [11] = "cmp", [12] = "orr", [13] = "mov"};
+    [0] = "and", [1] = "eor", [2] = "sub",  [3] = "rsb",  [4] = "add",
+    [8] = "tst", [9] = "teq", [10] = "cmp", [12] = "orr", [13] = "mov"};
 
 static Instr rotation_right(Instr n, Instr d) {
   return (n >> d) | (n << (32 - d));

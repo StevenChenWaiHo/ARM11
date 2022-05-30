@@ -21,10 +21,10 @@ int main(int argc, char **argv) {
   fseek(in, 0, SEEK_SET);
   // TODO: Handle errors
 
-  uint8_t *mem = calloc(1 << 16, 1);
+  uint32_t *mem = calloc(16384, 4);
   // TODO: Handle alloc failure
 
-  fread(mem, 1, lenb, in);
+  fread(mem, 4, lenb / 4, in);
   // TODO: Handle Read error
 
   uint32_t regs[17] = {0};
