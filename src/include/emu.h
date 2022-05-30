@@ -5,10 +5,11 @@
 #include <stdint.h>
 
 #include "core.h"
+#include "mask.h"
 
 typedef struct {
   uint32_t regs[17];
-  uint8_t *mem;
+  uint32_t *mem;
 } CpuState;
 
 void emu(CpuState *);
