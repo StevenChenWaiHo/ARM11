@@ -53,4 +53,18 @@ void emu(CpuState *cpu) {
   }
 }
 
-void print_state(CpuState *cpu) {}
+void print_state(CpuState *cpu) {
+
+  printf("Registers:\n");
+  // TODO: Magic Numbers 13
+  for (int i = 0; i < 13; i++) {
+    printf("$%2d :           %2d (0x%08x)\n", i, cpu->regs[i], cpu->regs[i]);
+  }
+  // TODO: Emulate Pipeline (Adding 8 is sus)
+  printf("PC  :           %2d (0x%08x)\n", cpu->regs[REG_PC] + 8,
+         cpu->regs[REG_PC] + 8);
+  printf("CSPR:           %2d (0x%08x)\n", cpu->regs[REG_CPSR],
+         cpu->regs[REG_CPSR]);
+  printf("Non-Zero memory:\n");
+  // TODO: Print Non-zero Memory
+}

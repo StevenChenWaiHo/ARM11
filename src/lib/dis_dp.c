@@ -5,7 +5,7 @@
 #include "dis.h"
 #include "mask.h"
 
-// Dissaseble Data Processing Instructions
+// Dissasseble Data Processing Instructions
 
 static char *opcodename[] = {
     [0] = "and",  [1] = "eor",  [2] = "sub", [3] = "rsb",
