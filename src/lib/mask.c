@@ -35,3 +35,7 @@ Instr mul_rn_mask(Instr i) { return (i & 0xf000) >> 12; }
 Instr mul_rs_mask(Instr i) { return (i & 0xf00) >> 8; }
 Instr mul_rm_mask(Instr i) { return (i & 0xf) >> 0; }
 Instr br_offset_mask(Instr i) { return (i & 0xffffff) >> 0; }
+Instr cpsr_n_mask(Instr i) { return (i & 0x80000000) >> 31; }
+Instr cpsr_z_mask(Instr i) { return (i & 0x40000000) >> 30; }
+Instr cpsr_c_mask(Instr i) { return (i & 0x20000000) >> 29; }
+Instr cpsr_v_mask(Instr i) { return (i & 0x10000000) >> 28; }

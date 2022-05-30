@@ -37,4 +37,8 @@ Instr mul_rn_mask(Instr);
 Instr mul_rs_mask(Instr);
 Instr mul_rm_mask(Instr);
 Instr br_offset_mask(Instr);
+Instr cpsr_n_mask(Instr);
+Instr cpsr_z_mask(Instr);
+Instr cpsr_c_mask(Instr);
+Instr cpsr_v_mask(Instr);
 #endif
