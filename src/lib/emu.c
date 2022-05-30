@@ -15,36 +15,41 @@ static CpuCondFn condfns[] = {
 
 void emu(CpuState *cpu) {
   uint32_t *imem = cpu->mem;
-  Instr i = imem[cpu->regs[REG_PC] << 2];
-  if (!i) // HLT special case
-    return;
 
-  fprintf(stderr, "0x%x: %x\n", cpu->regs[REG_PC], i);
-  Instr condno = cond_mask(i);
-  CpuCondFn cond = condfns[condno];
-  if (!cond(cpu)) {
-    return;
-  }
+  for (;;) {
+    Instr i = imem[cpu->regs[REG_PC] >> 2];
+    fprintf(stderr, "0x%x: %x\n", cpu->regs[REG_PC], i);
 
-  Instr type = type_mask(i);
-  Instr type_mul = type_mul_mask(i);
-  Instr type_mul2 = type_mul2_mask(i);
-  switch (type) {
-  case 0: // Data processing or multiply
-    if (type_mul == 0 && type_mul2 == 9)
-      emu_mul(cpu, i);
-    else
-      emu_dp(cpu, i);
-    break;
-  case 1: // Single data transfer
-    emu_sdt(cpu, i);
-    break;
-  case 2: // Branch
-    emu_br(cpu, i);
-    break;
-  default:
-    fprintf(stderr, "Unknown type %x\n", type);
-    exit(EXIT_FAILURE);
+    if (!i) // HLT special case
+      break;
+
+    Instr condno = cond_mask(i);
+    CpuCondFn cond = condfns[condno];
+    if (!cond(cpu))
+      continue;
+
+    Instr type = type_mask(i);
+    Instr type_mul = type_mul_mask(i);
+    Instr type_mul2 = type_mul2_mask(i);
+    switch (type) {
+    case 0: // Data processing or multiply
+      if (type_mul == 0 && type_mul2 == 9)
+        emu_mul(cpu, i);
+      else
+        emu_dp(cpu, i);
+      break;
+    case 1: // Single data transfer
+      emu_sdt(cpu, i);
+      break;
+    case 2: // Branch
+      emu_br(cpu, i);
+      break;
+    default:
+      fprintf(stderr, "Unknown type %x\n", type);
+      exit(EXIT_FAILURE);
+    }
+
+    cpu->regs[REG_PC] += 4; // TODO: When does this need to be chaned
   }
 }
 

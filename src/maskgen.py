@@ -58,6 +58,11 @@ if __name__ == "__main__":
         ("mul_rm", 0, 4),
         # Branch
         ("br_offset", 0, 24),
+        # CPSR
+        ("cpsr_n", 31, 1),
+        ("cpsr_z", 30, 1),
+        ("cpsr_c", 29, 1),
+        ("cpsr_v", 28, 1),
     ]:
         maskgen(*i)
     mask_h += "#endif\n"
