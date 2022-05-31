@@ -18,7 +18,9 @@ Instr dp_operand2_imm_mask(Instr i) { return (i & 0xff) >> 0; }
 Instr dp_operand2_rm_mask(Instr i) { return (i & 0xf) >> 0; }
 Instr dp_operand2_shift_type_mask(Instr i) { return (i & 0x60) >> 5; }
 Instr dp_operand2_shift_ind_mask(Instr i) { return (i & 0x10) >> 4; }
-Instr set_dp_operand2_shift_ind(Instr i, bool b) { return (i & ~0x10) | (b << 4); }
+Instr set_dp_operand2_shift_ind(Instr i, bool b) {
+  return (i & ~0x10) | (b << 4);
+}
 Instr dp_operand2_shift_const_mask(Instr i) { return (i & 0x3ff80) >> 7; }
 Instr dp_operand2_shift_rs_mask(Instr i) { return (i & 0x700) >> 8; }
 Instr dp_bit_31_mask(Instr i) { return (i & 0x80000000) >> 31; }
@@ -56,3 +58,9 @@ Instr cpsr_c_mask(Instr i) { return (i & 0x20000000) >> 29; }
 Instr set_cpsr_c(Instr i, bool b) { return (i & ~0x20000000) | (b << 29); }
 Instr cpsr_v_mask(Instr i) { return (i & 0x10000000) >> 28; }
 Instr set_cpsr_v(Instr i, bool b) { return (i & ~0x10000000) | (b << 28); }
+Instr sdt_word_1_mask(Instr i) { return (i & 0xffffff00) >> 8; }
+Instr sdt_word_2_mask(Instr i) { return (i & 0xffff0000) >> 16; }
+Instr sdt_word_3_mask(Instr i) { return (i & 0xff000000) >> 24; }
+Instr sdt_word_4_mask(Instr i) { return (i & 0xff) >> 0; }
+Instr sdt_word_5_mask(Instr i) { return (i & 0xffff) >> 0; }
+Instr sdt_word_6_mask(Instr i) { return (i & 0xffffff) >> 0; }

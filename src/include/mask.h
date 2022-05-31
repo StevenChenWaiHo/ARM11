@@ -1,8 +1,8 @@
 #ifndef AEMU_MASK_H
 #define AEMU_MASK_H
 
-#include <stdbool.h>
 #include "core.h"
+#include <stdbool.h>
 
 Instr cond_mask(Instr);
 Instr type_mask(Instr);
@@ -59,4 +59,10 @@ Instr cpsr_c_mask(Instr);
 Instr set_cpsr_c(Instr, bool);
 Instr cpsr_v_mask(Instr);
 Instr set_cpsr_v(Instr, bool);
+Instr sdt_word_1_mask(Instr);
+Instr sdt_word_2_mask(Instr);
+Instr sdt_word_3_mask(Instr);
+Instr sdt_word_4_mask(Instr);
+Instr sdt_word_5_mask(Instr);
+Instr sdt_word_6_mask(Instr);
 #endif
