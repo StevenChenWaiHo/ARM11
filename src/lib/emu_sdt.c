@@ -48,7 +48,7 @@ void emu_sdt(CpuState *cpu, Instr instr) {
 }
 
 Instr get_word(CpuState *cpu, Instr start, Instr old_rd) {
-  if (start > 65536 * 4) {
+  if (start >= 65536 * 4) {
     printf("Error: Out of bounds memory access at address 0x%08x\n", start);
     return old_rd;
   }
