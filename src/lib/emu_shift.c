@@ -35,8 +35,8 @@ static InstrCarry emu_shift_ror(Instr rm, Instr amount) {
   return ins;
 }
 
-static EmuShiftFn opcodefn[] = {[0] = emu_shift_lsr,
-                                [1] = emu_shift_asr,
+static EmuShiftFn opcodefn[] = {[0] = emu_shift_lsl,
+                                [1] = emu_shift_lsr,
                                 [2] = emu_shift_asr,
                                 [3] = emu_shift_ror};
 

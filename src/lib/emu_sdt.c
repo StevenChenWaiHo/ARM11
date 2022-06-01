@@ -1,13 +1,12 @@
 #include <assert.h>
 #include <byteswap.h>
-#include <stdio.h>
 
 #include "core.h"
 #include "emu.h"
 #include "mask.h"
 #include "shift.h"
 
-Instr get_word(CpuState *cpu, Instr start);
+Instr get_word(CpuState *cpu, Instr start, Instr old_rd);
 
 void emu_sdt(CpuState *cpu, Instr instr) {
   Instr i = sdt_i_mask(instr);   // Is Immediate
@@ -41,17 +40,17 @@ void emu_sdt(CpuState *cpu, Instr instr) {
     addr += 8;
 
   if (l) // load
-    cpu->regs[rd] = get_word(cpu, addr);
+    cpu->regs[rd] = get_word(cpu, addr, rd_content);
   else { // store
     cpu->regs[rd] = rd_content;
     set_word(cpu, rd_content, addr);
   }
 }
 
-Instr get_word(CpuState *cpu, Instr start) {
-  if (start > 65536 * 4) {
-    // error
-    return 0;
+Instr get_word(CpuState *cpu, Instr start, Instr old_rd) {
+  if (start >= 65536 * 4) {
+    printf("Error: Out of bounds memory access at address 0x%08x\n", start);
+    return old_rd;
   }
   Instr this_word = cpu->mem[start / 4];
   Instr next_word = cpu->mem[start / 4 + 1];
