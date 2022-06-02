@@ -40,6 +40,10 @@ static EmuShiftFn opcodefn[] = {[0] = emu_shift_lsl,
                                 [2] = emu_shift_asr,
                                 [3] = emu_shift_ror};
 
+Instr emu_do_shift(Instr val, Instr by, Instr type) {
+  return opcodefn[type](val, by).i;
+}
+
 InstrCarry emu_shift(CpuState *cpu, Instr offset) {
   Instr rm = dp_operand2_rm_mask(offset);
   Instr ind = dp_operand2_shift_ind_mask(offset);
