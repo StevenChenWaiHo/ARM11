@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
   fseek(in, 0, SEEK_SET);
   // TODO: Handle errors
 
-  uint32_t *mem = calloc(16384, 4);
+  uint32_t *mem = calloc(MEMORY_SIZE / 4, 4);
   // TODO: Handle alloc failure
 
   fread(mem, 4, lenb / 4, in);

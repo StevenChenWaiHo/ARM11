@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define MEMORY_SIZE 65536 * 4
+#define MEMORY_SIZE 65536
 
 typedef uint32_t Instr;
 
