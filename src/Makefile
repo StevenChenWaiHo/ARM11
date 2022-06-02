@@ -43,7 +43,7 @@ DEPS = $(CMD_DEPS) $(LIB_DEPS)
 
 all: $(CMD_BIN)
 
-$(BUILD_DIR)/%.o: %.c $(TIMESTAMP)
+$(BUILD_DIR)/%.o: %.c $(TIMESTAMP) include/mask.h
 	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 $(BUILD_DIR)/bin/%: $(BUILD_DIR)/cmd/%.o $(LIB_OBJ)
 	$(CC) $(CFLAGS) -MMD -MP $^ -o $@

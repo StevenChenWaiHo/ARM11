@@ -15,7 +15,7 @@ const char *shiftname[] = {[0] = "lsl", [1] = "lsr", [2] = "asr", [3] = "ror"};
 void dis(int offset, Instr i) {
   printf("%03d: %08x\n", offset, i);
   Instr condno = cond_mask(i);
-  char *cond = condname[condno];
+  const char *cond = condname[condno];
 
   Instr type = type_mask(i);
   Instr type_mul = type_mul_mask(i);

@@ -6,9 +6,9 @@
 
 // Disasseble Multiply
 
-void dis_mul(Instr i, char *cond) {
+void dis_mul(Instr i, const char *cond) {
   Instr a = mul_a_mask(i);
-  Instr s = mul_s_mask(i);
+  // Instr s = mul_s_mask(i);
   Instr rd = mul_rd_mask(i);
   Instr rn = mul_rn_mask(i);
   Instr rs = mul_rs_mask(i);

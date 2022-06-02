@@ -9,7 +9,7 @@
 
 int funcCounter = 1;
 
-void dis_br(Instr i, char *cond, int pc) {
+void dis_br(Instr i, const char *cond, int pc) {
   Instr offset = br_offset_mask(i);
   offset <<= 2;
   if ((offset >> 25) & 0x1) {
