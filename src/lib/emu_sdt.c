@@ -90,7 +90,7 @@ void set_word(CpuState *cpu, Instr value, Instr addr) {
     printf("PIN OFF\n");
     return;
   } else if (addr >= GPIO_CONTROL_START && addr < GPIO_CLEAR_START) {
-    // GPIO pin control
+    // GPIO pin set
     printf("PIN ON\n");
     return;
   } else if (addr >= MEMORY_SIZE) {
