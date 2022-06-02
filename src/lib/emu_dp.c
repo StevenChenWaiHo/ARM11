@@ -5,19 +5,33 @@
 
 #include "dp.h"
 #include "emu.h"
+#include "unused.h"
 
 typedef Instr (*EmuDpFn)(Instr, Instr, bool *);
 
-static Instr emu_dp_and(Instr rn, Instr op2, bool *carry) { return rn & op2; }
-static Instr emu_dp_eor(Instr rn, Instr op2, bool *carry) { return rn ^ op2; }
+// TODO: Always set carry
+static Instr emu_dp_and(Instr rn, Instr op2, UNUSED bool *c) {
+  return rn & op2;
+}
+static Instr emu_dp_eor(Instr rn, Instr op2, UNUSED bool *c) {
+  return rn ^ op2;
+}
 static Instr emu_dp_sub(Instr rn, Instr op2, bool *carry) {
   *carry = !(op2 > rn);
   return rn - op2;
 }
-static Instr emu_dp_rsb(Instr rn, Instr op2, bool *carry) { return op2 - rn; }
-static Instr emu_dp_add(Instr rn, Instr op2, bool *carry) { return rn + op2; }
-static Instr emu_dp_orr(Instr rn, Instr op2, bool *carry) { return rn | op2; }
-static Instr emu_dp_mov(Instr rn, Instr op2, bool *carry) { return op2; }
+static Instr emu_dp_rsb(Instr rn, Instr op2, UNUSED bool *c) {
+  return op2 - rn;
+}
+static Instr emu_dp_add(Instr rn, Instr op2, UNUSED bool *c) {
+  return rn + op2;
+}
+static Instr emu_dp_orr(Instr rn, Instr op2, UNUSED bool *c) {
+  return rn | op2;
+}
+static Instr emu_dp_mov(UNUSED Instr rn, Instr op2, UNUSED bool *c) {
+  return op2;
+}
 
 static EmuDpFn opcodefn[] = {
     [DP_AND] = emu_dp_and, [DP_EOR] = emu_dp_eor, [DP_SUB] = emu_dp_sub,

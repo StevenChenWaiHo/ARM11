@@ -11,7 +11,7 @@ ldr Load register Rd := (address) Single Data Transfer
 str Store register (address) := Rd Single Data Transfer
 */
 
-void dis_sdt(Instr instr, char *cond) {
+void dis_sdt(Instr instr, const char *cond) {
   Instr amode = sdt_mode_mask(instr);
   Instr ispos = sdt_u_mask(instr);
   Instr isload = sdt_l_mask(instr);

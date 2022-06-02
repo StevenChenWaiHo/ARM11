@@ -23,12 +23,12 @@ Instr operand_immediate(Instr operand2) {
   return rotation_right(immediate, 2 * rotate);
 }
 
-void operand_register_3_args(int opcodeno, char *cond, Instr rd, Instr rn,
+void operand_register_3_args(int opcodeno, const char *cond, Instr rd, Instr rn,
                              Instr operand2) {
   Instr rm = dp_operand2_rm_mask(operand2);
   Instr ind = dp_operand2_shift_ind_mask(operand2);
   Instr shift_type = dp_operand2_shift_type_mask(operand2);
-  char *new_opcode = shiftname[shift_type];
+  const char *new_opcode = shiftname[shift_type];
   if (ind) { // Operand2 is an immediate value
     Instr rs = dp_operand2_shift_rs_mask(operand2);
     printf("%s%s r%d, r%d, r%d, %s r%d\n", opcodename[opcodeno], cond, rd, rn,
@@ -39,12 +39,12 @@ void operand_register_3_args(int opcodeno, char *cond, Instr rd, Instr rn,
   }
 }
 
-void operand_register_2_args(int opcodeno, char *cond, Instr rn,
+void operand_register_2_args(int opcodeno, const char *cond, Instr rn,
                              Instr operand2) {
   Instr rm = dp_operand2_rm_mask(operand2);
   Instr ind = dp_operand2_shift_ind_mask(operand2);
   Instr shift_type = dp_operand2_shift_type_mask(operand2);
-  char *new_opcode = shiftname[shift_type];
+  const char *new_opcode = shiftname[shift_type];
   if (ind) {
     Instr rs = dp_operand2_shift_rs_mask(operand2);
     printf("%s%s r%d, r%d, %s r%d\n", opcodename[opcodeno], cond, rn, rm,
@@ -59,8 +59,8 @@ void operand_register_2_args(int opcodeno, char *cond, Instr rn,
   }
 }
 
-void print_type_3_args(Instr imm, int opcodeno, char *cond, Instr rd, Instr rn,
-                       Instr operand2) {
+void print_type_3_args(Instr imm, int opcodeno, const char *cond, Instr rd,
+                       Instr rn, Instr operand2) {
   if (imm) {
     printf("%s%s r%d, r%d, #0x%x\n", opcodename[opcodeno], cond, rd, rn,
            operand_immediate(operand2));
@@ -69,7 +69,7 @@ void print_type_3_args(Instr imm, int opcodeno, char *cond, Instr rd, Instr rn,
   }
 }
 
-void print_type_2_args(Instr imm, int opcodeno, char *cond, Instr rn,
+void print_type_2_args(Instr imm, int opcodeno, const char *cond, Instr rn,
                        Instr operand2) {
   if (imm) {
     printf("%s%s r%d, #0x%x\n", opcodename[opcodeno], cond, rn,
@@ -79,7 +79,7 @@ void print_type_2_args(Instr imm, int opcodeno, char *cond, Instr rn,
   }
 }
 
-void dis_dp(Instr i, char *cond) {
+void dis_dp(Instr i, const char *cond) {
   Instr opcodeno = dp_opcode_mask(i);
 
   Instr imm = dp_i_mask(i);

@@ -79,7 +79,7 @@ if __name__ == "__main__":
         ("sdt_word_3", 24, 8),
         ("sdt_word_4", 0, 8),
         ("sdt_word_5", 0, 16),
-        ("sdt_word_6", 0, 24)
+        ("sdt_word_6", 0, 24),
     ]:
         maskgen(*i)
     mask_h += "#endif\n"
