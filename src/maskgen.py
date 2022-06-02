@@ -25,6 +25,7 @@ def maskgen(name, start, l):
 
 
 if __name__ == "__main__":
+    # TODO: Deduplicate and rename
     for i in [
         # Top level dispatch
         ("cond", 28, 4),

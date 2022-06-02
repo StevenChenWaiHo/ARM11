@@ -10,5 +10,6 @@ typedef struct {
 } InstrCarry;
 
 InstrCarry emu_shift(CpuState *, Instr);
+Instr emu_do_shift(Instr val, Instr by, Instr type);
 
 #endif

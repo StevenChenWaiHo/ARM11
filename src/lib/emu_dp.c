@@ -5,6 +5,7 @@
 
 #include "dp.h"
 #include "emu.h"
+#include "shift.h"
 #include "unused.h"
 
 typedef Instr (*EmuDpFn)(Instr, Instr, bool *);
@@ -62,8 +63,15 @@ void emu_dp(CpuState *cpu, Instr instr) {
     op2 = operand_immediate(dp_operand2_mask(instr));
   } else {
     Instr rm = dp_operand2_rm_mask(instr);
-    // TODO: SHift
     op2 = cpu->regs[rm];
+    Instr sty = dp_operand2_shift_type_mask(instr);
+    Instr sby;
+    if (dp_operand2_shift_ind_mask(
+            instr)) // Shift specified by a register(optional)
+      sby = cpu->regs[dp_operand2_rotate_mask(instr)];
+    else // Shift by a constant amount
+      sby = sdt_shift_imm_mask(instr);
+    op2 = emu_do_shift(op2, sby, sty);
   }
 
   EmuDpFn fn = opcodefn[op];
