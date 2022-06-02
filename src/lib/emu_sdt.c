@@ -6,7 +6,12 @@
 #include "mask.h"
 #include "shift.h"
 
-Instr get_word(CpuState *cpu, Instr start, Instr old_rd);
+#define GPIO_ADDRESS_START 0x20200000
+#define GPIO_CONTROL_START 0x2020001c
+#define GPIO_CLEAR_START 0x20200028
+#define GPIO_CLEAR_END 0x2020002c
+
+Instr get_word(CpuState *cpu, Instr start_addr, Instr old_rd);
 
 void emu_sdt(CpuState *cpu, Instr instr) {
   Instr i = sdt_i_mask(instr);   // Is Immediate
@@ -47,14 +52,21 @@ void emu_sdt(CpuState *cpu, Instr instr) {
   }
 }
 
-Instr get_word(CpuState *cpu, Instr start, Instr old_rd) {
-  if (start >= 65536 * 4) {
-    printf("Error: Out of bounds memory access at address 0x%08x\n", start);
+Instr get_word(CpuState *cpu, Instr start_addr, Instr old_rd) {
+  if (start_addr >= GPIO_ADDRESS_START && start_addr < GPIO_CONTROL_START) {
+    int location = (start_addr - GPIO_ADDRESS_START) / 4 * 10;
+    printf("One GPIO pin from %d to %d has been accessed\n", location,
+           location + 9);
+    return start_addr;
+  }
+  if (start_addr >= MEMORY_SIZE) {
+    printf("Error: Out of bounds memory access at address 0x%08x\n",
+           start_addr);
     return old_rd;
   }
-  Instr this_word = cpu->mem[start / 4];
-  Instr next_word = cpu->mem[start / 4 + 1];
-  int remainder = start % 4;
+  Instr this_word = cpu->mem[start_addr / 4];
+  Instr next_word = cpu->mem[start_addr / 4 + 1];
+  int remainder = start_addr % 4;
   switch (remainder) {
   case 0:
     return this_word;
@@ -68,6 +80,23 @@ Instr get_word(CpuState *cpu, Instr start, Instr old_rd) {
 }
 
 void set_word(CpuState *cpu, Instr value, Instr addr) {
+  if (addr >= GPIO_ADDRESS_START && addr < GPIO_CONTROL_START) {
+    int location = (addr - GPIO_ADDRESS_START) / 4 * 10;
+    printf("One GPIO pin from %d to %d has been accessed\n", location,
+           location + 9);
+    return;
+  } else if (addr >= GPIO_CLEAR_START && addr < GPIO_CLEAR_END) {
+    // GPIO pin clear
+    printf("PIN OFF\n");
+    return;
+  } else if (addr >= GPIO_CONTROL_START && addr < GPIO_CLEAR_START) {
+    // GPIO pin control
+    printf("PIN ON\n");
+    return;
+  } else if (addr >= MEMORY_SIZE) {
+    printf("Error: Out of bounds memory access at address 0x%08x\n", addr);
+    return;
+  }
   Instr this_word = cpu->mem[addr / 4];
   Instr next_word = cpu->mem[addr / 4 + 1];
   int remainder = addr % 4;
