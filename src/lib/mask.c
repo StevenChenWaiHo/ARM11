@@ -18,9 +18,7 @@ Instr dp_operand2_imm_mask(Instr i) { return (i & 0xff) >> 0; }
 Instr dp_operand2_rm_mask(Instr i) { return (i & 0xf) >> 0; }
 Instr dp_operand2_shift_type_mask(Instr i) { return (i & 0x60) >> 5; }
 Instr dp_operand2_shift_ind_mask(Instr i) { return (i & 0x10) >> 4; }
-Instr set_dp_operand2_shift_ind(Instr i, bool b) {
-  return (i & ~0x10) | (b << 4);
-}
+Instr set_dp_operand2_shift_ind(Instr i, bool b) { return (i & ~0x10) | (b << 4); }
 Instr dp_operand2_shift_const_mask(Instr i) { return (i & 0x3ff80) >> 7; }
 Instr dp_operand2_shift_rs_mask(Instr i) { return (i & 0x700) >> 8; }
 Instr dp_bit_31_mask(Instr i) { return (i & 0x80000000) >> 31; }

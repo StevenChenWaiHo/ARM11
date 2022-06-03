@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
   // TODO: Handle error, TOCTOU
 
   for (int i = 0; i < len; i++) {
-    dis(i, code[i]);
+    dis(stdout, i, code[i]);
     if (!code[i]) // TODO: If we're inside a loop, this is wrong.
       break;
   }
