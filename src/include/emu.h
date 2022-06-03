@@ -8,7 +8,7 @@
 #include "mask.h"
 
 typedef struct {
-  uint32_t regs[17];
+  uint32_t regs[REGISTER_NUMBER];
   uint32_t *mem;
 } CpuState;
 
