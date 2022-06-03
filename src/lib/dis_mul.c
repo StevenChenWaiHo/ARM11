@@ -6,7 +6,7 @@
 
 // Disasseble Multiply
 
-void dis_mul(Instr i, const char *cond) {
+void dis_mul(FILE *f, Instr i, const char *cond) {
   Instr a = mul_a_mask(i);
   // Instr s = mul_s_mask(i);
   Instr rd = mul_rd_mask(i);
@@ -15,8 +15,8 @@ void dis_mul(Instr i, const char *cond) {
   Instr rm = mul_rm_mask(i);
 
   if (a) {
-    printf("mla%s r%d, r%d, r%d, r%d\n", cond, rd, rm, rs, rn);
+    fprintf(f, "mla%s r%d, r%d, r%d, r%d\n", cond, rd, rm, rs, rn);
   } else {
-    printf("mul%s  r%d, r%d, r%d\n", cond, rd, rm, rs);
+    fprintf(f, "mul%s  r%d, r%d, r%d\n", cond, rd, rm, rs);
   }
 }

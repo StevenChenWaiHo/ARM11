@@ -11,7 +11,7 @@ ldr Load register Rd := (address) Single Data Transfer
 str Store register (address) := Rd Single Data Transfer
 */
 
-void dis_sdt(Instr instr, const char *cond) {
+void dis_sdt(FILE *f, Instr instr, const char *cond) {
   Instr amode = sdt_mode_mask(instr);
   Instr ispos = sdt_u_mask(instr);
   Instr isload = sdt_l_mask(instr);
@@ -27,23 +27,23 @@ void dis_sdt(Instr instr, const char *cond) {
 
   switch (amode) {
   case 0: // 01 00, Imediate Post indexed p312
-    printf("%s%s %s, [%s], #%s%d\n", iname, cond, regname[rd], regname[rn],
-           sign, offset);
+    fprintf(f, "%s%s %s, [%s], #%s%d\n", iname, cond, regname[rd], regname[rn],
+            sign, offset);
     break;
   case 1: // 01 01. Immediate offset p306
     if (offset)
-      printf("%s%s %s, [%s, #%s%d]\n", iname, cond, regname[rd], regname[rn],
-             sign, offset);
+      fprintf(f, "%s%s %s, [%s, #%s%d]\n", iname, cond, regname[rd],
+              regname[rn], sign, offset);
     else
-      printf("%s%s %s, [%s]\n", iname, cond, regname[rd], regname[rn]);
+      fprintf(f, "%s%s %s, [%s]\n", iname, cond, regname[rd], regname[rn]);
     break;
   case 2: // 01 10, Register post indexed. p313/314
     if (std_noshift_mask(instr)) {
-      printf("TODO");
+      fprintf(f, "TODO");
       exit(-1);
     } else { // 313
-      printf("%s%s %s, [%s], %s%s\n", iname, cond, regname[rd], regname[rn],
-             sign, regname[rm]);
+      fprintf(f, "%s%s %s, [%s], %s%s\n", iname, cond, regname[rd], regname[rn],
+              sign, regname[rm]);
     }
     break;
   case 3:                          // 01 11 Register offset p307/308
@@ -51,11 +51,11 @@ void dis_sdt(Instr instr, const char *cond) {
 
       Instr shift_imm = sdt_shift_imm_mask(instr);
       Instr shift = sdt_shift_mask(instr);
-      printf("%s%s %s, [%s, %s%s, %s #%d]\n", iname, cond, regname[rd],
-             regname[rn], sign, regname[rm], shiftname[shift], shift_imm);
+      fprintf(f, "%s%s %s, [%s, %s%s, %s #%d]\n", iname, cond, regname[rd],
+              regname[rn], sign, regname[rm], shiftname[shift], shift_imm);
     } else { // 307
-      printf("%s%s %s, [%s, %s%s]\n", iname, cond, regname[rd], regname[rn],
-             sign, regname[rm]);
+      fprintf(f, "%s%s %s, [%s, %s%s]\n", iname, cond, regname[rd], regname[rn],
+              sign, regname[rm]);
     }
     break;
   default:
