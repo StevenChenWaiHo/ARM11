@@ -11,6 +11,7 @@
 typedef Instr (*EmuDpFn)(Instr, Instr, bool *);
 
 // TODO: Always set carry
+// https://edstem.org/us/courses/14690/discussion/1561818:q
 static Instr emu_dp_and(Instr rn, Instr op2, UNUSED bool *c) {
   return rn & op2;
 }
