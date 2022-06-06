@@ -37,5 +37,7 @@ int main(int argc, char **argv) {
   emu(&cpu);
   print_state(&cpu);
 
+  free(mem);
+
   return EXIT_SUCCESS;
 }

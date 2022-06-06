@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define MEMORY_SIZE 65536
+#define REGISTER_NUMBER 17
 
 typedef uint32_t Instr;
 
