@@ -5,12 +5,15 @@
 // Loosly based on the clox lexer
 
 typedef enum {
-  TOKEN_IDENT,
-  TOKEN_HASH_NUM,
-  TOKEN_EQ_NUM,
   TOKEN_COMMA,
   TOKEN_EOF,
+  TOKEN_EQ_NUM,
+  TOKEN_HASH_NUM,
+  TOKEN_IDENT,
+  TOKEN_LABEL,
+  TOKEN_LSQUARE,
   TOKEN_NEWLINE,
+  TOKEN_RSQUARE,
 } TokenKind;
 
 typedef struct {
