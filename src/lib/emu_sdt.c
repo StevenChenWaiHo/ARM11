@@ -2,9 +2,7 @@
 #include <byteswap.h>
 #include <stdio.h>
 
-#include "core.h"
 #include "emu.h"
-#include "mask.h"
 #include "shift.h"
 
 #define GPIO_ADDRESS_START 0x20200000
