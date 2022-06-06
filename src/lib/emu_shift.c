@@ -1,5 +1,3 @@
-#include "core.h"
-#include "emu.h"
 #include "shift.h"
 
 // used when dp operand2 / sdt offset is a register

@@ -1,5 +1,4 @@
 #include "emu.h"
-#include "mask.h"
 #include "unused.h"
 
 static bool cpu_n(CpuState *cpu) { return cpsr_n_mask(cpu->regs[REG_CPSR]); }

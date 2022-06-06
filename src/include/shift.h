@@ -1,7 +1,6 @@
 #ifndef AEMU_SHIFT_H
 #define AEMU_SHIFT_H
 
-#include "core.h"
 #include "emu.h"
 
 typedef struct {

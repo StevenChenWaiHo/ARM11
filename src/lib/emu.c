@@ -65,7 +65,7 @@ void print_state(CpuState *cpu) {
 
   printf("Registers:\n");
   // TODO: Magic Numbers 13
-  for (int i = 0; i < REGISTER_NUMBER - 4 ; i++) {
+  for (int i = 0; i < REGISTER_NUMBER - 4; i++) {
     printf("$%-2d : %10d (0x%08x)\n", i, cpu->regs[i], cpu->regs[i]);
   }
   // TODO: Emulate Pipeline (Adding 8 is sus)

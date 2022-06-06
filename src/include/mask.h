@@ -1,8 +1,8 @@
 #ifndef AEMU_MASK_H
 #define AEMU_MASK_H
 
-#include <stdbool.h>
 #include "core.h"
+#include <stdbool.h>
 
 Instr cond_mask(Instr);
 Instr type_mask(Instr);
