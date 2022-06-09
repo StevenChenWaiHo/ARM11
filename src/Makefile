@@ -1,8 +1,10 @@
-CC      = gcc
+CC      ?= gcc
 CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 
 
 CMD_SRC = assemble.c emulate.c disassemble.c
-LIB_SRC = dis.c dis_br.c dis_dp.c dis_mul.c dis_sdt.c  emu.c emu_br.c emu_dp.c emu_mul.c emu_sdt.c emu_cond.c mask.c emu_shift.c
+LIB_SRC = dis.c dis_br.c dis_dp.c dis_mul.c dis_sdt.c emu.c emu_br.c emu_dp.c \
+	emu_mul.c emu_sdt.c emu_cond.c mask.c emu_shift.c lexer.c asm.c
+TEST_SRC = instr_common_parse.c
 
 BUILD_DIR = build
 
@@ -37,9 +39,13 @@ CMD_DEPS = $(CMD_OBJ:%.o=%.d)
 LIB_OBJ = $(LIB_SRC:%.c=$(BUILD_DIR)/lib/%.o)
 LIB_DEPS = $(LIB_OBJ:%.o=%.d)
 
+TEST_OBJ = $(TEST_SRC:%.c=$(BUILD_DIR)/test/%.o)
+TEST_DEPS = $(TEST_OBJ:%.o=%.d)
+TEST_BIN = $(TEST_SRC:%.c=$(BUILD_DIR)/test/bin/%)
+
 TIMESTAMP = $(BUILD_DIR)/.timestamp
 
-DEPS = $(CMD_DEPS) $(LIB_DEPS)
+DEPS = $(CMD_DEPS) $(LIB_DEPS) $(TEST_DEPS)
 
 all: $(CMD_BIN)
 
@@ -47,11 +53,15 @@ $(BUILD_DIR)/%.o: %.c $(TIMESTAMP) include/mask.h
 	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 $(BUILD_DIR)/bin/%: $(BUILD_DIR)/cmd/%.o $(LIB_OBJ)
 	$(CC) $(CFLAGS) -MMD -MP $^ -o $@
+$(BUILD_DIR)/test/bin/%: $(BUILD_DIR)/test/%.o $(LIB_OBJ)
+	$(CC) $(CFLAGS) -MMD -MP $^ -o $@
+
 
 $(TIMESTAMP): Makefile
 	mkdir -p $(BUILD_DIR)/cmd
 	mkdir -p $(BUILD_DIR)/bin
 	mkdir -p $(BUILD_DIR)/lib
+	mkdir -p $(BUILD_DIR)/test/bin
 	touch $@
 
 lib/mask.c: maskgen.py 
@@ -72,7 +82,14 @@ fmt:
 	find -name '*.c' -o -name '*.h' | xargs clang-format -i
 	black .
 
-.PHONY: clean debug fmt
+test: $(TEST_BIN)
+	@for test in $(TEST_BIN); do \
+		echo $${test};           \
+		$${test};                \
+	done
+
+
+.PHONY: clean debug fmt test
 
 asan:
 	$(MAKE) ASAN=1
@@ -82,5 +99,6 @@ ubsan:
 	$(MAKE) UBSAN=1
 trace:
 	$(MAKE) TRACE=1
+
 
 -include $(DEPS)

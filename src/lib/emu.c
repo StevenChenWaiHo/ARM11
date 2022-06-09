@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cond.h"
 #include "emu.h"
 #ifdef AEMU_TRACE
 #include "dis.h"
@@ -12,9 +13,9 @@
 typedef bool (*CpuCondFn)(CpuState *);
 
 static CpuCondFn condfns[] = {
-    [0] = emu_cond_eq,  [1] = emu_cond_ne,  [10] = emu_cond_ge,
-    [11] = emu_cond_lt, [12] = emu_cond_gt, [13] = emu_cond_le,
-    [14] = emu_cond_al,
+    [COND_EQ] = emu_cond_eq, [COND_NE] = emu_cond_ne, [COND_GE] = emu_cond_ge,
+    [COND_LT] = emu_cond_lt, [COND_GT] = emu_cond_gt, [COND_LE] = emu_cond_le,
+    [COND_AL] = emu_cond_al,
 };
 
 void emu(CpuState *cpu) {
