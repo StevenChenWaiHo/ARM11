@@ -138,5 +138,7 @@ const char *token_kind_name(TokenKind tk) {
     return "TOKEN_NEWLINE";
   case TOKEN_RSQUARE:
     return "TOKEN_RSQUARE";
+  default:
+    assert(0);
   }
 }
