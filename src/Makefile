@@ -2,11 +2,16 @@ CC      ?= gcc
 CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 
 
 CMD_SRC = assemble.c emulate.c disassemble.c
+<<<<<<< HEAD
 LIB_SRC = asm.c     asm_mul.c  dis_br.c   dis_sdt.c  emu_cond.c  emu_sdt.c    mask.c \
           asm_br.c  asm_sdt.c  dis_dp.c   emu.c      emu_dp.c    emu_shift.c \
           asm_dp.c  dis.c      dis_mul.c  emu_br.c   emu_mul.c   lexer.c
 
 TEST_SRC = instr_common_parse.c
+=======
+LIB_SRC = dis.c dis_br.c dis_dp.c dis_mul.c dis_sdt.c  emu.c emu_br.c emu_dp.c emu_mul.c emu_sdt.c emu_cond.c mask.c emu_shift.c strmap.c
+TEST_SRC = strmaptest.c
+>>>>>>> Implement TEST_SRC
 
 BUILD_DIR = build
 
@@ -86,9 +91,15 @@ fmt:
 	black .
 
 test: $(TEST_BIN)
+<<<<<<< HEAD
 	@for test in $(TEST_BIN); do \
 		echo $${test};           \
 		$${test};                \
+=======
+	@for test in $(TEST_BIN); do 
+		echo $${test};           
+		$${test};                
+>>>>>>> Implement TEST_SRC
 	done
 
 
