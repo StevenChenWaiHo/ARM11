@@ -1,6 +1,8 @@
 #include <assert.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "asm.h"
@@ -138,4 +140,42 @@ InstrCommon instr_common_parse(const char *iname, size_t inamelen) {
   ic.cond = cond_parse(iname, inamelen);
   ic.kind = parse_instr_name(iname, inamelen - strlen(cond_name(ic.cond)));
   return ic;
+}
+
+void assemble(char *src, char *filename, FILE *out) {
+  Lexer l = lexer_new(src, filename);
+  Assembler a;
+  a.lexer = l;
+
+  for (;;) {
+    Token t = lexer_next(&l);
+    switch (t.kind) {
+    case TOKEN_IDENT:
+      break;
+    case TOKEN_EOF:
+      goto done;
+    default:
+      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)", (int)t.len,
+              t.source, token_kind_name(t.kind));
+    }
+  }
+done:
+  while (0) {
+  }
+  // Cleanup or whatever
+}
+
+void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
+  va_list fmt_args;
+  va_start(fmt_args, fmt);
+  size_t sz = vsnprintf(NULL, 0, fmt, fmt_args) + 1;
+  va_end(fmt_args);
+  char *msg = malloc(sz); // TODO: check
+  va_start(fmt_args, fmt);
+  vsnprintf(msg, sz, fmt, fmt_args);
+  va_end(fmt_args);
+
+  fprintf(stderr, "%s:%ld:%ld: %s\n", a->lexer.filename, loc->line + 1,
+          loc->column + 1, msg);
+  exit(1);
 }
