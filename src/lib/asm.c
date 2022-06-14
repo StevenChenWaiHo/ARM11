@@ -170,34 +170,32 @@ static void asm_instr(Assembler *a, Token *t) {
 }
 
 void assemble(char *src, char *filename, FILE *out) {
-  Lexer l = lexer_new(src, filename);
   Assembler a;
-  a.lexer = l;
+  a.lexer = lexer_new(src, filename);;
   a.out = out;
-  a.current = lexer_next(&l);
+  a.current = lexer_next(&a.lexer);
 
-  Token t;
-  do {
-    t = asm_advance(&l);
-    int tkind = t.kind;
-    DBG;
-    printf("%s:%ld:%ld %20s `%.*s`\n", a.lexer.filename, t.line + 1, t.column,
-           token_kind_name(tkind), (int)t.len, t.source);
-  } while (t.kind != TOKEN_EOF);
+  // Token t;
+  // do {
+  //   t = asm_advance(&a);
+  //   int tkind = t.kind;
+  //   printf("%ld:%ld %20s `%.*s`\n", t.line + 1, t.column,
+  //          token_kind_name(tkind), (int)t.len, t.source);
+  // } while (t.kind != TOKEN_EOF);
 
-  // for (;;) {
-  //   Token t = asm_advance(&a);
-  //   switch (t.kind) {
-  //   case TOKEN_IDENT:
-  //     asm_instr(&a, &t);
-  //     break;
-  //   case TOKEN_EOF:
-  //     return; // TODO: Cleanup?
-  //   default:
-  //     asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)", (int)t.len,
-  //             t.source, token_kind_name(t.kind));
-  //   }
-  // }
+  for (;;) {
+    Token t = asm_advance(&a);
+    switch (t.kind) {
+    case TOKEN_IDENT:
+      asm_instr(&a, &t);
+      break;
+    case TOKEN_EOF:
+      return; // TODO: Cleanup?
+    default:
+      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)", (int)t.len,
+              t.source, token_kind_name(t.kind));
+    }
+  }
 }
 
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {

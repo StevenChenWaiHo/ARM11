@@ -1,5 +1,6 @@
 CC      ?= gcc
-CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c11
+CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c11 \
+          -Werror=incompatible-pointer-types
 
 CMD_SRC = assemble.c emulate.c disassemble.c
 LIB_SRC = asm.c     asm_mul.c  dis_br.c   dis_sdt.c  emu_cond.c  emu_sdt.c    mask.c \
@@ -106,6 +107,8 @@ ubsan:
 	$(MAKE) UBSAN=1
 trace:
 	$(MAKE) TRACE=1
-
+assemble: $(BUILD_DIR)/bin/assemble
+disassemble: $(BUILD_DIR)/bin/disassemble
+emulate: $(BUILD_DIR)/bin/emulate
 
 -include $(DEPS)
