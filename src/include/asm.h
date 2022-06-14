@@ -33,16 +33,19 @@ typedef struct {
 
 typedef struct {
   Lexer lexer;
+  FILE *out;
   // TODO: Str->Int map
 } Assembler;
 
 InstrCommon instr_common_parse(const char *iname, size_t inamelen);
 void assemble(char *src, char *filename, FILE *);
 
-Instr asm_br(Assembler *);
-Instr asm_mul(Assembler *);
-Instr asm_sdt(Assembler *);
-Instr asm_dp(Assembler *);
+typedef Instr (*AsmFn)(Assembler *, InstrCommon);
+
+Instr asm_br(Assembler *, InstrCommon);
+Instr asm_mul(Assembler *, InstrCommon);
+Instr asm_sdt(Assembler *, InstrCommon);
+Instr asm_dp(Assembler *, InstrCommon);
 
 void asm_err(Assembler *a, Token *loc, char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
