@@ -1,5 +1,5 @@
 CC      ?= gcc
-CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 
+CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c11
 
 CMD_SRC = assemble.c emulate.c disassemble.c
 LIB_SRC = asm.c     asm_mul.c  dis_br.c   dis_sdt.c  emu_cond.c  emu_sdt.c    mask.c \

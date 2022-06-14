@@ -10,4 +10,6 @@ typedef uint32_t Instr;
 
 enum Reg { REG_PC = 15, REG_CPSR = 16 };
 
+#define DBG printf("%s:%d\n", __FILE__, __LINE__)
+
 #endif

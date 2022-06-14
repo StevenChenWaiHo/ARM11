@@ -174,23 +174,34 @@ void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
   a.lexer = l;
   a.out = out;
+  a.current = lexer_next(&l);
 
-  for (;;) {
-    Token t = lexer_next(&l);
-    switch (t.kind) {
-    case TOKEN_IDENT:
-      asm_instr(&a, &t);
-      break;
-    case TOKEN_EOF:
-      return; // TODO: Cleanup?
-    default:
-      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)", (int)t.len,
-              t.source, token_kind_name(t.kind));
-    }
-  }
+  Token t;
+  do {
+    t = asm_advance(&l);
+    int tkind = t.kind;
+    DBG;
+    printf("%s:%ld:%ld %20s `%.*s`\n", a.lexer.filename, t.line + 1, t.column,
+           token_kind_name(tkind), (int)t.len, t.source);
+  } while (t.kind != TOKEN_EOF);
+
+  // for (;;) {
+  //   Token t = asm_advance(&a);
+  //   switch (t.kind) {
+  //   case TOKEN_IDENT:
+  //     asm_instr(&a, &t);
+  //     break;
+  //   case TOKEN_EOF:
+  //     return; // TODO: Cleanup?
+  //   default:
+  //     asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)", (int)t.len,
+  //             t.source, token_kind_name(t.kind));
+  //   }
+  // }
 }
 
-void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
+noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
+  // TODO: Use current?
   va_list fmt_args;
   va_start(fmt_args, fmt);
   size_t sz = vsnprintf(NULL, 0, fmt, fmt_args) + 1;
@@ -203,4 +214,27 @@ void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
   fprintf(stderr, "%s:%ld:%ld: %s\n", a->lexer.filename, loc->line + 1,
           loc->column + 1, msg);
   exit(1);
+}
+
+Token asm_expect(Assembler *a, TokenKind kind) {
+  Token t = a->current;
+  if (t.kind != kind)
+    asm_err(a, &t, "Expected %s, but got %s(%.*s)", token_kind_name(kind),
+            token_kind_name(t.kind), (int)t.len, t.source);
+  a->current = lexer_next(&a->lexer);
+  return t;
+}
+bool asm_match(Assembler *a, TokenKind kind, Token *out) {
+  if (asm_peak(a, kind)) {
+    *out = a->current;
+    a->current = lexer_next(&a->lexer);
+    return true;
+  }
+  return false;
+}
+bool asm_peak(Assembler *a, TokenKind kind) { return a->current.kind == kind; }
+Token asm_advance(Assembler *a) {
+  Token t = a->current;
+  a->current = lexer_next(&a->lexer);
+  return t;
 }
