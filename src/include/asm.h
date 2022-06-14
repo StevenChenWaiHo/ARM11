@@ -2,8 +2,11 @@
 #define AEMU_ASM_H
 
 #include <stddef.h>
+#include <stdio.h>
 
 #include "cond.h"
+#include "core.h"
+#include "lexer.h"
 
 typedef enum {
   INSTR_ADD,
@@ -28,5 +31,23 @@ typedef struct {
   InstrKind kind;
 } InstrCommon;
 
+typedef struct {
+  Lexer lexer;
+  FILE *out;
+  // TODO: Str->Int map
+} Assembler;
+
 InstrCommon instr_common_parse(const char *iname, size_t inamelen);
+void assemble(char *src, char *filename, FILE *);
+
+typedef Instr (*AsmFn)(Assembler *, InstrCommon);
+
+Instr asm_br(Assembler *, InstrCommon);
+Instr asm_mul(Assembler *, InstrCommon);
+Instr asm_sdt(Assembler *, InstrCommon);
+Instr asm_dp(Assembler *, InstrCommon);
+
+void asm_err(Assembler *a, Token *loc, char *fmt, ...)
+    __attribute__((format(printf, 3, 4)));
+
 #endif

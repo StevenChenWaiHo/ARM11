@@ -1,6 +1,8 @@
 #include <assert.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "asm.h"
@@ -138,4 +140,67 @@ InstrCommon instr_common_parse(const char *iname, size_t inamelen) {
   ic.cond = cond_parse(iname, inamelen);
   ic.kind = parse_instr_name(iname, inamelen - strlen(cond_name(ic.cond)));
   return ic;
+}
+
+static AsmFn asm_fn[] = {
+    [INSTR_ADD] = asm_dp,
+    [INSTR_AND] = asm_dp,
+    [INSTR_CMP] = asm_dp,
+    [INSTR_EOR] = asm_dp,
+    [INSTR_MOV] = asm_dp,
+    [INSTR_ORR] = asm_dp,
+    [INSTR_RSB] = asm_dp,
+    [INSTR_SUB] = asm_dp,
+    [INSTR_TEQ] = asm_dp,
+    [INSTR_TST] = asm_dp,
+    // Not DP
+    [INSTR_B] = asm_br,
+    [INSTR_MLA] = asm_mul,
+    [INSTR_MUL] = asm_mul,
+    [INSTR_STR] = asm_sdt,
+    [INSTR_LDR] = asm_sdt,
+};
+
+static void asm_instr(Assembler *a, Token *t) {
+  InstrCommon c = instr_common_parse(t->source, t->len);
+  Instr i = asm_fn[c.kind](a, c);
+  // TODO: Add cond
+  size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
+  assert(written == 1); // TODO: Handle better.
+}
+
+void assemble(char *src, char *filename, FILE *out) {
+  Lexer l = lexer_new(src, filename);
+  Assembler a;
+  a.lexer = l;
+  a.out = out;
+
+  for (;;) {
+    Token t = lexer_next(&l);
+    switch (t.kind) {
+    case TOKEN_IDENT:
+      asm_instr(&a, &t);
+      break;
+    case TOKEN_EOF:
+      return; // TODO: Cleanup?
+    default:
+      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)", (int)t.len,
+              t.source, token_kind_name(t.kind));
+    }
+  }
+}
+
+void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
+  va_list fmt_args;
+  va_start(fmt_args, fmt);
+  size_t sz = vsnprintf(NULL, 0, fmt, fmt_args) + 1;
+  va_end(fmt_args);
+  char *msg = malloc(sz); // TODO: check
+  va_start(fmt_args, fmt);
+  vsnprintf(msg, sz, fmt, fmt_args);
+  va_end(fmt_args);
+
+  fprintf(stderr, "%s:%ld:%ld: %s\n", a->lexer.filename, loc->line + 1,
+          loc->column + 1, msg);
+  exit(1);
 }
