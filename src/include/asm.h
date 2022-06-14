@@ -37,6 +37,7 @@ typedef struct {
   Lexer lexer;
   FILE *out;
   Token current;
+  size_t n_instrs;
   // TODO: Str->Int map
 } Assembler;
 

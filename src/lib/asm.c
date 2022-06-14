@@ -161,6 +161,11 @@ static AsmFn asm_fn[] = {
     [INSTR_LDR] = asm_sdt,
 };
 
+static void asm_reset(Assembler *a) {
+  a->lexer = lexer_new(a->lexer.source, a->lexer.filename);
+  a->current = lexer_next(&a->lexer);
+}
+
 static void asm_instr(Assembler *a, Token *t) {
   InstrCommon c = instr_common_parse(t->source, t->len);
   Instr i = asm_fn[c.kind](a, c);
@@ -169,19 +174,53 @@ static void asm_instr(Assembler *a, Token *t) {
   assert(written == 1); // TODO: Handle better.
 }
 
+static size_t asm_n_instrs(Assembler *a) {
+
+  asm_reset(a);
+  size_t n_instr;
+  Token t;
+  for (;;) {
+    t = asm_advance(a);
+    switch (t.kind) {
+    case TOKEN_IDENT:
+      n_instr++;
+      do
+        t = asm_advance(a);
+      while (t.kind != TOKEN_NEWLINE && t.kind != TOKEN_EOF);
+      if (t.kind == TOKEN_EOF)
+        goto done;
+      break;
+    case TOKEN_LABEL:
+      // TODO: Add to symbol table here.
+      asm_expect(a, TOKEN_NEWLINE);
+      break;
+    case TOKEN_EOF:
+      goto done;
+    default:
+      asm_err(a, &t, "Expected line instruction name, got %s",
+              token_kind_name(t.kind));
+    }
+  }
+done:
+  asm_reset(a);
+  return n_instr;
+}
+
 void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
-  a.lexer = lexer_new(src, filename);;
+  a.lexer = lexer_new(src, filename);
   a.out = out;
-  a.current = lexer_next(&a.lexer);
+  a.n_instrs = asm_n_instrs(&a);
 
-  // Token t;
-  // do {
-  //   t = asm_advance(&a);
-  //   int tkind = t.kind;
-  //   printf("%ld:%ld %20s `%.*s`\n", t.line + 1, t.column,
-  //          token_kind_name(tkind), (int)t.len, t.source);
-  // } while (t.kind != TOKEN_EOF);
+  Token t;
+  do {
+    t = asm_advance(&a);
+    int tkind = t.kind;
+    printf("%ld:%ld %20s `%.*s`\n", t.line + 1, t.column,
+           token_kind_name(tkind), (int)t.len, t.source);
+  } while (t.kind != TOKEN_EOF);
+
+  asm_reset(&a);
 
   for (;;) {
     Token t = asm_advance(&a);
