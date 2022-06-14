@@ -66,6 +66,7 @@ $(TIMESTAMP): Makefile
 
 lib/mask.c: maskgen.py 
 	python3 maskgen.py
+	clang-format -i lib/mask.c include/mask.h
 include/mask.h: lib/mask.c
 
 debug:
