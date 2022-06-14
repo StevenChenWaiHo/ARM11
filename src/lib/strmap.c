@@ -88,7 +88,7 @@ Node_t *insert(Node_t *node, char *key, int value) {
     node->left = leftRotate(node->left);
     return rightRotate(node);
   }
-  if (balance < -1 && key< node->right->key) {
+  if (balance < -1 && key < node->right->key) {
     node->right = rightRotate(node->right);
     return leftRotate(node);
   }

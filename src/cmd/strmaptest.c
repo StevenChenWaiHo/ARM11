@@ -5,7 +5,7 @@
 
 #include "strmap.h"
 
-//test insert to avl tree
+//test insert to avl tree, remove when done
 
 int main() {
   Node_t *root = NULL;
