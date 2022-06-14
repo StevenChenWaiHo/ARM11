@@ -14,6 +14,7 @@ BUILD_DIR = build
 
 MAKEFLAGS += --no-builtin-rules # No Implict rules
 .SECONDARY: # Don't remove object files
+V = @ # use make V= to see the commands
 
 CFLAGS += -I include
 
@@ -52,11 +53,14 @@ DEPS = $(CMD_DEPS) $(LIB_DEPS) $(TEST_DEPS)
 all: $(CMD_BIN)
 
 $(BUILD_DIR)/%.o: %.c $(TIMESTAMP) include/mask.h
-	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
+	@test -z "$(V)" || echo "CC   $@"
+	$(V)$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 $(BUILD_DIR)/bin/%: $(BUILD_DIR)/cmd/%.o $(LIB_OBJ)
-	$(CC) $(CFLAGS) -MMD -MP $^ -o $@
+	@test -z "$(V)" || echo "CCLD $@"
+	$(V)$(CC) $(CFLAGS) -MMD -MP $^ -o $@
 $(BUILD_DIR)/test/bin/%: $(BUILD_DIR)/test/%.o $(LIB_OBJ)
-	$(CC) $(CFLAGS) -MMD -MP $^ -o $@
+	@test -z "$(V)" || echo "CCLD $@"
+	$(V)$(CC) $(CFLAGS) -MMD -MP $^ -o $@
 
 
 $(TIMESTAMP): Makefile
