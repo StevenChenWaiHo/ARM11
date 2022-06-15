@@ -2,4 +2,4 @@
 
 #include "asm.h"
 
-Instr asm_br(Assembler *a, InstrCommon c) { assert(0); }
+Instr asm_br(Assembler *a, InstrCommon c, Instr ino) { assert(0); }

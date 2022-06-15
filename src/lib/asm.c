@@ -9,14 +9,6 @@
 #include "cond.h"
 #include "core.h"
 
-// TODO: Str (ptr+len) struct
-static bool ends_with(const char *s, size_t s_len, const char *suffix) {
-  size_t suffixlen = strlen(suffix);
-  if (s_len < suffixlen)
-    return false;
-  return strncmp(s + s_len - suffixlen, suffix, suffixlen) == 0;
-}
-
 static Cond cond_parse(Str instr) {
   if (str_ends_with(instr, "eq"))
     return COND_EQ;
@@ -123,6 +115,19 @@ Reg parse_reg_name(Token t) {
     assert(0); // TODO: Nice error
 }
 
+Instr asm_parse_number(Assembler *a, Token t) {
+  assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
+  Str s = t.source;
+  assert(str_starts_with(s, "=0x") ||
+         str_starts_with(s, "#0x")); // TODO: Handle base 10
+  s.ptr += 3;
+  s.len -= 3;
+  Instr n;
+  if (!str_parse_hex(s, &n))
+    asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
+  return n;
+}
+
 const char *instr_kind_name(InstrKind ik) {
   switch (ik) {
   case INSTR_ADD:
@@ -192,9 +197,9 @@ static void asm_reset(Assembler *a) {
   a->current = lexer_next(&a->lexer);
 }
 
-static void asm_instr(Assembler *a, Token *t) {
+static void asm_instr(Assembler *a, Token *t, Instr ino) {
   InstrCommon c = instr_common_parse(t->source);
-  Instr i = asm_fn[c.kind](a, c);
+  Instr i = asm_fn[c.kind](a, c, ino);
   // TODO: Add cond
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
   assert(written == 1); // TODO: Handle better.
@@ -203,7 +208,7 @@ static void asm_instr(Assembler *a, Token *t) {
 static size_t asm_n_instrs(Assembler *a) {
 
   asm_reset(a);
-  size_t n_instr;
+  size_t n_instr = 0;
   Token t;
   for (;;) {
     t = asm_advance(a);
@@ -237,6 +242,8 @@ void assemble(char *src, char *filename, FILE *out) {
   a.lexer = lexer_new(src, filename);
   a.out = out;
   a.n_instrs = asm_n_instrs(&a);
+  a.consts = NULL;
+  a.n_consts = 0;
 
   Token t;
   do {
@@ -248,11 +255,11 @@ void assemble(char *src, char *filename, FILE *out) {
 
   asm_reset(&a);
 
-  for (;;) {
+  for (Instr ino = 0; ino++;) {
     Token t = asm_advance(&a);
     switch (t.kind) {
     case TOKEN_IDENT:
-      asm_instr(&a, &t);
+      asm_instr(&a, &t, ino);
       break;
     case TOKEN_EOF:
       return; // TODO: Cleanup?
@@ -289,7 +296,8 @@ Token asm_expect(Assembler *a, TokenKind kind) {
 }
 bool asm_match(Assembler *a, TokenKind kind, Token *out) {
   if (asm_peak(a, kind)) {
-    *out = a->current;
+    if (out)
+      *out = a->current;
     a->current = lexer_next(&a->lexer);
     return true;
   }
@@ -300,4 +308,11 @@ Token asm_advance(Assembler *a) {
   Token t = a->current;
   a->current = lexer_next(&a->lexer);
   return t;
+}
+
+Instr asm_add_const(Assembler *a, Instr value) {
+  // TODO: use ptr,len,cap. Not ptr,len
+  a->n_consts++;
+  a->consts = realloc(a->consts, a->n_consts);
+  a->consts[a->n_consts] = value;
 }

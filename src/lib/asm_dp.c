@@ -70,7 +70,7 @@ Instr parse_op2(Assembler *a, Instr *i) {
   assert(0);
 }
 
-Instr asm_mul(Assembler *a, InstrCommon c) {
+Instr asm_mul(Assembler *a, InstrCommon c, Instr ino) {
   // Cond should be 1110 for all dp
   assert(c.cond == COND_AL);
 

@@ -15,7 +15,7 @@
 #define MUL_FIXED_BIT 9
 #define MUL_FIXED_BIT_START 4
 
-Instr asm_mul(Assembler *asmb, InstrCommon c) {
+Instr asm_mul(Assembler *asmb, InstrCommon c, Instr ino) {
   // Cond should be 1110 for all dp
   assert(c.cond == COND_AL);
   Instr a = 0;
