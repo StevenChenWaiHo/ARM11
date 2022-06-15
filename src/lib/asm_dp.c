@@ -21,6 +21,9 @@
 
 #define ROTATE_LIMIT 16
 
+#define DP_SHIFT_CONST_START_BIT 7
+#define DP_SHIFT_REG_START_BIT 8
+
 bool check_valid_imm(Instr imm) {
   for (int i = 0; i < ROTATE_LIMIT; i++) {
     // Valid for value that only uses lowest 8 bits
@@ -39,47 +42,45 @@ bool check_valid_imm(Instr imm) {
   return false;
 }
 
-Instr num_skip_prefix(Token token) { return atoi(++token.source.ptr); }
-
-Instr asm_operand2(Token token, Instr *imm_flag) {
-  Instr imm = 0;
-
-  switch (*token.source.ptr) {
-  case '#':
-    *imm_flag = 1;
-    if (strncmp(*(token.source.ptr + 1), "0x", 2) == 0) {
-      // Hex for Immediate
-      imm = strtol((token.source.ptr + 1),
-                   (token.source.ptr + token.source.len), 16);
-    } else {
-      imm = num_skip_prefix(token);
-    }
-
-    if (!check_valid_imm(*(token.source.ptr + 1))) {
-      perror("Immediate not valid");
-    }
-    break;
-
-  case 'r':
-    *imm_flag = 0;
-    break;
-
-  default:
-    assert(0);
-    break;
+Instr parse_op2(Assembler *a, Instr *i) {
+  Instr op2 = 0;
+  Token out;
+  // Immediate
+  if (asm_match(a, TOKEN_HASH_NUM, &out)) {
+    *i = 1;
+    op2 = parse_number(out);
+    return op2;
   }
-  return imm;
+  // Register
+  if (asm_match(a, TOKEN_IDENT, &out)) {
+    *i = 1;
+    op2 = parse_number(out);
+    // Check if using Shift Register
+    if (asm_match(a, TOKEN_COMMA, &out)) {
+      // Shift by Register
+      if (asm_match(a, TOKEN_IDENT, &out)) {
+        op2 |= 1;
+        op2 |= parse_reg_name(out) << DP_SHIFT_REG_START_BIT;
+      } else if (asm_match(a, TOKEN_IDENT, &out)) {
+        op2 |= parse_number(out) << DP_SHIFT_CONST_START_BIT;
+      }
+    }
+    return op2;
+  }
+  assert(0);
 }
 
 Instr asm_mul(Assembler *a, InstrCommon c) {
+  // Cond should be 1110 for all dp
+  assert(c.cond == COND_AL);
 
   Instr i = 0;
-  Instr rd = 0;
-  Token comma;
+  Instr s = 0;
   Instr rn = 0;
+  Instr rd = 0;
+  Instr op2 = 0;
+
   Token operand2_token;
-  Instr imm_flag = 0;
-  Instr operand2;
 
   switch (c.kind) {
   // Result Computing Instructions
@@ -89,32 +90,31 @@ Instr asm_mul(Assembler *a, InstrCommon c) {
   case INSTR_RSB:
   case INSTR_ADD:
   case INSTR_ORR:
-    rd = skip_prefix(asm_expect(a, TOKEN_IDENT));
-    comma = asm_expect(a, TOKEN_COMMA);
-    rn = skip_prefix(asm_expect(a, TOKEN_IDENT));
-    comma = asm_expect(a, TOKEN_COMMA);
+    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    asm_expect(a, TOKEN_COMMA);
+    rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    asm_expect(a, TOKEN_COMMA);
     break;
 
   // Single Operand Assignment
   case INSTR_MOV:
-    rd = skip_prefix(asm_expect(a, TOKEN_IDENT));
+    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
     break;
 
+    //  Flag Setting Instructions
   case INSTR_TST:
   case INSTR_TEQ:
   case INSTR_CMP:
-    rn = skip_prefix(asm_expect(a, TOKEN_IDENT));
+    rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    s = 1;
     break;
   default:
     assert(0);
     break;
   }
 
-  comma = asm_expect(a, TOKEN_COMMA);
-  operand2_token = asm_expect(a, TOKEN_IDENT);
-  operand2 = asm_operand2(operand2_token, &imm_flag);
+  asm_expect(a, TOKEN_COMMA);
+  op2 = parse_op2(a, &i);
 
-  return i | c.cond << COND_START_BIT | imm_flag << I_START_BIT |
-         c.kind << DP_OPCODE_START_BIT | rn << DP_RN_START_BIT |
-         rd << DP_RD_START_BIT | operand2 << DP_OPERAND2_START_BIT;
+  return bit_asm_dp(i, c.kind, s, rn, rd, op2);
 }
