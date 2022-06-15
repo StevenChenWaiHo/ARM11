@@ -8,79 +8,69 @@
 #include "asm.h"
 #include "cond.h"
 #include "core.h"
+#include "dis.h"
 
-static Cond cond_parse(Str instr) {
-  if (str_ends_with(instr, "eq"))
+static const char *instrname[] = {
+    [INSTR_ADD] = "add", [INSTR_AND] = "and", [INSTR_B] = "b",
+    [INSTR_CMP] = "cmp", [INSTR_EOR] = "eor", [INSTR_LDR] = "ldr",
+    [INSTR_MLA] = "mla", [INSTR_MOV] = "mov", [INSTR_MUL] = "mul",
+    [INSTR_ORR] = "orr", [INSTR_RSB] = "rsb", [INSTR_STR] = "str",
+    [INSTR_SUB] = "sub", [INSTR_TEQ] = "teq", [INSTR_TST] = "tst",
+};
+
+static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
+  if (str_eq(cname, "eq"))
     return COND_EQ;
-  else if (str_ends_with(instr, "ne"))
+  else if (str_eq(cname, "ne"))
     return COND_NE;
-  else if (str_ends_with(instr, "ge"))
+  else if (str_eq(cname, "ge"))
     return COND_GE;
-  else if (str_ends_with(instr, "lt"))
+  else if (str_eq(cname, "lt"))
     return COND_LT;
-  else if (str_ends_with(instr, "gt"))
+  else if (str_eq(cname, "gt"))
     return COND_GT;
-  else if (str_ends_with(instr, "le"))
+  else if (str_eq(cname, "le"))
     return COND_LE;
-  else
+  else if (str_eq(cname, ""))
     return COND_AL;
+  else
+    asm_err(a, t, "Expected cond, got `%.*s`", (int)cname.len, cname.ptr);
 }
 
-// TODO: This probably exists in dis
-static char *cond_name(Cond c) {
-  switch (c) {
-  case COND_EQ:
-    return "eq";
-  case COND_NE:
-    return "ne";
-  case COND_GE:
-    return "ge";
-  case COND_LT:
-    return "lt";
-  case COND_GT:
-    return "gt";
-  case COND_LE:
-    return "le";
-  case COND_AL:
-    return "";
-  default:
-    assert(0);
-  }
-}
-
-InstrKind parse_instr_name(Str instr) {
-  if (str_eq(instr, "add"))
+InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
+  if (str_starts_with(t->source, "add"))
     return INSTR_ADD;
-  else if (str_eq(instr, "and"))
+  else if (str_starts_with(t->source, "and"))
     return INSTR_AND;
-  else if (str_eq(instr, "b"))
+  else if (str_starts_with(t->source, "b"))
     return INSTR_B;
-  else if (str_eq(instr, "cmp"))
+  else if (str_starts_with(t->source, "cmp"))
     return INSTR_CMP;
-  else if (str_eq(instr, "eor"))
+  else if (str_starts_with(t->source, "eor"))
     return INSTR_EOR;
-  else if (str_eq(instr, "ldr"))
+  else if (str_starts_with(t->source, "ldr"))
     return INSTR_LDR;
-  else if (str_eq(instr, "mla"))
+  else if (str_starts_with(t->source, "mla"))
     return INSTR_MLA;
-  else if (str_eq(instr, "mov"))
+  else if (str_starts_with(t->source, "mov"))
     return INSTR_MOV;
-  else if (str_eq(instr, "mul"))
+  else if (str_starts_with(t->source, "mul"))
     return INSTR_MUL;
-  else if (str_eq(instr, "orr"))
+  else if (str_starts_with(t->source, "orr"))
     return INSTR_ORR;
-  else if (str_eq(instr, "rsb"))
+  else if (str_starts_with(t->source, "rsb"))
     return INSTR_RSB;
-  else if (str_eq(instr, "str"))
+  else if (str_starts_with(t->source, "str"))
     return INSTR_STR;
-  else if (str_eq(instr, "sub"))
+  else if (str_starts_with(t->source, "sub"))
     return INSTR_SUB;
-  else if (str_eq(instr, "teq"))
+  else if (str_starts_with(t->source, "teq"))
     return INSTR_TEQ;
-  else if (str_eq(instr, "tst"))
+  else if (str_starts_with(t->source, "tst"))
     return INSTR_TST;
   else
-    assert(0); // TODO: Handle
+    asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,
+            t->source.ptr);
 }
 Reg parse_reg_name(Token t) {
   assert(t.kind == TOKEN_IDENT);
@@ -136,48 +126,15 @@ Instr asm_parse_number(Assembler *a, Token t) {
   assert(0);
 }
 
-const char *instr_kind_name(InstrKind ik) {
-  switch (ik) {
-  case INSTR_ADD:
-    return "INSTR_ADD";
-  case INSTR_AND:
-    return "INSTR_AND";
-  case INSTR_B:
-    return "INSTR_B";
-  case INSTR_CMP:
-    return "INSTR_CMP";
-  case INSTR_EOR:
-    return "INSTR_EOR";
-  case INSTR_LDR:
-    return "INSTR_LDR";
-  case INSTR_MLA:
-    return "INSTR_MLA";
-  case INSTR_MOV:
-    return "INSTR_MOV";
-  case INSTR_MUL:
-    return "INSTR_MUL";
-  case INSTR_ORR:
-    return "INSTR_ORR";
-  case INSTR_RSB:
-    return "INSTR_RSB";
-  case INSTR_STR:
-    return "INSTR_STR";
-  case INSTR_SUB:
-    return "INSTR_SUB";
-  case INSTR_TEQ:
-    return "INSTR_TEQ";
-  case INSTR_TST:
-    return "INSTR_TST";
-  default:
-    assert(0);
-  }
-}
-
-InstrCommon instr_common_parse(Str instr) {
+InstrCommon asm_parse_instr_common(Assembler *a, Token *t) {
+  assert(t->kind == TOKEN_IDENT);
   InstrCommon ic;
-  ic.cond = cond_parse(instr);
-  instr.len -= strlen(cond_name(ic.cond));
-  ic.kind = parse_instr_name(instr);
+  ic.kind = asm_parse_instr_name(a, t);
+  size_t kindlen = strlen(instrname[ic.kind]);
+  ic.cond = asm_parse_cond(a, str_trim_start(t->source, kindlen), t);
+  size_t condlen = strlen(condname[ic.cond]);
+  assert(condlen + kindlen == t->source.len);
+
   return ic;
 }
 
@@ -206,7 +163,7 @@ static void asm_reset(Assembler *a) {
 }
 
 static void asm_instr(Assembler *a, Token *t, Instr ino) {
-  InstrCommon c = instr_common_parse(t->source);
+  InstrCommon c = asm_parse_instr_common(a, t);
   Instr i = asm_fn[c.kind](a, c, ino);
   i |= c.cond << 28;
   DBG;

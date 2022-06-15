@@ -33,6 +33,8 @@ Str str_lit(const char *);
 
 // s[:-n]
 Str str_trim_end(Str s, size_t n);
+// s[n:]
+Str str_trim_start(Str s, size_t n);
 
 bool str_parse_hex(Str s, Instr *out);
 bool str_parse_dec(Str s, Instr *out);

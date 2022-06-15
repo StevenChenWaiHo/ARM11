@@ -39,6 +39,12 @@ Str str_trim_end(Str s, size_t n) {
   s.len -= n;
   return s;
 }
+Str str_trim_start(Str s, size_t n) {
+  assert(n <= s.len);
+  s.len -= n;
+  s.ptr += n;
+  return s;
+}
 
 // TODO: Handle overflow
 bool str_parse_hex(Str s, Instr *out) {
