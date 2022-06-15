@@ -6,8 +6,9 @@
 
 #include "strmap.h"
 
-//test insert to avl tree, remove when done
+//test insert to and get from avl tree, remove when done
 
+/* old printf test
 static void preOrder(TreeNode *root) {
   if (root != NULL) {
     printf("%s: %d\n", root->key.ptr, root->value);
@@ -16,18 +17,27 @@ static void preOrder(TreeNode *root) {
   }
 }
 
-static void new_preOrder(Tree *tree) {
-  preOrder(tree->root);
+static void new_preOrder(Tree tree) {
+  preOrder(tree.root);
+}*/
+
+static bool tree_same(Tree *tree1, Tree *tree2, Str key) {
+  Tree newtree1;
+  Tree newtree2;
+  newtree1 = tree_get(tree1, key);
+  newtree2 = tree_get(tree2, key);
+  bool same = newtree1.root->value == newtree2.root->value;
+  return same;
 }
 
-static Str str_a = {.ptr = "a", .len = strlen("a")};
-static Str str_ab = {.ptr = "ab", .len = strlen("ab")};
-static Str str_ac = {.ptr = "ac", .len = strlen("ac")};
-static Str str_dd = {.ptr = "dd", .len = strlen("dd")};
-static Str str_eee = {.ptr = "eee", .len = strlen("eee")};
-static Str str_f = {.ptr = "f", .len = strlen("f")};
+const static Str str_a = {.ptr = "a", .len = strlen("a")};
+const static Str str_ab = {.ptr = "ab", .len = strlen("ab")};
+const static Str str_ac = {.ptr = "ac", .len = strlen("ac")};
+const static Str str_dd = {.ptr = "dd", .len = strlen("dd")};
+const static Str str_eee = {.ptr = "eee", .len = strlen("eee")};
+const static Str str_f = {.ptr = "f", .len = strlen("f")};
 
-static TreeNode *testtree_get() {
+static Tree *testtree_get() {
 
   TreeNode *node_a = malloc(sizeof(TreeNode));
   node_a->key = str_a;
@@ -76,9 +86,6 @@ int main() {
   Tree *tree = malloc(sizeof(Tree));
   TreeNode *root = NULL;
   tree->root = root;
-  //Tree tree = {.root = root};
-  Tree *got = malloc(sizeof(Tree));
-  char input[10];
 
   /*char **keys = {"a", "ab", "ac", "dd", "eee", "f", NULL};
   int vals[] = {1, 3, 15, 220, 220, 40};
@@ -91,22 +98,23 @@ int main() {
   for (int i = 0; vals[i]; i++) {
     tree = tree_insert(tree, strs[i], vals[i]);
   }*/
+
   Tree *testtree = testtree_get();
- 
+
   tree = tree_insert(tree, str_a, 1);
-  assert(tree_get(tree, str_a)->root->value == tree_get(testtree, str_a)->root->value);
+  assert(tree_same(tree, testtree, str_a));
+
   tree = tree_insert(tree, str_ab, 3);
   tree = tree_insert(tree, str_ac, 15);
-  assert(tree_get(tree, str_a)->root->value == tree_get(testtree, str_a)->root->value);
-  assert(tree_get(tree, str_ab)->root->value == tree_get(testtree, str_ab)->root->value);
-  assert(tree_get(tree, str_ac)->root->value == tree_get(testtree, str_ac)->root->value);
+  assert(tree_same(tree, testtree, str_ab));
+  assert(tree_same(tree, testtree, str_ac));
+
   tree = tree_insert(tree, str_dd, 220);
   tree = tree_insert(tree, str_eee, 220);
   tree = tree_insert(tree, str_f, 40);
-  assert(tree_get(tree, str_dd)->root->value == tree_get(testtree, str_dd)->root->value);
-  assert(tree_get(tree, str_eee)->root->value == tree_get(testtree, str_eee)->root->value);
-  assert(tree_get(tree, str_f)->root->value == tree_get(testtree, str_f)->root->value);
-
+  assert(tree_same(tree, testtree, str_dd));
+  assert(tree_same(tree, testtree, str_eee));
+  assert(tree_same(tree, testtree, str_f));
 
  
   /* tree should be
@@ -117,7 +125,8 @@ int main() {
       a:1 ac:15  f:40
   */
 
-  /* //old printf test
+  //old printf test
+  /*char input[10];
   preOrder(testtree->root);
   printf("AVL tree in preorder:\n");
   preOrder(tree->root);
@@ -126,14 +135,16 @@ int main() {
 
   scanf("%s", input);
   Str str = {.ptr = input, .len = strlen(input)};
-  got = tree_get(tree, str);
+  Tree got = tree_get(tree, str);
   new_preOrder(got);
-  if (got != NULL) {
-    printf("%ld %d\n", got->root->key.len, got->root->height);
-  }
-  */
+  if (got.root != NULL) {
+    printf("%ld %d\n", got.root->key.len, got.root->height);
+  }*/
 
-  //memory leak exists
+
+
+  tree_free(tree);
+  tree_free(testtree);
  
   return 0;
 }

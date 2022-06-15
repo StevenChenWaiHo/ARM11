@@ -111,9 +111,8 @@ static TreeNode *node_insert(TreeNode *node, Str key, int value) {
 }
 
 Tree *tree_insert(Tree *tree, Str key, int value) {
-  Tree *newtree = malloc(sizeof(Tree));
-  newtree->root = node_insert(tree->root, key, value);
-  return newtree;
+  tree->root = node_insert(tree->root, key, value);
+  return tree;
 }
 
 
@@ -134,8 +133,27 @@ static TreeNode *node_get(TreeNode *node, Str key) {
   }
 }
 
-Tree *tree_get(Tree *tree, Str key) {
-  Tree *newtree = malloc(sizeof(Tree));
-  newtree->root = node_get(tree->root, key);
+Tree tree_get(Tree *tree, Str key) {
+  Tree newtree;
+  newtree.root = node_get(tree->root, key);
   return newtree;
+}
+
+static void node_free(TreeNode *node) {
+  if (node->left == NULL) {
+    free(node->left);
+  } else {
+      node_free(node->left);
+  }
+  if (node->right == NULL) {
+    free(node->right);
+  } else {
+    node_free(node->right);
+  }
+  free(node);
+}
+
+void tree_free(Tree *tree) {
+  node_free(tree->root);
+  free(tree);
 }
