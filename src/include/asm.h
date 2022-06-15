@@ -56,6 +56,8 @@ Token asm_advance(Assembler *);
 bool asm_match(Assembler *, TokenKind, Token *);
 bool asm_peak(Assembler *, TokenKind);
 
+Reg parse_reg_name(Token);
+
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
 

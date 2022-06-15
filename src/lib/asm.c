@@ -90,6 +90,38 @@ InstrKind parse_instr_name(Str instr) {
   else
     assert(0); // TODO: Handle
 }
+Reg parse_reg_name(Token t) {
+  assert(t.kind == TOKEN_IDENT);
+  Str regname = t.source;
+  if (str_eq(regname, "r0"))
+    return REG_0;
+  else if (str_eq(regname, "r1"))
+    return REG_1;
+  else if (str_eq(regname, "r2"))
+    return REG_2;
+  else if (str_eq(regname, "r3"))
+    return REG_3;
+  else if (str_eq(regname, "r4"))
+    return REG_4;
+  else if (str_eq(regname, "r5"))
+    return REG_5;
+  else if (str_eq(regname, "r6"))
+    return REG_6;
+  else if (str_eq(regname, "r7"))
+    return REG_7;
+  else if (str_eq(regname, "r8"))
+    return REG_8;
+  else if (str_eq(regname, "r9"))
+    return REG_9;
+  else if (str_eq(regname, "r10"))
+    return REG_10;
+  else if (str_eq(regname, "r11"))
+    return REG_11;
+  else if (str_eq(regname, "r12"))
+    return REG_12;
+  else
+    assert(0); // TODO: Nice error
+}
 
 const char *instr_kind_name(InstrKind ik) {
   switch (ik) {
