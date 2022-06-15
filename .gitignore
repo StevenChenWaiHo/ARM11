@@ -33,3 +33,6 @@ assemble
 *.nav
 *.toc
 
+# ???
+null.d
+.vscode/

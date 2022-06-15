@@ -49,8 +49,8 @@ static void skip_whitespace(Lexer *l) {
   }
 }
 static Token make_token(Lexer *l, TokenKind tk) {
-  Token t = {tk, &l->source[l->start], l->current - l->start, l->line,
-             l->column};
+  Token t = {
+      tk, {&l->source[l->start], l->current - l->start}, l->line, l->column};
   return t;
 }
 static bool is_alphanum(char c) { return isalnum(c) || c == '_'; }

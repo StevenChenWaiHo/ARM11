@@ -1,10 +1,11 @@
 CC      ?= gcc
-CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 
+CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c11 \
+          -Werror=incompatible-pointer-types
 
 CMD_SRC = assemble.c emulate.c disassemble.c
 LIB_SRC = asm.c     asm_mul.c  dis_br.c   dis_sdt.c  emu_cond.c  emu_sdt.c    mask.c \
           asm_br.c  asm_sdt.c  dis_dp.c   emu.c      emu_dp.c    emu_shift.c \
-          asm_dp.c  dis.c      dis_mul.c  emu_br.c   emu_mul.c   lexer.c
+          asm_dp.c  dis.c      dis_mul.c  emu_br.c   emu_mul.c   lexer.c str.c
 
 TEST_SRC = instr_common_parse.c
 
@@ -14,6 +15,7 @@ BUILD_DIR = build
 
 MAKEFLAGS += --no-builtin-rules # No Implict rules
 .SECONDARY: # Don't remove object files
+V = @ # use make V= to see the commands
 
 CFLAGS += -I include
 
@@ -52,11 +54,14 @@ DEPS = $(CMD_DEPS) $(LIB_DEPS) $(TEST_DEPS)
 all: $(CMD_BIN)
 
 $(BUILD_DIR)/%.o: %.c $(TIMESTAMP) include/mask.h
-	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
+	@test -z "$(V)" || echo "CC   $@"
+	$(V)$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 $(BUILD_DIR)/bin/%: $(BUILD_DIR)/cmd/%.o $(LIB_OBJ)
-	$(CC) $(CFLAGS) -MMD -MP $^ -o $@
+	@test -z "$(V)" || echo "CCLD $@"
+	$(V)$(CC) $(CFLAGS) -MMD -MP $^ -o $@
 $(BUILD_DIR)/test/bin/%: $(BUILD_DIR)/test/%.o $(LIB_OBJ)
-	$(CC) $(CFLAGS) -MMD -MP $^ -o $@
+	@test -z "$(V)" || echo "CCLD $@"
+	$(V)$(CC) $(CFLAGS) -MMD -MP $^ -o $@
 
 
 $(TIMESTAMP): Makefile
@@ -102,6 +107,8 @@ ubsan:
 	$(MAKE) UBSAN=1
 trace:
 	$(MAKE) TRACE=1
-
+assemble: $(BUILD_DIR)/bin/assemble
+disassemble: $(BUILD_DIR)/bin/disassemble
+emulate: $(BUILD_DIR)/bin/emulate
 
 -include $(DEPS)

@@ -1,8 +1,10 @@
 #ifndef AEMU_ASM_H
 #define AEMU_ASM_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdnoreturn.h>
 
 #include "cond.h"
 #include "core.h"
@@ -34,10 +36,12 @@ typedef struct {
 typedef struct {
   Lexer lexer;
   FILE *out;
+  Token current;
+  size_t n_instrs;
   // TODO: Str->Int map
 } Assembler;
 
-InstrCommon instr_common_parse(const char *iname, size_t inamelen);
+InstrCommon instr_common_parse(Str instr);
 void assemble(char *src, char *filename, FILE *);
 
 typedef Instr (*AsmFn)(Assembler *, InstrCommon);
@@ -47,7 +51,14 @@ Instr asm_mul(Assembler *, InstrCommon);
 Instr asm_sdt(Assembler *, InstrCommon);
 Instr asm_dp(Assembler *, InstrCommon);
 
-void asm_err(Assembler *a, Token *loc, char *fmt, ...)
+Token asm_expect(Assembler *, TokenKind);
+Token asm_advance(Assembler *);
+bool asm_match(Assembler *, TokenKind, Token *);
+bool asm_peak(Assembler *, TokenKind);
+
+Reg parse_reg_name(Token);
+
+noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
 
 #endif
