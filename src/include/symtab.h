@@ -23,5 +23,6 @@ bool sym_tab_get(SymTab *st, Str key, size_t *val);
 // Returns true if key was added, false if key already existed
 bool sym_tab_insert(SymTab *st, Str key, size_t val);
 void sym_tab_free(SymTab);
+void sym_tab_foreach(SymTab *st, void (*f)(SymTabEntry *));
 
 #endif

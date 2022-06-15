@@ -215,9 +215,16 @@ static void asm_instr(Assembler *a, Token *t, Instr ino) {
   assert(written == 1); // TODO: Handle better.
 }
 
-static size_t asm_n_instrs(Assembler *a) {
+#ifdef AEMU_TRACE
+static void st_dbg(SymTabEntry *ste) {
+  printf("   \"%.*s\"  -> %lu\n", (int)ste->name.len, ste->name.ptr,
+         ste->offset);
+}
+#endif
 
+static size_t asm_pass1(Assembler *a) {
   asm_reset(a);
+  a->symtab = sym_tab_new();
   size_t n_instr = 0;
   Token t;
   for (;;) {
@@ -232,6 +239,7 @@ static size_t asm_n_instrs(Assembler *a) {
         goto done;
       break;
     case TOKEN_LABEL:
+      sym_tab_insert(&a->symtab, t.source, n_instr);
       // TODO: Add to symbol table here.
       asm_expect(a, TOKEN_NEWLINE);
       break;
@@ -251,7 +259,7 @@ void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
   a.lexer = lexer_new(src, filename);
   a.out = out;
-  a.n_instrs = asm_n_instrs(&a);
+  a.n_instrs = asm_pass1(&a);
   a.consts = NULL;
   a.n_consts = 0;
 
@@ -263,6 +271,10 @@ void assemble(char *src, char *filename, FILE *out) {
     printf("%ld:%ld %20s `%.*s`\n", t.line + 1, t.column,
            token_kind_name(tkind), (int)t.source.len, t.source.ptr);
   } while (t.kind != TOKEN_EOF);
+
+  printf("\n{\n");
+  sym_tab_foreach(&a.symtab, st_dbg);
+  printf("}\n");
 #endif
   asm_reset(&a);
 

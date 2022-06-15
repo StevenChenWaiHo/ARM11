@@ -8,7 +8,8 @@ static size_t grow_cap(size_t cap) { return cap ? cap * 2 : DEFAULT_CAP; }
 
 SymTab sym_tab_new() {
   SymTab st;
-  st.ptr = st.len = st.cap = 0;
+  st.len = st.cap = 0;
+  st.ptr = NULL;
   return st;
 }
 // If found, returns true, and writes to val
@@ -37,3 +38,8 @@ bool sym_tab_insert(SymTab *st, Str key, size_t val) {
   return true;
 }
 void sym_tab_free(SymTab st) { free(st.ptr); }
+
+void sym_tab_foreach(SymTab *st, void (*f)(SymTabEntry *)) {
+  for (size_t i = 0; i < st->len; i++)
+    f(&st->ptr[i]);
+}
