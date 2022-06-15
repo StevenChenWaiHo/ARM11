@@ -9,6 +9,8 @@
 #define DP_SHIFT_REG_START_BIT 8
 #define DP_SHIFT_TYPE_START_BIT 5
 
+#define I_START_BIT 25
+
 static DpKind ik_to_dpk(InstrKind ik) {
   switch (ik) {
   case INSTR_AND:
@@ -124,15 +126,12 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
   case INSTR_LSL:
     rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
     asm_expect(a, TOKEN_COMMA);
-    if (asm_match(a, TOKEN_IDENT, &out)) {
-      // Shift by Register
-      op2 |= 1;
-      op2 |= DP_SHIFT_LSL << DP_SHIFT_TYPE_START_BIT;
-      op2 |= parse_reg_name(out) << DP_SHIFT_REG_START_BIT;
-    } else if (asm_match(a, TOKEN_IDENT, &out)) {
+    if (asm_match(a, TOKEN_HASH_NUM, &out)) {
       // Shift by integer
+      op2 |= rd;
       op2 |= asm_parse_number(a, out) << DP_SHIFT_CONST_START_BIT;
     }
+    asm_expect(a, TOKEN_NEWLINE);
     return bit_asm_dp(i, ik_to_dpk(c.kind), s, rn, rd, op2);
     break;
   case INSTR_MOV:
