@@ -33,7 +33,7 @@ Instr asm_mul(Assembler *a, InstrCommon c) {
   if (c.kind == INSTR_MLA) {
     comma = asm_expect(a, TOKEN_COMMA);
     Instr rn = num_skip_prefix(asm_expect(a, TOKEN_IDENT));
-    i = 1 << MUL_TYPE_START_BIT | rn << MUL_RN_START_BIT | i;
+    i |= 1 << MUL_TYPE_START_BIT | rn << MUL_RN_START_BIT;
   }
   return c.cond << COND_START_BIT | rd << MUL_RD_START_BIT |
          rs << MUL_RS_START_BIT | MUL_FIXED_BIT << MUL_FIXED_BIT_START |
