@@ -200,8 +200,10 @@ static void asm_reset(Assembler *a) {
 static void asm_instr(Assembler *a, Token *t, Instr ino) {
   InstrCommon c = instr_common_parse(t->source);
   Instr i = asm_fn[c.kind](a, c, ino);
-  // TODO: Add cond
+  i |= c.cond << 28;
+  DBG;
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
+  fflush(a->out);       // Temp hack so during abort we get some output.
   assert(written == 1); // TODO: Handle better.
 }
 
@@ -245,6 +247,7 @@ void assemble(char *src, char *filename, FILE *out) {
   a.consts = NULL;
   a.n_consts = 0;
 
+#ifdef AEMU_TRACE
   Token t;
   do {
     t = asm_advance(&a);
@@ -252,10 +255,10 @@ void assemble(char *src, char *filename, FILE *out) {
     printf("%ld:%ld %20s `%.*s`\n", t.line + 1, t.column,
            token_kind_name(tkind), (int)t.source.len, t.source.ptr);
   } while (t.kind != TOKEN_EOF);
-
+#endif
   asm_reset(&a);
 
-  for (Instr ino = 0; ino++;) {
+  for (Instr ino = 0;; ino++) {
     Token t = asm_advance(&a);
     switch (t.kind) {
     case TOKEN_IDENT:
@@ -313,6 +316,7 @@ Token asm_advance(Assembler *a) {
 Instr asm_add_const(Assembler *a, Instr value) {
   // TODO: use ptr,len,cap. Not ptr,len
   a->n_consts++;
-  a->consts = realloc(a->consts, a->n_consts);
-  a->consts[a->n_consts] = value;
+  a->consts = reallocarray(a->consts, a->n_consts, sizeof(Instr));
+  a->consts[a->n_consts - 1] = value;
+  return a->n_consts - 1;
 }
