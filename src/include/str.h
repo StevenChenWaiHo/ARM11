@@ -1,4 +1,4 @@
-#ifdef AEMU_STR_H
+#ifndef AEMU_STR_H
 #define AEMU_STR_H
 
 // Not null terminated
