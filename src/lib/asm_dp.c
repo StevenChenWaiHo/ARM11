@@ -27,13 +27,13 @@
 bool check_valid_imm(Instr imm) {
   for (int i = 0; i < ROTATE_LIMIT; i++) {
     // Valid for value that only uses lowest 8 bits
-    if (imm & ~0xff == 0) {
+    if ((imm & ~0xff) == 0) {
       return true;
     }
 
     // Valid for value that only uses 8 bits (without rotating)
     int lowest_bit = ffs(imm);
-    if (imm & (~0xff << lowest_bit) == 0) {
+    if ((imm & ~(0xff << lowest_bit)) == 0) {
       return true;
     }
 
@@ -79,8 +79,6 @@ Instr asm_mul(Assembler *a, InstrCommon c) {
   Instr rn = 0;
   Instr rd = 0;
   Instr op2 = 0;
-
-  Token operand2_token;
 
   switch (c.kind) {
   // Result Computing Instructions
