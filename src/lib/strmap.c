@@ -5,22 +5,41 @@
 
 #include "strmap.h"
 
-int max(int a, int b) {
-  return (a > b) ? a :b;
+//use AVL tree to store keys for binary search and automatic balancing when inserting new nodes
+
+static int min(int a, int b) {
+  return (a < b) ? a : b;
 }
 
-int height(Node_t *node) {
+static int max(int a, int b) {
+  return (a > b) ? a : b;
+}
+
+static int height(TreeNode *node) {
   if (node == NULL) {
     return 0;
   }
   return 1 + max(height(node->left), height(node->right));
 }
 
-Node_t *newNode(char *key, int value) {
-  Node_t *node = (Node_t *) malloc(sizeof(Node_t));
+static int str_cmp(Str str1, Str str2) {
+  int len = min(str1.len, str2.len);
+  int cmp = strncmp(str1.ptr, str2.ptr, len);
+  if (cmp == 0 && str1.len != str2.len) {
+    if (str1.len > str2.len) {
+      return 1;
+    } else {
+      return -1;
+    }
+  } else {
+    return cmp;
+  }
+}
+
+static TreeNode *node_new(Str key, int value) {
+  TreeNode *node = (TreeNode *) malloc(sizeof(TreeNode));
 
   node->key = key;
-  node->keylen = strlen(key);
   node->value = value;
   node->left = NULL;
   node->right = NULL;
@@ -29,8 +48,8 @@ Node_t *newNode(char *key, int value) {
   return node;
 }
 
-Node_t *leftRotate(Node_t *node) {
-  Node_t *rightNode = node->right;
+static TreeNode *leftRotate(TreeNode *node) {
+  TreeNode *rightNode = node->right;
 
   node->right = rightNode->left;
   rightNode->left = node;
@@ -41,8 +60,8 @@ Node_t *leftRotate(Node_t *node) {
   return rightNode;
 }
 
-Node_t *rightRotate(Node_t *node) {
-  Node_t *leftNode = node->left;
+static TreeNode *rightRotate(TreeNode *node) {
+  TreeNode *leftNode = node->left;
 
   node->left = leftNode->right;
   leftNode->right = node;
@@ -53,69 +72,58 @@ Node_t *rightRotate(Node_t *node) {
   return leftNode;
 }
 
-int getBalanceFactor(Node_t *node) {
+TreeNode *node_insert(Tree *tree, Str key, int value) {
+  TreeNode *node = tree->root;
   if (node == NULL) {
-    return 0;
-  }
-  return height(node->left) - height(node->right);
-}
-
-Node_t *insert(Node_t *node, char *key, int value) {
-  if (node == NULL) {
-    return(newNode(key, value));
+    return(node_new(key, value));
   }
 
-  int cmp = strcmp(key, node->key);
+  int cmp = str_cmp(key, node->key);
   if (cmp < 0) {
-    node->left = insert(node->left, key, value);
+    node->left = node_insert(node->left, key, value);
   } else if (cmp > 0) {
-    node->right = insert(node->right, key, value);
+    node->right = node_insert(node->right, key, value);
   } else {//no equal keys in AVL tree
     return node;
   }
   
   node->height = height(node);
-  int balance = getBalanceFactor(node);
+
+  int balance = 0;
+  balance = height(node->left) - height(node->right);
 
   //4 cases of unbalance
-  if (balance > 1 && key < node->left->key) {
+  if (balance > 1 && str_cmp(key, node->left->key)) {
     return rightRotate(node);
-  }
-  if (balance < -1 && key > node->right->key) {
+  } else if (balance < -1 && str_cmp(key, node->right->key)) {
     return leftRotate(node);
-  }
-  if (balance > 1 && key > node->left->key) {
+  } else if (balance > 1 && str_cmp(key, node->left->key)) {
     node->left = leftRotate(node->left);
     return rightRotate(node);
-  }
-  if (balance < -1 && key < node->right->key) {
+  } else if (balance < -1 && str_cmp(key, node->right->key)) {
     node->right = rightRotate(node->right);
     return leftRotate(node);
   }
   return node;
 }
 
-Node_t *get(Node_t *node, char *key) {
-  
+void tree_insert(Tree *tree, Str key, int value) {
+  tree->root = node_insert(tree, key, value);
+}
+
+TreeNode *tree_get(Tree *tree, Str key) {
+  TreeNode *node = tree->root;  
   if (node == NULL) {
-    printf("Cannot get value of %s: %s does not exist in the map\n", key, key);
+    //printf("Cannot get value of %s: %s does not exist in the map\n", key.ptr, key.ptr);
     return NULL;
   }
   
-  int cmp = strcmp(key, node->key);
+  int cmp = str_cmp(key, node->key);
   if (cmp == 0) {
     return node;
   } else if (cmp < 0) {
-    return get(node->left, key);
+    return tree_get(node->left, key);
   } else {
-    return get(node->right, key);
-  }
-}
-
-void preOrder(Node_t *root) {
-  if (root != NULL) {
-    printf("%s: %d\n", root->key, root->value);
-    preOrder(root->left);
-    preOrder(root->right);
+    return tree_get(node->right, key);
   }
 }
