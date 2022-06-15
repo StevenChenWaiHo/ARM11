@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "asm.h"
+#include "bit_asm.h"
 
 #define COND_START_BIT 28
 

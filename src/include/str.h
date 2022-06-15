@@ -22,7 +22,9 @@ typedef struct {
 bool str_ends_with(Str s, char *ending);
 bool str_starts_with(Str s, char *start);
 bool str_eq(Str s, char *other);
+bool str_eqs(Str s1, Str s2);
 Str str_new(const char *, size_t);
+Str str_lit(const char *);
 
 bool str_parse_hex(Str s, Instr *out);
 bool str_parse_dec(Str s, Instr *out);
