@@ -126,7 +126,7 @@ Reg parse_reg_name(Token t) {
     assert(0); // TODO: Nice error
 }
 
-Instr rotate_instr(Instr n) { return ("0x%x", (n << 2) | (n >> (32 - 2))); }
+Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
 
 bool check_valid_imm(Instr imm) {
   for (int i = 0; i < ROTATE_LIMIT; i++) {
