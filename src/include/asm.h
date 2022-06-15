@@ -41,7 +41,7 @@ typedef struct {
   // TODO: Str->Int map
 } Assembler;
 
-InstrCommon instr_common_parse(const char *iname, size_t inamelen);
+InstrCommon instr_common_parse(Str instr);
 void assemble(char *src, char *filename, FILE *);
 
 typedef Instr (*AsmFn)(Assembler *, InstrCommon);

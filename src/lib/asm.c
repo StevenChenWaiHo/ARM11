@@ -17,25 +17,18 @@ static bool ends_with(const char *s, size_t s_len, const char *suffix) {
   return strncmp(s + s_len - suffixlen, suffix, suffixlen) == 0;
 }
 
-static bool streq(const char *s, size_t s_len, const char *other) {
-  size_t otherlen = strlen(other);
-  if (s_len != otherlen)
-    return false;
-  return strncmp(s, other, s_len) == 0;
-}
-
-static Cond cond_parse(const char *iname, size_t inamelen) {
-  if (ends_with(iname, inamelen, "eq"))
+static Cond cond_parse(Str instr) {
+  if (str_ends_with(instr, "eq"))
     return COND_EQ;
-  else if (ends_with(iname, inamelen, "ne"))
+  else if (str_ends_with(instr, "ne"))
     return COND_NE;
-  else if (ends_with(iname, inamelen, "ge"))
+  else if (str_ends_with(instr, "ge"))
     return COND_GE;
-  else if (ends_with(iname, inamelen, "lt"))
+  else if (str_ends_with(instr, "lt"))
     return COND_LT;
-  else if (ends_with(iname, inamelen, "gt"))
+  else if (str_ends_with(instr, "gt"))
     return COND_GT;
-  else if (ends_with(iname, inamelen, "le"))
+  else if (str_ends_with(instr, "le"))
     return COND_LE;
   else
     return COND_AL;
@@ -63,36 +56,36 @@ static char *cond_name(Cond c) {
   }
 }
 
-InstrKind parse_instr_name(const char *i, size_t len) {
-  if (streq(i, len, "add"))
+InstrKind parse_instr_name(Str instr) {
+  if (str_eq(instr, "add"))
     return INSTR_ADD;
-  else if (streq(i, len, "and"))
+  else if (str_eq(instr, "and"))
     return INSTR_AND;
-  else if (streq(i, len, "b"))
+  else if (str_eq(instr, "b"))
     return INSTR_B;
-  else if (streq(i, len, "cmp"))
+  else if (str_eq(instr, "cmp"))
     return INSTR_CMP;
-  else if (streq(i, len, "eor"))
+  else if (str_eq(instr, "eor"))
     return INSTR_EOR;
-  else if (streq(i, len, "ldr"))
+  else if (str_eq(instr, "ldr"))
     return INSTR_LDR;
-  else if (streq(i, len, "mla"))
+  else if (str_eq(instr, "mla"))
     return INSTR_MLA;
-  else if (streq(i, len, "mov"))
+  else if (str_eq(instr, "mov"))
     return INSTR_MOV;
-  else if (streq(i, len, "mul"))
+  else if (str_eq(instr, "mul"))
     return INSTR_MUL;
-  else if (streq(i, len, "orr"))
+  else if (str_eq(instr, "orr"))
     return INSTR_ORR;
-  else if (streq(i, len, "rsb"))
+  else if (str_eq(instr, "rsb"))
     return INSTR_RSB;
-  else if (streq(i, len, "str"))
+  else if (str_eq(instr, "str"))
     return INSTR_STR;
-  else if (streq(i, len, "sub"))
+  else if (str_eq(instr, "sub"))
     return INSTR_SUB;
-  else if (streq(i, len, "teq"))
+  else if (str_eq(instr, "teq"))
     return INSTR_TEQ;
-  else if (streq(i, len, "tst"))
+  else if (str_eq(instr, "tst"))
     return INSTR_TST;
   else
     assert(0); // TODO: Handle
@@ -135,10 +128,11 @@ const char *instr_kind_name(InstrKind ik) {
   }
 }
 
-InstrCommon instr_common_parse(const char *iname, size_t inamelen) {
+InstrCommon instr_common_parse(Str instr) {
   InstrCommon ic;
-  ic.cond = cond_parse(iname, inamelen);
-  ic.kind = parse_instr_name(iname, inamelen - strlen(cond_name(ic.cond)));
+  ic.cond = cond_parse(instr);
+  instr.len -= strlen(cond_name(ic.cond));
+  ic.kind = parse_instr_name(instr);
   return ic;
 }
 
@@ -167,7 +161,7 @@ static void asm_reset(Assembler *a) {
 }
 
 static void asm_instr(Assembler *a, Token *t) {
-  InstrCommon c = instr_common_parse(t->source, t->len);
+  InstrCommon c = instr_common_parse(t->source);
   Instr i = asm_fn[c.kind](a, c);
   // TODO: Add cond
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
@@ -217,7 +211,7 @@ void assemble(char *src, char *filename, FILE *out) {
     t = asm_advance(&a);
     int tkind = t.kind;
     printf("%ld:%ld %20s `%.*s`\n", t.line + 1, t.column,
-           token_kind_name(tkind), (int)t.len, t.source);
+           token_kind_name(tkind), (int)t.source.len, t.source.ptr);
   } while (t.kind != TOKEN_EOF);
 
   asm_reset(&a);
@@ -231,8 +225,8 @@ void assemble(char *src, char *filename, FILE *out) {
     case TOKEN_EOF:
       return; // TODO: Cleanup?
     default:
-      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)", (int)t.len,
-              t.source, token_kind_name(t.kind));
+      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)",
+              (int)t.source.len, t.source.ptr, token_kind_name(t.kind));
     }
   }
 }
@@ -257,7 +251,7 @@ Token asm_expect(Assembler *a, TokenKind kind) {
   Token t = a->current;
   if (t.kind != kind)
     asm_err(a, &t, "Expected %s, but got %s(%.*s)", token_kind_name(kind),
-            token_kind_name(t.kind), (int)t.len, t.source);
+            token_kind_name(t.kind), (int)t.source.len, t.source.ptr);
   a->current = lexer_next(&a->lexer);
   return t;
 }
