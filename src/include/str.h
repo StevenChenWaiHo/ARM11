@@ -25,5 +25,6 @@ bool str_eq(Str s, char *other);
 Str str_new(const char *, size_t);
 
 bool str_parse_hex(Str s, Instr *out);
+bool str_parse_dec(Str s, Instr *out);
 
 #endif

@@ -26,6 +26,12 @@ typedef enum {
   REG_CPSR = 16
 } Reg;
 
+#ifdef AEMU_TRACE
 #define DBG printf("%s:%d\n", __FILE__, __LINE__)
+#else
+#define DBG                                                                    \
+  do {                                                                         \
+  } while (0)
+#endif
 
 #endif
