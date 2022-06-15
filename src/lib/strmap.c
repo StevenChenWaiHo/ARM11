@@ -49,31 +49,30 @@ static TreeNode *node_new(Str key, int value) {
 }
 
 static TreeNode *leftRotate(TreeNode *node) {
-  TreeNode *rightNode = node->right;
+  TreeNode *rightnode = node->right;
 
-  node->right = rightNode->left;
-  rightNode->left = node;
+  node->right = rightnode->left;
+  rightnode->left = node;
 
   node->height = height(node);
-  rightNode->height = height(rightNode);
+  rightnode->height = height(rightnode);
 
-  return rightNode;
+  return rightnode;
 }
 
 static TreeNode *rightRotate(TreeNode *node) {
-  TreeNode *leftNode = node->left;
+  TreeNode *leftnode = node->left;
 
-  node->left = leftNode->right;
-  leftNode->right = node;
+  node->left = leftnode->right;
+  leftnode->right = node;
 
   node->height = height(node);
-  leftNode->height = height(leftNode);
+  leftnode->height = height(leftnode);
     
-  return leftNode;
+  return leftnode;
 }
 
-TreeNode *node_insert(Tree *tree, Str key, int value) {
-  TreeNode *node = tree->root;
+static TreeNode *node_insert(TreeNode *node, Str key, int value) {
   if (node == NULL) {
     return(node_new(key, value));
   }
@@ -108,11 +107,11 @@ TreeNode *node_insert(Tree *tree, Str key, int value) {
 }
 
 void tree_insert(Tree *tree, Str key, int value) {
-  tree->root = node_insert(tree, key, value);
+  tree->root = node_insert(tree->root, key, value);
+  //return tree;
 }
 
-TreeNode *tree_get(Tree *tree, Str key) {
-  TreeNode *node = tree->root;  
+static TreeNode *node_get(TreeNode *node, Str key) {
   if (node == NULL) {
     //printf("Cannot get value of %s: %s does not exist in the map\n", key.ptr, key.ptr);
     return NULL;
@@ -122,8 +121,15 @@ TreeNode *tree_get(Tree *tree, Str key) {
   if (cmp == 0) {
     return node;
   } else if (cmp < 0) {
-    return tree_get(node->left, key);
+    return node_get(node->left, key);
   } else {
-    return tree_get(node->right, key);
+    return node_get(node->right, key);
   }
+}
+
+Tree *tree_get(Tree *tree, Str key) {
+  Tree *newtree_ptr;
+  Tree newtree = {.root = node_get(tree->root, key)};
+  newtree_ptr = &newtree;
+  return newtree_ptr;
 }
