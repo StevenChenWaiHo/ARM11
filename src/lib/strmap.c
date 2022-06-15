@@ -73,16 +73,16 @@ static TreeNode *rightRotate(TreeNode *node) {
   return leftnode;
 }
 
-TreeNode *tree_insert(TreeNode *node, Str key, int value) {
+static TreeNode *node_insert(TreeNode *node, Str key, int value) {
   if (node == NULL) {
     return(node_new(key, value));
   }
 
   int cmp = str_cmp(key, node->key);
   if (cmp < 0) {
-    node->left = tree_insert(node->left, key, value);
+    node->left = node_insert(node->left, key, value);
   } else if (cmp > 0) {
-    node->right = tree_insert(node->right, key, value);
+    node->right = node_insert(node->right, key, value);
   } else {//no equal keys in AVL tree
     return node;
   }
@@ -110,7 +110,14 @@ TreeNode *tree_insert(TreeNode *node, Str key, int value) {
   return node;
 }
 
-TreeNode *tree_get(TreeNode *node, Str key) {
+Tree *tree_insert(Tree *tree, Str key, int value) {
+  Tree *newtree = malloc(sizeof(Tree));
+  newtree->root = node_insert(tree->root, key, value);
+  return newtree;
+}
+
+
+static TreeNode *node_get(TreeNode *node, Str key) {
   
   if (node == NULL) {
     //printf("Cannot get value of %s: %s does not exist in the map\n", key.ptr, key.ptr);
@@ -121,8 +128,14 @@ TreeNode *tree_get(TreeNode *node, Str key) {
   if (cmp == 0) {
     return node;
   } else if (cmp < 0) {
-    return tree_get(node->left, key);
+    return node_get(node->left, key);
   } else {
-    return tree_get(node->right, key);
+    return node_get(node->right, key);
   }
+}
+
+Tree *tree_get(Tree *tree, Str key) {
+  Tree *newtree = malloc(sizeof(Tree));
+  newtree->root = node_get(tree->root, key);
+  return newtree;
 }
