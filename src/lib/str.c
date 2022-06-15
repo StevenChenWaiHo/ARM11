@@ -46,3 +46,18 @@ bool str_parse_hex(Str s, Instr *out) {
   *out = n;
   return true;
 }
+
+bool str_parse_dec(Str s, Instr *out) {
+  Instr n = 0;
+  for (size_t i = 0; i < s.len; i++) {
+    char c = s.ptr[i];
+    Instr d;
+    if ('0' <= c && c <= '9')
+      d = c - '0';
+    else
+      return false;
+    n = 10 * n + d;
+  }
+  *out = n;
+  return true;
+}

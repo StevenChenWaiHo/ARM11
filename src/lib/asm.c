@@ -118,14 +118,22 @@ Reg parse_reg_name(Token t) {
 Instr asm_parse_number(Assembler *a, Token t) {
   assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
   Str s = t.source;
-  assert(str_starts_with(s, "=0x") ||
-         str_starts_with(s, "#0x")); // TODO: Handle base 10
-  s.ptr += 3;
-  s.len -= 3;
-  Instr n;
-  if (!str_parse_hex(s, &n))
-    asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
-  return n;
+  if (str_starts_with(s, "=0x") || str_starts_with(s, "#0x")) {
+    s.ptr += 3;
+    s.len -= 3;
+    Instr n;
+    if (!str_parse_hex(s, &n))
+      asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
+    return n;
+  } else if (str_starts_with(s, "#")) {
+    s.ptr += 1;
+    s.len -= 1;
+    Instr n;
+    if (!str_parse_dec(s, &n))
+      asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
+    return n;
+  }
+  assert(0);
 }
 
 const char *instr_kind_name(InstrKind ik) {
