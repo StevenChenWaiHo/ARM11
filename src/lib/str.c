@@ -34,6 +34,12 @@ Str str_new(const char *s, size_t l) {
 }
 Str str_lit(const char *s) { return str_new(s, strlen(s)); }
 
+Str str_trim_end(Str s, size_t n) {
+  assert(n <= s.len);
+  s.len -= n;
+  return s;
+}
+
 // TODO: Handle overflow
 bool str_parse_hex(Str s, Instr *out) {
   Instr n = 0;

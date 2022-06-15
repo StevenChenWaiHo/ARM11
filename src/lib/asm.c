@@ -239,12 +239,14 @@ static size_t asm_pass1(Assembler *a) {
         goto done;
       break;
     case TOKEN_LABEL:
-      sym_tab_insert(&a->symtab, t.source, n_instr);
+      sym_tab_insert(&a->symtab, str_trim_end(t.source, 1), n_instr);
       // TODO: Add to symbol table here.
       asm_expect(a, TOKEN_NEWLINE);
       break;
     case TOKEN_EOF:
       goto done;
+    case TOKEN_NEWLINE:
+      break;
     default:
       asm_err(a, &t, "Expected line instruction name, got %s",
               token_kind_name(t.kind));
@@ -284,10 +286,13 @@ void assemble(char *src, char *filename, FILE *out) {
     case TOKEN_IDENT:
       asm_instr(&a, &t, ino);
       break;
+    case TOKEN_LABEL:
+      asm_expect(&a, TOKEN_NEWLINE);
+      break;
     case TOKEN_EOF:
       return; // TODO: Cleanup?
     default:
-      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)",
+      asm_err(&a, &t, "Expected identifier or label, but got `%.*s` (%s)",
               (int)t.source.len, t.source.ptr, token_kind_name(t.kind));
     }
   }

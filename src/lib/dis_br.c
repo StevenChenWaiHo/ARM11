@@ -11,6 +11,10 @@ int funcCounter = 1;
 
 void dis_br(FILE *f, Instr i, const char *cond, int pc) {
   Instr offset = br_offset_mask(i);
+#ifdef AEMU_TRACE
+  printf("Raw Offset = %d\n", offset);
+#endif
+
   offset <<= 2;
   if ((offset >> 25) & 0x1) {
     offset |= 0xFC000000;
