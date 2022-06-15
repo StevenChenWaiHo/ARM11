@@ -5,34 +5,8 @@
 #include "asm.h"
 #include "bit_asm.h"
 
-// #define DP_RN_START_BIT 16
-// #define DP_RD_START_BIT 12
-
-#define DP_OPERAND2_START_BIT 0
-#define DP_OPERAND2_SIZE 32
-
-#define ROTATE_LIMIT 16
-
 #define DP_SHIFT_CONST_START_BIT 7
 #define DP_SHIFT_REG_START_BIT 8
-
-bool check_valid_imm(Instr imm) {
-  for (int i = 0; i < ROTATE_LIMIT; i++) {
-    // Valid for value that only uses lowest 8 bits
-    if ((imm & ~0xff) == 0) {
-      return true;
-    }
-
-    // Valid for value that only uses 8 bits (without rotating)
-    int lowest_bit = ffs(imm);
-    if ((imm & ~(0xff << lowest_bit)) == 0) {
-      return true;
-    }
-
-    i = (i >> 1) | (i << (DP_OPERAND2_SIZE - 1));
-  }
-  return false;
-}
 
 Instr parse_op2(Assembler *a, Instr *i) {
   Instr op2 = 0;
@@ -45,15 +19,15 @@ Instr parse_op2(Assembler *a, Instr *i) {
   }
   // Register
   if (asm_match(a, TOKEN_IDENT, &out)) {
-    *i = 1;
-    op2 = asm_parse_number(a, out);
+    *i = 0;
+    op2 = parse_reg_name(out);
     // Check if using Shift Register
     if (asm_match(a, TOKEN_COMMA, &out)) {
       // Shift by Register
       if (asm_match(a, TOKEN_IDENT, &out)) {
         op2 |= 1;
         op2 |= parse_reg_name(out) << DP_SHIFT_REG_START_BIT;
-      } else if (asm_match(a, TOKEN_IDENT, &out)) {
+      } else {
         op2 |= asm_parse_number(a, out) << DP_SHIFT_CONST_START_BIT;
       }
     }
@@ -84,6 +58,10 @@ static DpKind ik_to_dpk(InstrKind ik) {
     return DP_ORR;
   case INSTR_MOV:
     return DP_MOV;
+  case INSTR_ANDEQ:
+    return DP_ADD; // opcode AND and ANDEQ is 0
+  case INSTR_LSL:
+    return DP_MOV; // LSL is translated to MOV
   default:
     assert(0); // Invariant
   }
@@ -113,6 +91,9 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     break;
 
   // Single Operand Assignment
+  case INSTR_LSL:
+    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    break;
   case INSTR_MOV:
     rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
     break;
@@ -124,6 +105,8 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
     s = 1;
     break;
+  case INSTR_ANDEQ:
+    return 0;
   default:
     assert(0);
     break;
