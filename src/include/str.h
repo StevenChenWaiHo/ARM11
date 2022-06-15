@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "core.h"
+
 // This is basicly a rust &str, which means:
 // - Not null terminated.
 // - Does not represent ownership
@@ -15,8 +17,13 @@ typedef struct {
   size_t len;
 } Str;
 
+// TODO: Add a test
+
 bool str_ends_with(Str s, char *ending);
+bool str_starts_with(Str s, char *start);
 bool str_eq(Str s, char *other);
 Str str_new(const char *, size_t);
+
+bool str_parse_hex(Str s, Instr *out);
 
 #endif
