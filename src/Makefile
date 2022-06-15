@@ -5,7 +5,7 @@ CMD_SRC = assemble.c emulate.c disassemble.c
 LIB_SRC = asm_br.c  asm_dp.c   asm_sdt.c  dis.c     dis_mul.c  emu_br.c  emu_cond.c  emu_mul.c  emu_shift.c  mask.c \
           asm.c     asm_mul.c  dis_br.c   dis_dp.c  dis_sdt.c  emu.c     emu_dp.c    emu_sdt.c  lexer.c      strmap.c
 
-TEST_SRC = instr_common_parse.c  strmaptest.c
+TEST_SRC = instr_common_parse.c strmaptest.c
 
 BUILD_DIR = build
 

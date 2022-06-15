@@ -5,7 +5,7 @@
 
 #include "str.h"
 
-//map of string as key to int as value using AVL tree
+//map of string as key to int as value
 
 typedef struct Node {
 	Str key;
@@ -19,9 +19,9 @@ typedef struct {
 	TreeNode *root;
 } Tree;
 
-void tree_insert(Tree *tree, Str key, int value);
+TreeNode *tree_insert(TreeNode *node, Str key, int value);
 //Node *tree_delete(Node *node, Str key);
-Tree *tree_get(Tree *tree, Str key);
-void tree_free(Tree *tree);
+TreeNode *tree_get(TreeNode *node, Str key);
+//void tree_free(Tree *tree);
 
 #endif
