@@ -39,22 +39,27 @@ typedef struct {
   Token current;
   size_t n_instrs;
   // TODO: Str->Int map
+  Instr *consts;
+  size_t n_consts;
 } Assembler;
 
 InstrCommon instr_common_parse(Str instr);
 void assemble(char *src, char *filename, FILE *);
 
-typedef Instr (*AsmFn)(Assembler *, InstrCommon);
+typedef Instr (*AsmFn)(Assembler *, InstrCommon, Instr);
 
-Instr asm_br(Assembler *, InstrCommon);
-Instr asm_mul(Assembler *, InstrCommon);
-Instr asm_sdt(Assembler *, InstrCommon);
-Instr asm_dp(Assembler *, InstrCommon);
+Instr asm_br(Assembler *a, InstrCommon c, Instr ino);
+Instr asm_mul(Assembler *a, InstrCommon c, Instr ino);
+Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino);
+Instr asm_dp(Assembler *a, InstrCommon c, Instr ino);
 
 Token asm_expect(Assembler *, TokenKind);
 Token asm_advance(Assembler *);
 bool asm_match(Assembler *, TokenKind, Token *);
 bool asm_peak(Assembler *, TokenKind);
+
+Instr asm_parse_number(Assembler *, Token);
+Instr asm_add_const(Assembler *, Instr);
 
 Reg parse_reg_name(Token);
 
