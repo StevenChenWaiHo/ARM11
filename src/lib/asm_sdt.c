@@ -19,7 +19,9 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     Instr imm_val = asm_parse_number(a, num);
     if (imm_val <= 0xff)
       // mov
-      assert(0);
+      ret = bit_asm_dp(
+          /*i=*/true, DP_MOV, /*s=*/false, 0, rd, imm_val);
+
     else {
       Instr constno = asm_add_const(a, imm_val);
       Instr const_off = (constno + a->n_instrs - ino - 2) * 4;
@@ -30,7 +32,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   } else if (asm_match(a, TOKEN_LSQUARE, NULL)) {
     Reg rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
     asm_expect(a, TOKEN_RSQUARE);
-    assert(0);
+    ret = bit_asm_sdt(false, true, true, c.kind == INSTR_LDR, rn, rd, 0);
   } else {
     assert(0); // TODO: Good error.
   }
