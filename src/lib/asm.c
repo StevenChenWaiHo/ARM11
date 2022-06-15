@@ -90,6 +90,12 @@ InstrKind parse_instr_name(Str instr) {
     return INSTR_ANDEQ;
   else if (str_eq(instr, "lsl"))
     return INSTR_LSL;
+  else if (str_eq(instr, "lsr"))
+    return INSTR_LSR;
+  else if (str_eq(instr, "asr"))
+    return INSTR_ASR;
+  else if (str_eq(instr, "ror"))
+    return INSTR_ROR;
   else
     assert(0); // TODO: Handle
 }
