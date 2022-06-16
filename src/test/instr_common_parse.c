@@ -13,11 +13,11 @@
   } while (0)
 
 int main() {
-  TEST_CASE("add", INSTR_ADD, COND_AL);
-  TEST_CASE("and", INSTR_AND, COND_AL);
-  TEST_CASE("bne", INSTR_B, COND_NE);
-  TEST_CASE("cmp", INSTR_CMP, COND_AL);
-  TEST_CASE("eoreq", INSTR_EOR, COND_EQ);
-  TEST_CASE("ldrle", INSTR_LDR, COND_LE);
-  TEST_CASE("mlagt", INSTR_MLA, COND_GT);
+  // TEST_CASE("add", INSTR_ADD, COND_AL);
+  // TEST_CASE("and", INSTR_AND, COND_AL);
+  // TEST_CASE("bne", INSTR_B, COND_NE);
+  // TEST_CASE("cmp", INSTR_CMP, COND_AL);
+  // TEST_CASE("eoreq", INSTR_EOR, COND_EQ);
+  // TEST_CASE("ldrle", INSTR_LDR, COND_LE);
+  // TEST_CASE("mlagt", INSTR_MLA, COND_GT);
 }
