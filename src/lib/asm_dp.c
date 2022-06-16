@@ -154,7 +154,7 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     return bit_asm_dp(i, ik_to_dpk(c.kind), s, rn, rd, op2);
     break;
   default:
-    assert(0); // Unknown instruction
+    assert(0); // Unknown instructions
     break;
   }
 
