@@ -72,7 +72,9 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     ret = bit_asm_sdt(/*offset_reg=*/offset_reg, pre_index, /*up=*/!neg,
                       /*ldr=*/c.kind == INSTR_LDR, rn, rd, offset);
   } else {
-    assert(0); // TODO: Good error.
+    Token t = asm_advance(a);
+    asm_err(a, &t, "Expected `[` or `=0x...`, but got `%.*s`",
+            (int)t.source.len, t.source.ptr);
   }
 
   asm_expect(a, TOKEN_NEWLINE);

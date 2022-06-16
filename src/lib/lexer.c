@@ -40,8 +40,8 @@ static void skip_whitespace(Lexer *l) {
       break;
     case ';':
       // Comment
-      // TODO: skip_comment
-      assert(0);
+      while (!is_at_end(l) && peak(l) != '\n')
+        advance(l);
       break;
     default:
       return;
