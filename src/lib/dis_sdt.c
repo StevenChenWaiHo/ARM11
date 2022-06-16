@@ -19,6 +19,9 @@ void dis_sdt(FILE *f, Instr instr, const char *cond) {
   Instr rn = sdt_rn_mask(instr);
   Instr rm = sdt_rm_mask(instr);
   Instr offset = sdt_offset_mask(instr);
+#ifdef AEMU_TRACE
+  printf("Offset = %d\n", offset);
+#endif
 
   char *iname = isload ? "ldr" : "str";
   char *sign = ispos ? "" : "-";
