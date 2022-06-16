@@ -6,6 +6,7 @@
 #include "bit_asm.h"
 
 #define DP_SHIFT_CONST_START_BIT 7
+#define DP_SHIFT_CONST_MAX 0x1F
 
 static DpKind ik_to_dpk(InstrKind ik) {
   switch (ik) {
@@ -58,11 +59,16 @@ Instr parse_op2(Assembler *a, Instr *i) {
     Token rs;
     if (asm_match(a, TOKEN_IDENT, &rs))
       return bit_asm_op2_shift_reg(rm, shift_type, parse_reg_name(rs)); // reg
-    else
-      // Shift by integer
-      return bit_asm_op2_shift_imm(
-          rm, shift_type,
-          asm_parse_imm(a, asm_expect(a, TOKEN_HASH_NUM))); // imm
+    else {
+      Token imm = asm_expect(a, TOKEN_HASH_NUM);
+      Instr imm_instr = asm_parse_imm(a, imm);
+      if (imm_instr > DP_SHIFT_CONST_MAX) {
+        asm_err(a, &imm, "Const too large for a shift const: %d", imm_instr);
+      }
+      return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
+    }
+    // Shift by integer
+    // imm
   }
   assert(0);
 }
@@ -73,7 +79,6 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
   Instr rn = 0;
   Instr rd = 0;
   Instr op2 = 0;
-  Token out;
 
   switch (c.kind) {
   // Result Computing Instructions
@@ -103,11 +108,16 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     // Special Case, Convert LSL to MOV
   case INSTR_LSL:
     rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    Token imm;
     asm_expect(a, TOKEN_COMMA);
-    if (asm_match(a, TOKEN_HASH_NUM, &out)) {
+    if (asm_match(a, TOKEN_HASH_NUM, &imm)) {
       // Shift by integer
       op2 |= rd;
-      op2 |= asm_parse_imm(a, out) << DP_SHIFT_CONST_START_BIT;
+      Instr imm_instr = asm_parse_imm(a, imm);
+      if (imm_instr > DP_SHIFT_CONST_MAX) {
+        asm_err(a, &imm, "Const too large for a shift const: %d", imm_instr);
+      }
+      op2 |= imm_instr << DP_SHIFT_CONST_START_BIT;
     }
     asm_expect(a, TOKEN_NEWLINE);
     return bit_asm_dp(i, ik_to_dpk(c.kind), s, rn, rd, op2);

@@ -163,8 +163,9 @@ Instr asm_parse_imm(Assembler *a, Token t) {
   if (!is_valid_imm(n))
     asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
             t.source.ptr);
-  if (n > LOWEST_8_BIT_MASK)
+  if (n > LOWEST_8_BIT_MASK) {
     n = imm_encode(n);
+  }
   return n;
 }
 Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
