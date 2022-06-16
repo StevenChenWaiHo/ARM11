@@ -9,6 +9,7 @@
 #include "cond.h"
 #include "core.h"
 #include "lexer.h"
+#include "symtab.h"
 
 typedef enum {
   INSTR_ADD,
@@ -38,7 +39,7 @@ typedef struct {
   FILE *out;
   Token current;
   size_t n_instrs;
-  // TODO: Str->Int map
+  SymTab symtab;
   Instr *consts;
   size_t n_consts;
 } Assembler;
