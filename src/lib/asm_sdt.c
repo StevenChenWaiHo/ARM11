@@ -14,7 +14,10 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   Instr ret;
 
   if (asm_match(a, TOKEN_EQ_NUM, &num)) {
-    assert(c.kind == INSTR_LDR);
+    // assert(c.kind == INSTR_LDR);
+    if (c.kind != INSTR_LDR)
+      asm_err(a, &num, "Cannot use str with immediate number");
+
     // ldr r0,=0x02
     bool neg;
     Instr imm_val = asm_parse_number(a, num, &neg);
