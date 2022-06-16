@@ -17,6 +17,8 @@ static const char *instrname[] = {
     [INSTR_MLA] = "mla", [INSTR_MOV] = "mov", [INSTR_MUL] = "mul",
     [INSTR_ORR] = "orr", [INSTR_RSB] = "rsb", [INSTR_STR] = "str",
     [INSTR_SUB] = "sub", [INSTR_TEQ] = "teq", [INSTR_TST] = "tst",
+    [INSTR_LSL] = "lsl", [INSTR_ASR] = "asr", [INSTR_LSR] = "lsr",
+    [INSTR_ROR] = "ror",
 };
 
 static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
