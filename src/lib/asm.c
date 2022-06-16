@@ -6,36 +6,28 @@
 #include <string.h>
 
 #include "asm.h"
+#include "bit_asm.h"
 #include "cond.h"
 #include "core.h"
 
-// TODO: Str (ptr+len) struct
-static bool ends_with(const char *s, size_t s_len, const char *suffix) {
-  size_t suffixlen = strlen(suffix);
-  if (s_len < suffixlen)
-    return false;
-  return strncmp(s + s_len - suffixlen, suffix, suffixlen) == 0;
-}
+#define IMMEDIATE_SIZE 8
+#define ROTATE_SIZE 4
+#define ROTATE_START_BIT 8
+#define DP_OPERAND2_SIZE 32
+#define ROTATE_LIMIT 16
 
-static bool streq(const char *s, size_t s_len, const char *other) {
-  size_t otherlen = strlen(other);
-  if (s_len != otherlen)
-    return false;
-  return strncmp(s, other, s_len) == 0;
-}
-
-static Cond cond_parse(const char *iname, size_t inamelen) {
-  if (ends_with(iname, inamelen, "eq"))
+static Cond cond_parse(Str instr) {
+  if (str_ends_with(instr, "eq"))
     return COND_EQ;
-  else if (ends_with(iname, inamelen, "ne"))
+  else if (str_ends_with(instr, "ne"))
     return COND_NE;
-  else if (ends_with(iname, inamelen, "ge"))
+  else if (str_ends_with(instr, "ge"))
     return COND_GE;
-  else if (ends_with(iname, inamelen, "lt"))
+  else if (str_ends_with(instr, "lt"))
     return COND_LT;
-  else if (ends_with(iname, inamelen, "gt"))
+  else if (str_ends_with(instr, "gt"))
     return COND_GT;
-  else if (ends_with(iname, inamelen, "le"))
+  else if (str_ends_with(instr, "le"))
     return COND_LE;
   else
     return COND_AL;
@@ -63,39 +55,141 @@ static char *cond_name(Cond c) {
   }
 }
 
-InstrKind parse_instr_name(const char *i, size_t len) {
-  if (streq(i, len, "add"))
+InstrKind parse_instr_name(Str instr) {
+  if (str_eq(instr, "add"))
     return INSTR_ADD;
-  else if (streq(i, len, "and"))
+  else if (str_eq(instr, "and"))
     return INSTR_AND;
-  else if (streq(i, len, "b"))
+  else if (str_eq(instr, "b"))
     return INSTR_B;
-  else if (streq(i, len, "cmp"))
+  else if (str_eq(instr, "cmp"))
     return INSTR_CMP;
-  else if (streq(i, len, "eor"))
+  else if (str_eq(instr, "eor"))
     return INSTR_EOR;
-  else if (streq(i, len, "ldr"))
+  else if (str_eq(instr, "ldr"))
     return INSTR_LDR;
-  else if (streq(i, len, "mla"))
+  else if (str_eq(instr, "mla"))
     return INSTR_MLA;
-  else if (streq(i, len, "mov"))
+  else if (str_eq(instr, "mov"))
     return INSTR_MOV;
-  else if (streq(i, len, "mul"))
+  else if (str_eq(instr, "mul"))
     return INSTR_MUL;
-  else if (streq(i, len, "orr"))
+  else if (str_eq(instr, "orr"))
     return INSTR_ORR;
-  else if (streq(i, len, "rsb"))
+  else if (str_eq(instr, "rsb"))
     return INSTR_RSB;
-  else if (streq(i, len, "str"))
+  else if (str_eq(instr, "str"))
     return INSTR_STR;
-  else if (streq(i, len, "sub"))
+  else if (str_eq(instr, "sub"))
     return INSTR_SUB;
-  else if (streq(i, len, "teq"))
+  else if (str_eq(instr, "teq"))
     return INSTR_TEQ;
-  else if (streq(i, len, "tst"))
+  else if (str_eq(instr, "tst"))
     return INSTR_TST;
+  else if (str_eq(instr, "andeq"))
+    return INSTR_ANDEQ;
+  else if (str_eq(instr, "lsl"))
+    return INSTR_LSL;
+  else if (str_eq(instr, "lsr"))
+    return INSTR_LSR;
+  else if (str_eq(instr, "asr"))
+    return INSTR_ASR;
+  else if (str_eq(instr, "ror"))
+    return INSTR_ROR;
   else
     assert(0); // TODO: Handle
+}
+Reg parse_reg_name(Token t) {
+  assert(t.kind == TOKEN_IDENT);
+  Str regname = t.source;
+  if (str_eq(regname, "r0"))
+    return REG_0;
+  else if (str_eq(regname, "r1"))
+    return REG_1;
+  else if (str_eq(regname, "r2"))
+    return REG_2;
+  else if (str_eq(regname, "r3"))
+    return REG_3;
+  else if (str_eq(regname, "r4"))
+    return REG_4;
+  else if (str_eq(regname, "r5"))
+    return REG_5;
+  else if (str_eq(regname, "r6"))
+    return REG_6;
+  else if (str_eq(regname, "r7"))
+    return REG_7;
+  else if (str_eq(regname, "r8"))
+    return REG_8;
+  else if (str_eq(regname, "r9"))
+    return REG_9;
+  else if (str_eq(regname, "r10"))
+    return REG_10;
+  else if (str_eq(regname, "r11"))
+    return REG_11;
+  else if (str_eq(regname, "r12"))
+    return REG_12;
+  else
+    assert(0); // TODO: Nice error
+}
+
+Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
+
+bool check_valid_imm(Instr imm) {
+  for (int i = 0; i < ROTATE_LIMIT; i++) {
+    // Valid for value that only uses lowest 8 bits
+    if (bit_width(imm) <= IMMEDIATE_SIZE) {
+      return true;
+    }
+
+    // Valid for value that only uses 8 bits (without rotating)
+    int lowest_bit = ffs(imm);
+    if (bit_width(imm >> lowest_bit) <= IMMEDIATE_SIZE) {
+      return true;
+    }
+
+    i = rotate_instr(i);
+  }
+  return false;
+}
+
+Instr imm_encode(Instr n) {
+  // PRE: n is valid imm
+  int shift = 1;
+  while (shift < ROTATE_LIMIT) {
+    n = rotate_instr(n);
+    if (bit_width(n) <= IMMEDIATE_SIZE) {
+      return shift << ROTATE_START_BIT | n;
+    }
+    shift++;
+  }
+  assert(0); // n is not a valid imm
+}
+
+Instr asm_parse_number(Assembler *a, Token t) {
+  assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
+  Str s = t.source;
+  Instr n;
+  if (str_starts_with(s, "=0x") || str_starts_with(s, "#0x")) {
+    s.ptr += 3;
+    s.len -= 3;
+    if (!str_parse_hex(s, &n))
+      asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
+  } else if (str_starts_with(s, "#")) {
+    s.ptr += 1;
+    s.len -= 1;
+    if (!str_parse_dec(s, &n))
+      asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
+  } else {
+    assert(0); // Token and str not match
+  }
+  if (!check_valid_imm(n)) {
+    perror("Immediate not valid");
+    assert(0);
+  }
+  if (n > 0xFF) {
+    n = imm_encode(n);
+  }
+  return n;
 }
 
 const char *instr_kind_name(InstrKind ik) {
@@ -135,10 +229,11 @@ const char *instr_kind_name(InstrKind ik) {
   }
 }
 
-InstrCommon instr_common_parse(const char *iname, size_t inamelen) {
+InstrCommon instr_common_parse(Str instr) {
   InstrCommon ic;
-  ic.cond = cond_parse(iname, inamelen);
-  ic.kind = parse_instr_name(iname, inamelen - strlen(cond_name(ic.cond)));
+  ic.cond = cond_parse(instr);
+  instr.len -= strlen(cond_name(ic.cond));
+  ic.kind = parse_instr_name(instr);
   return ic;
 }
 
@@ -153,6 +248,8 @@ static AsmFn asm_fn[] = {
     [INSTR_SUB] = asm_dp,
     [INSTR_TEQ] = asm_dp,
     [INSTR_TST] = asm_dp,
+    [INSTR_ANDEQ] = asm_dp,
+    [INSTR_LSL] = asm_dp,
     // Not DP
     [INSTR_B] = asm_br,
     [INSTR_MLA] = asm_mul,
@@ -161,36 +258,89 @@ static AsmFn asm_fn[] = {
     [INSTR_LDR] = asm_sdt,
 };
 
-static void asm_instr(Assembler *a, Token *t) {
-  InstrCommon c = instr_common_parse(t->source, t->len);
-  Instr i = asm_fn[c.kind](a, c);
-  // TODO: Add cond
+static void asm_reset(Assembler *a) {
+  a->lexer = lexer_new(a->lexer.source, a->lexer.filename);
+  a->current = lexer_next(&a->lexer);
+}
+
+static void asm_instr(Assembler *a, Token *t, Instr ino) {
+  InstrCommon c = instr_common_parse(t->source);
+  Instr i = asm_fn[c.kind](a, c, ino);
+  i |= c.cond << 28;
+  DBG;
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
+  fflush(a->out);       // Temp hack so during abort we get some output.
   assert(written == 1); // TODO: Handle better.
 }
 
-void assemble(char *src, char *filename, FILE *out) {
-  Lexer l = lexer_new(src, filename);
-  Assembler a;
-  a.lexer = l;
-  a.out = out;
+static size_t asm_n_instrs(Assembler *a) {
 
+  asm_reset(a);
+  size_t n_instr = 0;
+  Token t;
   for (;;) {
-    Token t = lexer_next(&l);
+    t = asm_advance(a);
     switch (t.kind) {
     case TOKEN_IDENT:
-      asm_instr(&a, &t);
+      n_instr++;
+      do
+        t = asm_advance(a);
+      while (t.kind != TOKEN_NEWLINE && t.kind != TOKEN_EOF);
+      if (t.kind == TOKEN_EOF)
+        goto done;
+      break;
+    case TOKEN_LABEL:
+      // TODO: Add to symbol table here.
+      asm_expect(a, TOKEN_NEWLINE);
+      break;
+    case TOKEN_EOF:
+      goto done;
+    default:
+      asm_err(a, &t, "Expected line instruction name, got %s",
+              token_kind_name(t.kind));
+    }
+  }
+done:
+  asm_reset(a);
+  return n_instr;
+}
+
+void assemble(char *src, char *filename, FILE *out) {
+  Assembler a;
+  a.lexer = lexer_new(src, filename);
+  a.out = out;
+  a.n_instrs = asm_n_instrs(&a);
+  a.consts = NULL;
+  a.n_consts = 0;
+
+#ifdef AEMU_TRACE
+  Token t;
+  do {
+    t = asm_advance(&a);
+    int tkind = t.kind;
+    printf("%ld:%ld %20s `%.*s`\n", t.line + 1, t.column,
+           token_kind_name(tkind), (int)t.source.len, t.source.ptr);
+  } while (t.kind != TOKEN_EOF);
+#endif
+  asm_reset(&a);
+
+  for (Instr ino = 0;; ino++) {
+    Token t = asm_advance(&a);
+    switch (t.kind) {
+    case TOKEN_IDENT:
+      asm_instr(&a, &t, ino);
       break;
     case TOKEN_EOF:
       return; // TODO: Cleanup?
     default:
-      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)", (int)t.len,
-              t.source, token_kind_name(t.kind));
+      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)",
+              (int)t.source.len, t.source.ptr, token_kind_name(t.kind));
     }
   }
 }
 
-void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
+noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
+  // TODO: Use current?
   va_list fmt_args;
   va_start(fmt_args, fmt);
   size_t sz = vsnprintf(NULL, 0, fmt, fmt_args) + 1;
@@ -203,4 +353,36 @@ void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
   fprintf(stderr, "%s:%ld:%ld: %s\n", a->lexer.filename, loc->line + 1,
           loc->column + 1, msg);
   exit(1);
+}
+
+Token asm_expect(Assembler *a, TokenKind kind) {
+  Token t = a->current;
+  if (t.kind != kind)
+    asm_err(a, &t, "Expected %s, but got %s(%.*s)", token_kind_name(kind),
+            token_kind_name(t.kind), (int)t.source.len, t.source.ptr);
+  a->current = lexer_next(&a->lexer);
+  return t;
+}
+bool asm_match(Assembler *a, TokenKind kind, Token *out) {
+  if (asm_peak(a, kind)) {
+    if (out)
+      *out = a->current;
+    a->current = lexer_next(&a->lexer);
+    return true;
+  }
+  return false;
+}
+bool asm_peak(Assembler *a, TokenKind kind) { return a->current.kind == kind; }
+Token asm_advance(Assembler *a) {
+  Token t = a->current;
+  a->current = lexer_next(&a->lexer);
+  return t;
+}
+
+Instr asm_add_const(Assembler *a, Instr value) {
+  // TODO: use ptr,len,cap. Not ptr,len
+  a->n_consts++;
+  a->consts = reallocarray(a->consts, a->n_consts, sizeof(Instr));
+  a->consts[a->n_consts - 1] = value;
+  return a->n_consts - 1;
 }

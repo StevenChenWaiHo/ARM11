@@ -4,6 +4,8 @@
 #include <stddef.h>
 // Loosly based on the clox lexer
 
+#include "str.h"
+
 typedef enum {
   TOKEN_COMMA,
   TOKEN_EOF,
@@ -18,8 +20,7 @@ typedef enum {
 
 typedef struct {
   TokenKind kind;
-  const char *source;
-  size_t len;
+  Str source;
   size_t line;
   size_t column;
 } Token;

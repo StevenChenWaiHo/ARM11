@@ -3,16 +3,25 @@
 
 #include "core.h"
 
-#define DP_AND 0
-#define DP_EOR 1
-#define DP_SUB 2
-#define DP_RSB 3
-#define DP_ADD 4
-#define DP_TST 8
-#define DP_TEQ 9
-#define DP_CMP 10
-#define DP_ORR 12
-#define DP_MOV 13
+typedef enum {
+  DP_AND = 0,
+  DP_EOR = 1,
+  DP_SUB = 2,
+  DP_RSB = 3,
+  DP_ADD = 4,
+  DP_TST = 8,
+  DP_TEQ = 9,
+  DP_CMP = 10,
+  DP_ORR = 12,
+  DP_MOV = 13,
+} DpKind;
+
+typedef enum {
+  DP_SHIFT_LSL,
+  DP_SHIFT_LSR,
+  DP_SHIFT_ASR,
+  DP_SHIFT_ROR
+} DpShiftKind;
 
 Instr operand_immediate(Instr);
 

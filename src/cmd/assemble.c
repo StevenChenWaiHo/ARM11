@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
   }
 
   assemble(buff, inname, out);
+  fclose(out);
 
   // printf("%s\n", buff);
   // Lexer l = lexer_new(buff, input);

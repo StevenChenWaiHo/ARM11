@@ -7,7 +7,7 @@
   do {                                                                         \
     size_t name_len = strlen(name_raw);                                        \
     char *name_to_parse = name_raw " extra for test";                          \
-    InstrCommon parsed = instr_common_parse(name_to_parse, name_len);          \
+    InstrCommon parsed = instr_common_parse(str_new(name_to_parse, name_len)); \
     assert(parsed.kind == ikind);                                              \
     assert(parsed.cond == icond);                                              \
   } while (0)
