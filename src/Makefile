@@ -2,10 +2,10 @@ CC      ?= gcc
 CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c11 \
           -Werror=incompatible-pointer-types -Werror=return-type
 
-CMD_SRC = assemble.c emulate.c disassemble.c
+CMD_SRC = assemble.c emulate.c disassemble.c debug.c
 LIB_SRC = asm.c     asm_mul.c  dis_br.c   dis_sdt.c  emu_cond.c  emu_sdt.c    mask.c \
           asm_br.c  asm_sdt.c  dis_dp.c   emu.c      emu_dp.c    emu_shift.c \
-          asm_dp.c  dis.c      dis_mul.c  emu_br.c   emu_mul.c   lexer.c str.c bit_asm.c
+          asm_dp.c  dis.c      dis_mul.c  emu_br.c   emu_mul.c   lexer.c str.c bit_asm.c dbg.c
 
 TEST_SRC = instr_common_parse.c
 
