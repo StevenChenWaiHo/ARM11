@@ -240,7 +240,6 @@ static AsmFn asm_fn[] = {
     [INSTR_SUB] = asm_dp,
     [INSTR_TEQ] = asm_dp,
     [INSTR_TST] = asm_dp,
-    [INSTR_ANDEQ] = asm_dp,
     [INSTR_LSL] = asm_dp,
     // Not DP
     [INSTR_B] = asm_br,
