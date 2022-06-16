@@ -242,7 +242,6 @@ static void asm_reset(Assembler *a) {
 
 static void asm_write_word(Assembler *a, Instr i) {
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
-  fflush(a->out);       // Temp hack so during abort we get some output.
   assert(written == 1); // TODO: Handle better.
 }
 
@@ -295,6 +294,8 @@ done:
   return n_instr;
 }
 
+static void asm_free(Assembler a) { sym_tab_free(a.symtab); }
+
 void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
   a.lexer = lexer_new(src, filename);
@@ -342,6 +343,8 @@ done:
   assert(ino == a.n_instrs);
   for (size_t i = 0; i < a.n_consts; i++)
     asm_write_word(&a, a.consts[i]);
+
+  asm_free(a);
 }
 
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
