@@ -9,7 +9,7 @@ LIB_SRC = asm.c      asm_sdt.c  dis_dp.c   emu_br.c    emu_sdt.c    str.c    \
           asm_dp.c   dis.c      dis_sdt.c  emu_dp.c    lexer.c      symtab.c \
           asm_mul.c  dis_br.c   emu.c      emu_mul.c   mask.c
 
-TEST_SRC = instr_common_parse.c symtab.c strmaptest.c
+TEST_SRC = instr_common_parse.c strmaptest.c symtab.c valid_imm_test.c
 
 BUILD_DIR = build
 

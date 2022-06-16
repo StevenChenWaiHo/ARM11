@@ -21,7 +21,7 @@ def maskgen(name, start, l):
     if l == 1:  # TODO: Generalizer setters.
         set_name = "set_" + name
         mask_h += f"Instr {set_name}(Instr, bool);\n"
-        mask_c += f"Instr {set_name}(Instr i, bool b) {{ return (i & ~{h}) | (b << {shift}); }}\n"
+        mask_c += f"Instr {set_name}(Instr i, bool b) {{ return (i & ~{h}) | ((Instr)b << {shift}); }}\n"
 
 
 if __name__ == "__main__":

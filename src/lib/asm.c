@@ -11,7 +11,7 @@
 #include "core.h"
 #include "dis.h"
 
-#define IMMEDIATE_SIZE 8
+#define LOWEST_8_BIT_MASK 0xFF
 #define ROTATE_START_BIT 8
 #define ROTATE_LIMIT 16
 
@@ -129,15 +129,16 @@ static Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
 bool is_valid_imm(Instr imm) {
   for (int i = 0; i < ROTATE_LIMIT; i++) {
     // Valid for value that only uses lowest 8 bits
-    if (bit_width(imm) <= IMMEDIATE_SIZE)
+    if ((imm & ~LOWEST_8_BIT_MASK) == 0) {
       return true;
-
+    }
     // Valid for value that only uses 8 bits (without rotating)
-    int lowest_bit = ffs(imm);
-    if (bit_width(imm >> lowest_bit) <= IMMEDIATE_SIZE)
+    int lowest_bit = ffs(imm) - 1;
+    if ((imm & ~(LOWEST_8_BIT_MASK << lowest_bit)) == 0 &&
+        lowest_bit % 2 == 0) {
       return true;
-
-    i = rotate_instr(i);
+    }
+    imm = rotate_instr(imm);
   }
   return false;
 }
@@ -147,7 +148,7 @@ Instr imm_encode(Instr n) {
   assert(is_valid_imm(n));
   for (int shift = 1; shift < ROTATE_LIMIT; shift++) {
     n = rotate_instr(n);
-    if (bit_width(n) <= IMMEDIATE_SIZE)
+    if ((n & ~LOWEST_8_BIT_MASK) == 0)
       return shift << ROTATE_START_BIT | n;
   }
   assert(0); // n is not a valid imm
@@ -162,7 +163,7 @@ Instr asm_parse_imm(Assembler *a, Token t) {
   if (!is_valid_imm(n))
     asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
             t.source.ptr);
-  if (n > 0xFF)
+  if (n > LOWEST_8_BIT_MASK)
     n = imm_encode(n);
   return n;
 }
@@ -171,7 +172,7 @@ Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
   if (!is_valid_imm(n))
     asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
             t.source.ptr);
-  if (n > 0xFF)
+  if (n > LOWEST_8_BIT_MASK)
     n = imm_encode(n);
   return n;
 }
@@ -241,7 +242,6 @@ static void asm_reset(Assembler *a) {
 
 static void asm_write_word(Assembler *a, Instr i) {
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
-  fflush(a->out);       // Temp hack so during abort we get some output.
   assert(written == 1); // TODO: Handle better.
 }
 
@@ -294,6 +294,8 @@ done:
   return n_instr;
 }
 
+static void asm_free(Assembler a) { sym_tab_free(a.symtab); }
+
 void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
   a.lexer = lexer_new(src, filename);
@@ -341,6 +343,8 @@ done:
   assert(ino == a.n_instrs);
   for (size_t i = 0; i < a.n_consts; i++)
     asm_write_word(&a, a.consts[i]);
+
+  asm_free(a);
 }
 
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
