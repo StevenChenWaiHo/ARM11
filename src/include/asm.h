@@ -75,6 +75,8 @@ Instr asm_parse_simm(Assembler *a, Token t, bool *neg);
 
 Instr asm_add_const(Assembler *, Instr);
 
+bool is_valid_imm(Instr n);
+
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
 
