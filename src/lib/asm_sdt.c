@@ -6,7 +6,7 @@
 Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   assert(c.kind == INSTR_STR || c.kind == INSTR_LDR);
 
-  Reg rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+  Reg rd = asm_expect_reg(a);
   asm_expect(a, TOKEN_COMMA);
 
   Token num;
@@ -30,7 +30,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
                         /*ldr=*/true, REG_PC, rd, const_off);
     }
   } else if (asm_match(a, TOKEN_LSQUARE, NULL)) {
-    Reg rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    Reg rn = asm_expect_reg(a);
     Instr offset = 0;
     bool offset_reg = false;
     bool pre_index = true;
@@ -40,7 +40,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
       if (asm_match(a, TOKEN_HASH_NUM, &shtok))
         offset = asm_parse_simm(a, shtok, &neg);
       else {
-        Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+        Reg reg = asm_expect_reg(a);
         ShiftKind sk = 0;
         Instr shift_by = 0;
         if (asm_match(a, TOKEN_COMMA, NULL)) {
@@ -61,7 +61,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
       Token o_reg_2;
 
       if (asm_match(a, TOKEN_IDENT, &o_reg_2)) {
-        offset = parse_reg_name(o_reg_2);
+        offset = asm_parse_reg_name(a, o_reg_2);
         offset_reg = true;
       } else {
         Token im = asm_expect(a, TOKEN_HASH_NUM);

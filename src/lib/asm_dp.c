@@ -48,7 +48,7 @@ Instr parse_op2(Assembler *a, Instr *i) {
   if (asm_match(a, TOKEN_IDENT, &rmt)) {
     // Register
     *i = 0;
-    Reg rm = parse_reg_name(rmt);
+    Reg rm = asm_parse_reg_name(a, rmt);
     // Check if using Shift
     if (!asm_match(a, TOKEN_COMMA, NULL))
       return rm;
@@ -57,7 +57,8 @@ Instr parse_op2(Assembler *a, Instr *i) {
 
     Token rs;
     if (asm_match(a, TOKEN_IDENT, &rs))
-      return bit_asm_op2_shift_reg(rm, shift_type, parse_reg_name(rs)); // reg
+      return bit_asm_op2_shift_reg(rm, shift_type,
+                                   asm_parse_reg_name(a, rs)); // reg
     else
       // Shift by integer
       return bit_asm_op2_shift_imm(
@@ -83,26 +84,26 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
   case INSTR_RSB:
   case INSTR_ADD:
   case INSTR_ORR:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_expect_reg(a);
     asm_expect(a, TOKEN_COMMA);
-    rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rn = asm_expect_reg(a);
     break;
 
     // Single Operand Assignment
   case INSTR_MOV:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_expect_reg(a);
     break;
 
     //  Flag Setting Instructions
   case INSTR_TST:
   case INSTR_TEQ:
   case INSTR_CMP:
-    rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rn = asm_expect_reg(a);
     s = 1;
     break;
     // Special Case, Convert LSL to MOV
   case INSTR_LSL:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_expect_reg(a);
     asm_expect(a, TOKEN_COMMA);
     if (asm_match(a, TOKEN_HASH_NUM, &out)) {
       // Shift by integer

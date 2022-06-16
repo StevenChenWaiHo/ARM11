@@ -91,7 +91,11 @@ InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
     asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,
             t->source.ptr);
 }
-Reg parse_reg_name(Token t) {
+Reg asm_expect_reg(Assembler *a) {
+  return asm_parse_reg_name(a, asm_expect(a, TOKEN_IDENT));
+}
+
+Reg asm_parse_reg_name(Assembler *a, Token t) {
   assert(t.kind == TOKEN_IDENT);
   Str regname = t.source;
   if (str_eq(regname, "r0"))
@@ -121,7 +125,8 @@ Reg parse_reg_name(Token t) {
   else if (str_eq(regname, "r12"))
     return REG_12;
   else
-    assert(0); // TODO: Nice error
+    asm_err(a, &t, "Expected register, got `%.*s`", (int)t.source.len,
+            t.source.ptr);
 }
 
 static Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
