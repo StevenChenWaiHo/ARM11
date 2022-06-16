@@ -55,9 +55,12 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
       }
     }
     asm_expect(a, TOKEN_RSQUARE);
-    if (asm_match(a, TOKEN_COMMA, NULL)) {
-      assert(offset == 0);
-      assert(offset_reg == false);
+    Token tcomma;
+    if (asm_match(a, TOKEN_COMMA, &tcomma)) {
+      if (offset || offset_reg)
+        asm_err(a, &tcomma,
+                "Already seen extra pre index arguments, cannot use post index "
+                "arguments");
       pre_index = false;
 
       Token o_reg_2;
