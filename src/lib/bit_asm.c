@@ -28,7 +28,7 @@ Instr bit_asm_mul(bool a, bool s, Reg rd, Reg rn, Reg rs, Reg rm) {
   return a << 21 | s << 20 | rd << 16 | rn << 12 | rs << 8 | 9 << 4 | rm;
 }
 
-Instr bit_asm_dp(bool i, Instr opcode, bool s, Reg rn, Reg rd, Instr op2) {
+Instr bit_asm_dp(bool i, DpKind opcode, bool s, Reg rn, Reg rd, Instr op2) {
   check_reg(rn);
   check_reg(rd);
   assert(bit_width(opcode) <= 4);

@@ -60,41 +60,46 @@ static DpShiftKind ik_to_dpsk(Instr ik) {
 
 Instr parse_op2(Assembler *a, Instr *i) {
   Instr op2 = 0;
-  Token out;
+  Token imm;
+  Token rm;
+  Token shift_type;
+  Token rs;
+  Token shift_imm;
+
+  Instr shift_type_instr;
   // Immediate
-  if (asm_match(a, TOKEN_HASH_NUM, &out)) {
+  if (asm_match(a, TOKEN_HASH_NUM, &imm)) {
     *i = 1;
-    op2 = asm_parse_number(a, out);
+    op2 = asm_parse_number(a, imm);
     return op2;
-  } else if (asm_match(a, TOKEN_IDENT, &out)) {
+  } else if (asm_match(a, TOKEN_IDENT, &rm)) {
     // Register
     *i = 0;
-    op2 = parse_reg_name(out);
+    op2 = parse_reg_name(rm);
     // Check if using Shift
-    if (!asm_match(a, TOKEN_COMMA, &out)) {
+    if (!asm_match(a, TOKEN_COMMA, NULL)) {
       return op2;
     }
-    if (!asm_match(a, TOKEN_IDENT, &out)) {
-      assert(0);
-    }
-    Instr shift_type = instr_common_parse(out.source).kind;
-    switch (shift_type) {
+    shift_type_instr =
+        instr_common_parse(asm_expect(a, TOKEN_IDENT).source).kind;
+    switch (shift_type_instr) {
     case INSTR_LSL:
     case INSTR_LSR:
     case INSTR_ASR:
     case INSTR_ROR:
-      if (asm_match(a, TOKEN_IDENT, &out)) {
+      if (asm_match(a, TOKEN_IDENT, &rs)) {
         // Shift by Register
         op2 |= 1 << DP_REG_SHIFT_FLAG_TYPE_START_BIT;
-        op2 |= ik_to_dpsk(shift_type) << DP_SHIFT_TYPE_START_BIT;
-        op2 |= parse_reg_name(out) << DP_SHIFT_REG_START_BIT;
+        op2 |= ik_to_dpsk(shift_type_instr) << DP_SHIFT_TYPE_START_BIT;
+        op2 |= parse_reg_name(rs) << DP_SHIFT_REG_START_BIT;
       } else {
         // Shift by integer
-        op2 |= asm_parse_number(a, out) << DP_SHIFT_CONST_START_BIT;
+        shift_imm = asm_expect(a, TOKEN_HASH_NUM);
+        op2 |= asm_parse_number(a, shift_imm) << DP_SHIFT_CONST_START_BIT;
       }
       break;
     default:
-      assert(0);
+      assert(0); // Unknown shift type instr
       break;
     }
     return op2;
@@ -108,11 +113,15 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
   Instr rn = 0;
   Instr rd = 0;
   Instr op2 = 0;
-  Token out;
+  Token shift_imm;
 
   switch (c.kind) {
   // Result Computing Instructions
   case INSTR_AND:
+    if (c.cond == COND_EQ) // Special Case ANDEQ
+    {
+      return 0;
+    }
   case INSTR_EOR:
   case INSTR_SUB:
   case INSTR_RSB:
@@ -135,23 +144,17 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
     s = 1;
     break;
-  case INSTR_ANDEQ:
-    return 0;
-    break;
-    // Special Case, Convert LSL to MOV
   case INSTR_LSL:
     rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
     asm_expect(a, TOKEN_COMMA);
-    if (asm_match(a, TOKEN_HASH_NUM, &out)) {
-      // Shift by integer
-      op2 |= rd;
-      op2 |= asm_parse_number(a, out) << DP_SHIFT_CONST_START_BIT;
-    }
+    shift_imm = asm_expect(a, TOKEN_HASH_NUM);
+    op2 |= rd;
+    op2 |= asm_parse_number(a, shift_imm) << DP_SHIFT_CONST_START_BIT;
     asm_expect(a, TOKEN_NEWLINE);
     return bit_asm_dp(i, ik_to_dpk(c.kind), s, rn, rd, op2);
     break;
   default:
-    assert(0);
+    assert(0); // Unknown instructions
     break;
   }
 
