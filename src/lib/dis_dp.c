@@ -14,6 +14,8 @@ static char *opcodename[] = {
     [DP_ORR] = "orr", [DP_MOV] = "mov"};
 
 static Instr rotation_right(Instr n, Instr d) {
+  if (d == 0)
+    return n;
   return (n >> d) | (n << (32 - d));
 }
 
