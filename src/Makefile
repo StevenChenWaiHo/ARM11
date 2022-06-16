@@ -35,6 +35,10 @@ else ifdef UBSAN
 else ifdef TRACE
 	CFLAGS += -DAEMU_TRACE
 	BUILD_DIR = build-trace
+else ifdef FUZZ
+	CFLAGS += -DAEMU_FUZZ
+	BUILD_DIR = build-fuzz
+	CC = afl-clang-fast
 endif
 
 CMD_OBJ = $(CMD_SRC:%.c=$(BUILD_DIR)/cmd/%.o)
@@ -108,6 +112,9 @@ ubsan:
 	$(MAKE) UBSAN=1
 trace:
 	$(MAKE) TRACE=1
+fuzz:
+	$(MAKE) FUZZ=1
+.PHONY: fuzz
 assemble: $(BUILD_DIR)/bin/assemble
 disassemble: $(BUILD_DIR)/bin/disassemble
 emulate: $(BUILD_DIR)/bin/emulate

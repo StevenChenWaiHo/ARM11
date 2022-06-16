@@ -358,7 +358,11 @@ noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
 
   fprintf(stderr, "%s:%ld:%ld: %s\n", a->lexer.filename, loc->line + 1,
           loc->column + 1, msg);
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  exit(0);
+#else
   exit(1);
+#endif
 }
 
 Token asm_expect(Assembler *a, TokenKind kind) {
