@@ -9,9 +9,6 @@
 #define DP_SHIFT_REG_START_BIT 8
 #define DP_SHIFT_TYPE_START_BIT 5
 #define DP_REG_SHIFT_FLAG_TYPE_START_BIT 4
-#define IMMEDIATE_SIZE 8
-#define ROTATE_START_BIT 8
-#define ROTATE_LIMIT 16
 
 static DpKind ik_to_dpk(InstrKind ik) {
   switch (ik) {
@@ -57,45 +54,6 @@ static DpShiftKind ik_to_dpsk(Instr ik) {
   default:
     assert(0); // Invariant
   }
-}
-
-static Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
-
-bool is_valid_imm(Instr imm) {
-  for (int i = 0; i < ROTATE_LIMIT; i++) {
-    // Valid for value that only uses lowest 8 bits
-    if (bit_width(imm) <= IMMEDIATE_SIZE)
-      return true;
-
-    // Valid for value that only uses 8 bits (without rotating)
-    int lowest_bit = ffs(imm);
-    if (bit_width(imm >> lowest_bit) <= IMMEDIATE_SIZE)
-      return true;
-
-    i = rotate_instr(i);
-  }
-  return false;
-}
-
-Instr imm_encode(Instr n) {
-  // PRE: n is valid imm
-  assert(is_valid_imm(n));
-  for (int shift = 1; shift < ROTATE_LIMIT; shift++) {
-    n = rotate_instr(n);
-    if (bit_width(n) <= IMMEDIATE_SIZE)
-      return shift << ROTATE_START_BIT | n;
-  }
-  assert(0); // n is not a valid imm
-}
-
-Instr asm_parse_imm(Assembler *a, Token t) {
-  Instr n = asm_parse_number(a, t);
-  if (!is_valid_imm(n))
-    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
-            t.source.ptr);
-  if (n > 0xFF)
-    n = imm_encode(n);
-  return n;
 }
 
 Instr parse_op2(Assembler *a, Instr *i) {

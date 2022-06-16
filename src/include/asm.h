@@ -63,10 +63,11 @@ Token asm_advance(Assembler *);
 bool asm_match(Assembler *, TokenKind, Token *);
 bool asm_peak(Assembler *, TokenKind);
 
-Instr asm_parse_number(Assembler *, Token);
+Instr asm_parse_number(Assembler *, Token, bool *neg);
 Reg parse_reg_name(Token); // TODO: Put on asm
 InstrCommon asm_parse_instr_common(Assembler *a, Token *t);
 Instr asm_parse_imm(Assembler *a, Token t);
+Instr asm_parse_simm(Assembler *a, Token t, bool *neg);
 
 Instr asm_add_const(Assembler *, Instr);
 

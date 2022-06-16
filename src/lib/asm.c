@@ -11,6 +11,10 @@
 #include "core.h"
 #include "dis.h"
 
+#define IMMEDIATE_SIZE 8
+#define ROTATE_START_BIT 8
+#define ROTATE_LIMIT 16
+
 static const char *instrname[] = {
     [INSTR_ADD] = "add", [INSTR_AND] = "and", [INSTR_B] = "b",
     [INSTR_CMP] = "cmp", [INSTR_EOR] = "eor", [INSTR_LDR] = "ldr",
@@ -116,18 +120,76 @@ Reg parse_reg_name(Token t) {
     assert(0); // TODO: Nice error
 }
 
-Instr asm_parse_number(Assembler *a, Token t) {
+static Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
+
+bool is_valid_imm(Instr imm) {
+  for (int i = 0; i < ROTATE_LIMIT; i++) {
+    // Valid for value that only uses lowest 8 bits
+    if (bit_width(imm) <= IMMEDIATE_SIZE)
+      return true;
+
+    // Valid for value that only uses 8 bits (without rotating)
+    int lowest_bit = ffs(imm);
+    if (bit_width(imm >> lowest_bit) <= IMMEDIATE_SIZE)
+      return true;
+
+    i = rotate_instr(i);
+  }
+  return false;
+}
+
+Instr imm_encode(Instr n) {
+  // PRE: n is valid imm
+  assert(is_valid_imm(n));
+  for (int shift = 1; shift < ROTATE_LIMIT; shift++) {
+    n = rotate_instr(n);
+    if (bit_width(n) <= IMMEDIATE_SIZE)
+      return shift << ROTATE_START_BIT | n;
+  }
+  assert(0); // n is not a valid imm
+}
+
+Instr asm_parse_imm(Assembler *a, Token t) {
+  bool neg;
+  Instr n = asm_parse_number(a, t, &neg);
+  if (neg)
+    asm_err(a, &t, "Unexpected negitive `%.*s`", (int)t.source.len,
+            t.source.ptr);
+  if (!is_valid_imm(n))
+    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
+            t.source.ptr);
+  if (n > 0xFF)
+    n = imm_encode(n);
+  return n;
+}
+Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
+  Instr n = asm_parse_number(a, t, neg);
+  if (!is_valid_imm(n))
+    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
+            t.source.ptr);
+  if (n > 0xFF)
+    n = imm_encode(n);
+  return n;
+}
+
+Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
   assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
   Str s = t.source;
+  *neg = false;
   Instr n;
   if (str_starts_with(s, "=0x") || str_starts_with(s, "#0x")) {
-    s.ptr += 3;
-    s.len -= 3;
+    s = str_trim_start(s, 3); // trim =0x
     if (!str_parse_hex(s, &n))
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
+  } else if (str_starts_with(s, "#-0x")) {
+    s = str_trim_start(s, 4);
+    if (!str_parse_hex(s, &n))
+      asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
+    *neg = true;
   } else if (str_starts_with(s, "#")) {
     s.ptr += 1;
     s.len -= 1;
+
     if (!str_parse_dec(s, &n))
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
   } else {
