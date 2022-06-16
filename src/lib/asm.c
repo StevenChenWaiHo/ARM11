@@ -21,8 +21,7 @@ static const char *instrname[] = {
     [INSTR_MLA] = "mla", [INSTR_MOV] = "mov", [INSTR_MUL] = "mul",
     [INSTR_ORR] = "orr", [INSTR_RSB] = "rsb", [INSTR_STR] = "str",
     [INSTR_SUB] = "sub", [INSTR_TEQ] = "teq", [INSTR_TST] = "tst",
-    [INSTR_LSL] = "lsl", [INSTR_ASR] = "asr", [INSTR_LSR] = "lsr",
-    [INSTR_ROR] = "ror",
+    [INSTR_LSL] = "lsl",
 };
 
 static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
@@ -42,6 +41,17 @@ static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
     return COND_AL;
   else
     asm_err(a, t, "Expected cond, got `%.*s`", (int)cname.len, cname.ptr);
+}
+ShiftKind asm_parse_shift_kind(Assembler *a, Token t) {
+  if (str_eq(t.source, "lsl"))
+    return SHIFT_LSL;
+  else if (str_eq(t.source, "lsr"))
+    return SHIFT_LSR;
+  else if (str_eq(t.source, "asr"))
+    return SHIFT_ASR;
+  else
+    asm_err(a, &t, "Expected shift, got `%.*s`", (int)t.source.len,
+            t.source.ptr);
 }
 
 InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
@@ -77,12 +87,6 @@ InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
     return INSTR_TST;
   else if (str_starts_with(t->source, "lsl"))
     return INSTR_LSL;
-  else if (str_starts_with(t->source, "lsr"))
-    return INSTR_LSR;
-  else if (str_starts_with(t->source, "asr"))
-    return INSTR_ASR;
-  else if (str_starts_with(t->source, "ror"))
-    return INSTR_ROR;
   else
     asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,
             t->source.ptr);
@@ -221,7 +225,6 @@ static AsmFn asm_fn[] = {
     [INSTR_SUB] = asm_dp,
     [INSTR_TEQ] = asm_dp,
     [INSTR_TST] = asm_dp,
-    [INSTR_ANDEQ] = asm_dp,
     [INSTR_LSL] = asm_dp,
     // Not DP
     [INSTR_B] = asm_br,
@@ -341,6 +344,7 @@ done:
 }
 
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
+  // TODO: Take token by value, here and everywhere.
   // TODO: Use current?
   va_list fmt_args;
   va_start(fmt_args, fmt);

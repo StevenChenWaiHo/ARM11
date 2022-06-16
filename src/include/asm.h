@@ -27,12 +27,15 @@ typedef enum {
   INSTR_SUB,
   INSTR_TEQ,
   INSTR_TST,
-  INSTR_ANDEQ,
-  INSTR_LSL,
-  INSTR_ASR,
-  INSTR_LSR,
-  INSTR_ROR
+  INSTR_LSL, // Special case
 } InstrKind;
+
+typedef enum {
+  SHIFT_LSL = 0,
+  SHIFT_LSR = 1,
+  SHIFT_ASR = 2,
+  SHIFT_ROR = 3
+} ShiftKind;
 
 typedef struct {
   Cond cond;
@@ -65,6 +68,7 @@ bool asm_peak(Assembler *, TokenKind);
 
 Instr asm_parse_number(Assembler *, Token, bool *neg);
 Reg parse_reg_name(Token); // TODO: Put on asm
+ShiftKind asm_parse_shift_kind(Assembler *a, Token);
 InstrCommon asm_parse_instr_common(Assembler *a, Token *t);
 Instr asm_parse_imm(Assembler *a, Token t);
 Instr asm_parse_simm(Assembler *a, Token t, bool *neg);

@@ -1,4 +1,4 @@
-CC      ?= gcc
+CC      ?= clang
 CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c11 \
           -Werror=incompatible-pointer-types -Werror=return-type
 

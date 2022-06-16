@@ -16,13 +16,6 @@ typedef enum {
   DP_MOV = 13,
 } DpKind;
 
-typedef enum {
-  DP_SHIFT_LSL,
-  DP_SHIFT_LSR,
-  DP_SHIFT_ASR,
-  DP_SHIFT_ROR
-} DpShiftKind;
-
 Instr operand_immediate(Instr);
 
 #endif
