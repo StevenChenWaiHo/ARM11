@@ -196,7 +196,7 @@ Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
     if (!str_parse_hex(s, &n))
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
     *neg = true;
-  } else if (str_starts_with(s, "#")) {
+  } else if (str_starts_with(s, "#") || str_starts_with(s, "=")) {
     s.ptr += 1;
     s.len -= 1;
 
