@@ -75,15 +75,13 @@ InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
     return INSTR_TEQ;
   else if (str_starts_with(t->source, "tst"))
     return INSTR_TST;
-  else if (str_eq(instr, "andeq"))
-    return INSTR_ANDEQ;
-  else if (str_eq(instr, "lsl"))
+  else if (str_starts_with(t->source, "lsl"))
     return INSTR_LSL;
-  else if (str_eq(instr, "lsr"))
+  else if (str_starts_with(t->source, "lsr"))
     return INSTR_LSR;
-  else if (str_eq(instr, "asr"))
+  else if (str_starts_with(t->source, "asr"))
     return INSTR_ASR;
-  else if (str_eq(instr, "ror"))
+  else if (str_starts_with(t->source, "ror"))
     return INSTR_ROR;
   else
     asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,

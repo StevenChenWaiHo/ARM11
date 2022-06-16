@@ -49,7 +49,6 @@ typedef struct {
   size_t n_consts;
 } Assembler;
 
-InstrCommon instr_common_parse(Str instr);
 void assemble(char *src, char *filename, FILE *);
 
 typedef Instr (*AsmFn)(Assembler *, InstrCommon, Instr);
@@ -65,9 +64,10 @@ bool asm_match(Assembler *, TokenKind, Token *);
 bool asm_peak(Assembler *, TokenKind);
 
 Instr asm_parse_number(Assembler *, Token);
-Instr asm_add_const(Assembler *, Instr);
+Reg parse_reg_name(Token); // TODO: Put on asm
+InstrCommon asm_parse_instr_common(Assembler *a, Token *t);
 
-Reg parse_reg_name(Token);
+Instr asm_add_const(Assembler *, Instr);
 
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...)
     __attribute__((format(printf, 3, 4)));

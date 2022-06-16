@@ -77,7 +77,7 @@ Instr parse_op2(Assembler *a, Instr *i) {
     if (!asm_match(a, TOKEN_IDENT, &out)) {
       assert(0);
     }
-    Instr shift_type = instr_common_parse(out.source).kind;
+    Instr shift_type = asm_parse_instr_common(a, &out).kind;
     switch (shift_type) {
     case INSTR_LSL:
     case INSTR_LSR:
