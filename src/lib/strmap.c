@@ -7,15 +7,15 @@
 
 //use AVL tree to store keys for binary search and automatic balancing when inserting new nodes
 
-static int min(int a, int b) {
+static size_t min(size_t a, size_t b) {
   return (a < b) ? a : b;
 }
 
-int max(int a, int b) {
+size_t max(size_t a, size_t b) {
   return (a > b) ? a : b;
 }
 
-int height(TreeNode *node) {
+size_t height(TreeNode *node) {
   if (node == NULL) {
     return 0;
   }
@@ -24,7 +24,7 @@ int height(TreeNode *node) {
 
 //return < 0 if str1 < str2, > 0 if str2 < str1, = 0 if str1 = str2
 static int str_cmp(Str str1, Str str2) {
-  int len = min(str1.len, str2.len);
+  size_t len = min(str1.len, str2.len);
   int cmp = strncmp(str1.ptr, str2.ptr, len);
   if (cmp == 0 && str1.len != str2.len) {
     if (str1.len < str2.len) {
@@ -37,7 +37,7 @@ static int str_cmp(Str str1, Str str2) {
   }
 }
 
-static TreeNode *node_new(Str key, int value) {
+static TreeNode *node_new(Str key, size_t value) {
   TreeNode *node = (TreeNode *) malloc(sizeof(TreeNode));
 
   node->key = key;
@@ -73,7 +73,7 @@ static TreeNode *rightRotate(TreeNode *node) {
   return leftnode;
 }
 
-static TreeNode *node_insert(TreeNode *node, Str key, int value) {
+static TreeNode *node_insert(TreeNode *node, Str key, size_t value) {
   if (node == NULL) {
     return(node_new(key, value));
   }
@@ -110,7 +110,7 @@ static TreeNode *node_insert(TreeNode *node, Str key, int value) {
   return node;
 }
 
-Tree *tree_insert(Tree *tree, Str key, int value) {
+Tree *tree_insert(Tree *tree, Str key, size_t value) {
   tree->root = node_insert(tree->root, key, value);
   return tree;
 }

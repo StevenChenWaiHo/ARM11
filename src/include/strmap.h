@@ -9,17 +9,17 @@
 
 typedef struct Node {
 	Str key;
-	int value;
+	size_t value;
 	struct Node *left;
 	struct Node *right;
-	int height;
+	size_t height;
 } TreeNode;
 
 typedef struct {
 	TreeNode *root;
 } Tree;
 
-Tree *tree_insert(Tree *tree, Str key, int value);
+Tree *tree_insert(Tree *tree, Str key, size_t value);
 //Node *tree_delete(Node *node, Str key);
 Tree tree_get(Tree *tree, Str key);
 void tree_free(Tree *tree);
