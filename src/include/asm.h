@@ -47,7 +47,7 @@ typedef struct {
   FILE *out;
   Token current;
   size_t n_instrs;
-  SymTab symtab;
+  Tree symtab;
   Instr *consts;
   size_t n_consts;
 } Assembler;
