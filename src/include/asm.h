@@ -66,6 +66,7 @@ bool asm_peak(Assembler *, TokenKind);
 Instr asm_parse_number(Assembler *, Token);
 Reg parse_reg_name(Token); // TODO: Put on asm
 InstrCommon asm_parse_instr_common(Assembler *a, Token *t);
+Instr asm_parse_imm(Assembler *a, Token t);
 
 Instr asm_add_const(Assembler *, Instr);
 

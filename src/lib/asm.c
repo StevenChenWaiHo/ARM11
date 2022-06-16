@@ -252,11 +252,13 @@ void assemble(char *src, char *filename, FILE *out) {
 #endif
   asm_reset(&a);
 
-  for (Instr ino = 0;; ino++) {
+  Instr ino = 0;
+  for (;;) {
     Token t = asm_advance(&a);
     switch (t.kind) {
     case TOKEN_IDENT:
       asm_instr(&a, &t, ino);
+      ino++;
       break;
     case TOKEN_LABEL:
       asm_expect(&a, TOKEN_NEWLINE);
@@ -271,6 +273,7 @@ void assemble(char *src, char *filename, FILE *out) {
     }
   }
 done:
+  assert(ino == a.n_instrs);
   for (size_t i = 0; i < a.n_consts; i++)
     asm_write_word(&a, a.consts[i]);
 }

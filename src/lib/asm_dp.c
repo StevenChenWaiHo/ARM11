@@ -88,7 +88,7 @@ Instr imm_encode(Instr n) {
   assert(0); // n is not a valid imm
 }
 
-static Instr asm_parse_imm(Assembler *a, Token t) {
+Instr asm_parse_imm(Assembler *a, Token t) {
   Instr n = asm_parse_number(a, t);
   if (!is_valid_imm(n))
     asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,

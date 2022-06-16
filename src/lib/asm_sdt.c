@@ -31,8 +31,15 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     }
   } else if (asm_match(a, TOKEN_LSQUARE, NULL)) {
     Reg rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    Instr offset = 0;
+    if (asm_match(a, TOKEN_COMMA, NULL)) {
+      Token shtok = asm_expect(a, TOKEN_HASH_NUM);
+      offset = asm_parse_imm(a, shtok);
+    }
+
     asm_expect(a, TOKEN_RSQUARE);
-    ret = bit_asm_sdt(false, true, true, c.kind == INSTR_LDR, rn, rd, 0);
+
+    ret = bit_asm_sdt(false, true, true, c.kind == INSTR_LDR, rn, rd, offset);
   } else {
     assert(0); // TODO: Good error.
   }
