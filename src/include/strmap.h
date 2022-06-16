@@ -19,6 +19,7 @@ typedef struct {
 	TreeNode *root;
 } Tree;
 
+size_t height(TreeNode *node);
 Tree *tree_insert(Tree *tree, Str key, size_t value);
 //Node *tree_delete(Node *node, Str key);
 Tree tree_get(Tree *tree, Str key);
