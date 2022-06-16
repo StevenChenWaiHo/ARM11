@@ -6,11 +6,6 @@
 #include "bit_asm.h"
 
 #define DP_SHIFT_CONST_START_BIT 7
-#define DP_SHIFT_REG_START_BIT 8
-#define DP_SHIFT_TYPE_START_BIT 5
-#define DP_REG_SHIFT_FLAG_TYPE_START_BIT 4
-
-#define I_START_BIT 25
 
 static DpKind ik_to_dpk(InstrKind ik) {
   switch (ik) {
@@ -34,8 +29,6 @@ static DpKind ik_to_dpk(InstrKind ik) {
     return DP_ORR;
   case INSTR_MOV:
     return DP_MOV;
-  case INSTR_ANDEQ:
-    return DP_ADD; // opcode AND and ANDEQ is 0
   case INSTR_LSL:
     return DP_MOV; // LSL is translated to MOV
   default:
@@ -43,61 +36,33 @@ static DpKind ik_to_dpk(InstrKind ik) {
   }
 }
 
-static DpShiftKind ik_to_dpsk(Instr ik) {
-  switch (ik) {
-  case INSTR_LSL:
-    return DP_SHIFT_LSL;
-  case INSTR_LSR:
-    return DP_SHIFT_LSR;
-  case INSTR_ASR:
-    return DP_SHIFT_ASR;
-  case INSTR_ROR:
-    return DP_SHIFT_ROR;
-  default:
-    assert(0); // Invariant
-  }
-}
-
 Instr parse_op2(Assembler *a, Instr *i) {
-  Instr op2 = 0;
-  Token out;
+  Token num;
   // Immediate
-  if (asm_match(a, TOKEN_HASH_NUM, &out)) {
+  if (asm_match(a, TOKEN_HASH_NUM, &num)) {
     *i = 1;
-    op2 = asm_parse_number(a, out);
-    return op2;
-  } else if (asm_match(a, TOKEN_IDENT, &out)) {
+    return asm_parse_imm(a, num);
+  }
+
+  Token rmt;
+  if (asm_match(a, TOKEN_IDENT, &rmt)) {
     // Register
     *i = 0;
-    op2 = parse_reg_name(out);
+    Reg rm = parse_reg_name(rmt);
     // Check if using Shift
-    if (!asm_match(a, TOKEN_COMMA, &out)) {
-      return op2;
-    }
-    if (!asm_match(a, TOKEN_IDENT, &out)) {
-      assert(0);
-    }
-    Instr shift_type = instr_common_parse(out.source).kind;
-    switch (shift_type) {
-    case INSTR_LSL:
-    case INSTR_LSR:
-    case INSTR_ASR:
-    case INSTR_ROR:
-      if (asm_match(a, TOKEN_IDENT, &out)) {
-        // Shift by Register
-        op2 |= 1 << DP_REG_SHIFT_FLAG_TYPE_START_BIT;
-        op2 |= ik_to_dpsk(shift_type) << DP_SHIFT_TYPE_START_BIT;
-        op2 |= parse_reg_name(out) << DP_SHIFT_REG_START_BIT;
-      } else {
-        // Shift by integer
-        op2 |= asm_parse_number(a, out) << DP_SHIFT_CONST_START_BIT;
-      }
-      break;
-    default:
-      assert(0);
-      break;
-    }
-    return op2;
+    if (!asm_match(a, TOKEN_COMMA, NULL))
+      return rm;
+
+    ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
+
+    Token rs;
+    if (asm_match(a, TOKEN_IDENT, &rs))
+      return bit_asm_op2_shift_reg(rm, shift_type, parse_reg_name(rs)); // reg
+    else
+      // Shift by integer
+      return bit_asm_op2_shift_imm(
+          rm, shift_type,
+          asm_parse_imm(a, asm_expect(a, TOKEN_HASH_NUM))); // imm
   }
   assert(0);
 }
@@ -135,9 +100,6 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
     s = 1;
     break;
-  case INSTR_ANDEQ:
-    return 0;
-    break;
     // Special Case, Convert LSL to MOV
   case INSTR_LSL:
     rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
@@ -145,7 +107,7 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     if (asm_match(a, TOKEN_HASH_NUM, &out)) {
       // Shift by integer
       op2 |= rd;
-      op2 |= asm_parse_number(a, out) << DP_SHIFT_CONST_START_BIT;
+      op2 |= asm_parse_imm(a, out) << DP_SHIFT_CONST_START_BIT;
     }
     asm_expect(a, TOKEN_NEWLINE);
     return bit_asm_dp(i, ik_to_dpk(c.kind), s, rn, rd, op2);

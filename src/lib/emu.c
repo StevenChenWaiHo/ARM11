@@ -24,7 +24,7 @@ void emu(CpuState *cpu) {
   for (;;) {
     Instr i = imem[cpu->regs[REG_PC] >> 2];
 #ifdef AEMU_TRACE
-    dis(cpu->regs[REG_PC] / 4, i);
+    // dis(cpu->regs[REG_PC] / 4, i); // TODO: Fix
     printf("CSPR: %08x\n\n", cpu->regs[REG_CPSR]);
 #endif
     if (!i) // HLT special case
