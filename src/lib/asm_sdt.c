@@ -24,10 +24,12 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
           /*i=*/true, DP_MOV, /*s=*/false, 0, rd, imm_val);
     else {
       Instr constno = asm_add_const(a, imm_val);
-      Instr const_off = (constno + a->n_instrs - ino - 2) * 4;
+      int64_t const_off = ((int64_t)constno + a->n_instrs - ino - 2) * 4;
 
-      ret = bit_asm_sdt(/*offset_reg=*/false, /*pre_index=*/true, /*up=*/true,
-                        /*ldr=*/true, REG_PC, rd, const_off);
+      ret = bit_asm_sdt(/*offset_reg=*/false, /*pre_index=*/true,
+                        /*up=*/const_off >= 0,
+                        /*ldr=*/true, REG_PC, rd,
+                        const_off >= 0 ? const_off : -const_off);
     }
   } else if (asm_match(a, TOKEN_LSQUARE, NULL)) {
     Reg rn = asm_expect_reg(a);
