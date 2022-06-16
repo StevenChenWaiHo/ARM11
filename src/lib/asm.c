@@ -86,8 +86,6 @@ InstrKind parse_instr_name(Str instr) {
     return INSTR_TEQ;
   else if (str_eq(instr, "tst"))
     return INSTR_TST;
-  else if (str_eq(instr, "andeq"))
-    return INSTR_ANDEQ;
   else if (str_eq(instr, "lsl"))
     return INSTR_LSL;
   else if (str_eq(instr, "lsr"))
@@ -153,14 +151,12 @@ bool check_valid_imm(Instr imm) {
 }
 
 Instr imm_encode(Instr n) {
-  // PRE: n is valid imm
-  int shift = 1;
-  while (shift < ROTATE_LIMIT) {
+  assert(check_valid_imm(n));
+  for (int i = 1; i < ROTATE_LIMIT; i++) {
     n = rotate_instr(n);
     if (bit_width(n) <= IMMEDIATE_SIZE) {
-      return shift << ROTATE_START_BIT | n;
+      return i << ROTATE_START_BIT | n;
     }
-    shift++;
   }
   assert(0); // n is not a valid imm
 }
@@ -181,10 +177,6 @@ Instr asm_parse_number(Assembler *a, Token t) {
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
   } else {
     assert(0); // Token and str not match
-  }
-  if (!check_valid_imm(n)) {
-    perror("Immediate not valid");
-    assert(0);
   }
   if (n > 0xFF) {
     n = imm_encode(n);
