@@ -112,12 +112,11 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     asm_expect(a, TOKEN_COMMA);
     if (asm_match(a, TOKEN_HASH_NUM, &imm)) {
       // Shift by integer
-      op2 |= rd;
       Instr imm_instr = asm_parse_imm(a, imm);
       if (imm_instr > DP_SHIFT_CONST_MAX) {
         asm_err(a, &imm, "Const too large for a shift const: %d", imm_instr);
       }
-      op2 |= imm_instr << DP_SHIFT_CONST_START_BIT;
+      op2 = bit_asm_op2_shift_imm(rd, SHIFT_LSL, imm_instr);
     }
     asm_expect(a, TOKEN_NEWLINE);
     return bit_asm_dp(i, ik_to_dpk(c.kind), s, rn, rd, op2);
