@@ -22,9 +22,28 @@ bool str_eq(Str s, char *other) {
   return strncmp(s.ptr, other, s.len) == 0;
 }
 
+bool str_eqs(Str s1, Str s2) {
+  if (s1.len != s2.len)
+    return false;
+  return memcmp(s1.ptr, s2.ptr, s1.len) == 0;
+}
+
 Str str_new(const char *s, size_t l) {
   Str str = {s, l};
   return str;
+}
+Str str_lit(const char *s) { return str_new(s, strlen(s)); }
+
+Str str_trim_end(Str s, size_t n) {
+  assert(n <= s.len);
+  s.len -= n;
+  return s;
+}
+Str str_trim_start(Str s, size_t n) {
+  assert(n <= s.len);
+  s.len -= n;
+  s.ptr += n;
+  return s;
 }
 
 // TODO: Handle overflow

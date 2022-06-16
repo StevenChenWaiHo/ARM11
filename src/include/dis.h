@@ -7,6 +7,7 @@
 
 extern const char *regname[17];
 extern const char *shiftname[4];
+extern const char *condname[];
 
 void dis_br(FILE *f, Instr i, const char *cond, int pc);
 void dis_dp(FILE *f, Instr i, const char *cond);

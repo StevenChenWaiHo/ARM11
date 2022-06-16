@@ -6,81 +6,90 @@
 #include <string.h>
 
 #include "asm.h"
+#include "bit_asm.h"
 #include "cond.h"
 #include "core.h"
+#include "dis.h"
 
-static Cond cond_parse(Str instr) {
-  if (str_ends_with(instr, "eq"))
+#define LOWEST_8_BIT_MASK 0xFF
+#define ROTATE_START_BIT 8
+#define ROTATE_LIMIT 16
+
+static const char *instrname[] = {
+    [INSTR_ADD] = "add", [INSTR_AND] = "and", [INSTR_B] = "b",
+    [INSTR_CMP] = "cmp", [INSTR_EOR] = "eor", [INSTR_LDR] = "ldr",
+    [INSTR_MLA] = "mla", [INSTR_MOV] = "mov", [INSTR_MUL] = "mul",
+    [INSTR_ORR] = "orr", [INSTR_RSB] = "rsb", [INSTR_STR] = "str",
+    [INSTR_SUB] = "sub", [INSTR_TEQ] = "teq", [INSTR_TST] = "tst",
+    [INSTR_LSL] = "lsl",
+};
+
+static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
+  if (str_eq(cname, "eq"))
     return COND_EQ;
-  else if (str_ends_with(instr, "ne"))
+  else if (str_eq(cname, "ne"))
     return COND_NE;
-  else if (str_ends_with(instr, "ge"))
+  else if (str_eq(cname, "ge"))
     return COND_GE;
-  else if (str_ends_with(instr, "lt"))
+  else if (str_eq(cname, "lt"))
     return COND_LT;
-  else if (str_ends_with(instr, "gt"))
+  else if (str_eq(cname, "gt"))
     return COND_GT;
-  else if (str_ends_with(instr, "le"))
+  else if (str_eq(cname, "le"))
     return COND_LE;
-  else
+  else if (str_eq(cname, ""))
     return COND_AL;
-}
-
-// TODO: This probably exists in dis
-static char *cond_name(Cond c) {
-  switch (c) {
-  case COND_EQ:
-    return "eq";
-  case COND_NE:
-    return "ne";
-  case COND_GE:
-    return "ge";
-  case COND_LT:
-    return "lt";
-  case COND_GT:
-    return "gt";
-  case COND_LE:
-    return "le";
-  case COND_AL:
-    return "";
-  default:
-    assert(0);
-  }
-}
-
-InstrKind parse_instr_name(Str instr) {
-  if (str_eq(instr, "add"))
-    return INSTR_ADD;
-  else if (str_eq(instr, "and"))
-    return INSTR_AND;
-  else if (str_eq(instr, "b"))
-    return INSTR_B;
-  else if (str_eq(instr, "cmp"))
-    return INSTR_CMP;
-  else if (str_eq(instr, "eor"))
-    return INSTR_EOR;
-  else if (str_eq(instr, "ldr"))
-    return INSTR_LDR;
-  else if (str_eq(instr, "mla"))
-    return INSTR_MLA;
-  else if (str_eq(instr, "mov"))
-    return INSTR_MOV;
-  else if (str_eq(instr, "mul"))
-    return INSTR_MUL;
-  else if (str_eq(instr, "orr"))
-    return INSTR_ORR;
-  else if (str_eq(instr, "rsb"))
-    return INSTR_RSB;
-  else if (str_eq(instr, "str"))
-    return INSTR_STR;
-  else if (str_eq(instr, "sub"))
-    return INSTR_SUB;
-  else if (str_eq(instr, "teq"))
-    return INSTR_TEQ;
-  else if (str_eq(instr, "tst"))
-    return INSTR_TST;
   else
-    assert(0); // TODO: Handle
+    asm_err(a, t, "Expected cond, got `%.*s`", (int)cname.len, cname.ptr);
+}
+ShiftKind asm_parse_shift_kind(Assembler *a, Token t) {
+  if (str_eq(t.source, "lsl"))
+    return SHIFT_LSL;
+  else if (str_eq(t.source, "lsr"))
+    return SHIFT_LSR;
+  else if (str_eq(t.source, "asr"))
+    return SHIFT_ASR;
+  else
+    asm_err(a, &t, "Expected shift, got `%.*s`", (int)t.source.len,
+            t.source.ptr);
+}
+
+InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
+  if (str_starts_with(t->source, "add"))
+    return INSTR_ADD;
+  else if (str_starts_with(t->source, "and"))
+    return INSTR_AND;
+  else if (str_starts_with(t->source, "b"))
+    return INSTR_B;
+  else if (str_starts_with(t->source, "cmp"))
+    return INSTR_CMP;
+  else if (str_starts_with(t->source, "eor"))
+    return INSTR_EOR;
+  else if (str_starts_with(t->source, "ldr"))
+    return INSTR_LDR;
+  else if (str_starts_with(t->source, "mla"))
+    return INSTR_MLA;
+  else if (str_starts_with(t->source, "mov"))
+    return INSTR_MOV;
+  else if (str_starts_with(t->source, "mul"))
+    return INSTR_MUL;
+  else if (str_starts_with(t->source, "orr"))
+    return INSTR_ORR;
+  else if (str_starts_with(t->source, "rsb"))
+    return INSTR_RSB;
+  else if (str_starts_with(t->source, "str"))
+    return INSTR_STR;
+  else if (str_starts_with(t->source, "sub"))
+    return INSTR_SUB;
+  else if (str_starts_with(t->source, "teq"))
+    return INSTR_TEQ;
+  else if (str_starts_with(t->source, "tst"))
+    return INSTR_TST;
+  else if (str_starts_with(t->source, "lsl"))
+    return INSTR_LSL;
+  else
+    asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,
+            t->source.ptr);
 }
 Reg parse_reg_name(Token t) {
   assert(t.kind == TOKEN_IDENT);
@@ -115,69 +124,94 @@ Reg parse_reg_name(Token t) {
     assert(0); // TODO: Nice error
 }
 
-Instr asm_parse_number(Assembler *a, Token t) {
+static Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
+
+bool is_valid_imm(Instr imm) {
+  for (int i = 0; i < ROTATE_LIMIT; i++) {
+    // Valid for value that only uses lowest 8 bits
+    if ((imm & ~LOWEST_8_BIT_MASK) == 0) {
+      return true;
+    }
+    // Valid for value that only uses 8 bits (without rotating)
+    int lowest_bit = ffs(imm) - 1;
+    if ((imm & ~(LOWEST_8_BIT_MASK << lowest_bit)) == 0 &&
+        lowest_bit % 2 == 0) {
+      return true;
+    }
+    imm = rotate_instr(imm);
+  }
+  return false;
+}
+
+Instr imm_encode(Instr n) {
+  // PRE: n is valid imm
+  assert(is_valid_imm(n));
+  for (int shift = 1; shift < ROTATE_LIMIT; shift++) {
+    n = rotate_instr(n);
+    if ((n & ~LOWEST_8_BIT_MASK) == 0)
+      return shift << ROTATE_START_BIT | n;
+  }
+  assert(0); // n is not a valid imm
+}
+
+Instr asm_parse_imm(Assembler *a, Token t) {
+  bool neg;
+  Instr n = asm_parse_number(a, t, &neg);
+  if (neg)
+    asm_err(a, &t, "Unexpected negitive `%.*s`", (int)t.source.len,
+            t.source.ptr);
+  if (!is_valid_imm(n))
+    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
+            t.source.ptr);
+  if (n > LOWEST_8_BIT_MASK)
+    n = imm_encode(n);
+  return n;
+}
+Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
+  Instr n = asm_parse_number(a, t, neg);
+  if (!is_valid_imm(n))
+    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
+            t.source.ptr);
+  if (n > LOWEST_8_BIT_MASK)
+    n = imm_encode(n);
+  return n;
+}
+
+Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
   assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
   Str s = t.source;
+  *neg = false;
+  Instr n;
   if (str_starts_with(s, "=0x") || str_starts_with(s, "#0x")) {
-    s.ptr += 3;
-    s.len -= 3;
-    Instr n;
+    s = str_trim_start(s, 3); // trim =0x
     if (!str_parse_hex(s, &n))
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
-    return n;
+  } else if (str_starts_with(s, "#-0x")) {
+    s = str_trim_start(s, 4);
+    if (!str_parse_hex(s, &n))
+      asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
+    *neg = true;
   } else if (str_starts_with(s, "#")) {
     s.ptr += 1;
     s.len -= 1;
-    Instr n;
+
     if (!str_parse_dec(s, &n))
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
-    return n;
+  } else {
+    assert(0); // Token and str not match
   }
-  assert(0);
+  return n;
 }
 
-const char *instr_kind_name(InstrKind ik) {
-  switch (ik) {
-  case INSTR_ADD:
-    return "INSTR_ADD";
-  case INSTR_AND:
-    return "INSTR_AND";
-  case INSTR_B:
-    return "INSTR_B";
-  case INSTR_CMP:
-    return "INSTR_CMP";
-  case INSTR_EOR:
-    return "INSTR_EOR";
-  case INSTR_LDR:
-    return "INSTR_LDR";
-  case INSTR_MLA:
-    return "INSTR_MLA";
-  case INSTR_MOV:
-    return "INSTR_MOV";
-  case INSTR_MUL:
-    return "INSTR_MUL";
-  case INSTR_ORR:
-    return "INSTR_ORR";
-  case INSTR_RSB:
-    return "INSTR_RSB";
-  case INSTR_STR:
-    return "INSTR_STR";
-  case INSTR_SUB:
-    return "INSTR_SUB";
-  case INSTR_TEQ:
-    return "INSTR_TEQ";
-  case INSTR_TST:
-    return "INSTR_TST";
-  default:
-    assert(0);
-  }
-}
-
-InstrCommon instr_common_parse(Str instr) {
+InstrCommon asm_parse_instr_common(Assembler *a, Token *t) {
+  assert(t->kind == TOKEN_IDENT);
   InstrCommon ic;
-  ic.cond = cond_parse(instr);
-  instr.len -= strlen(cond_name(ic.cond));
-  ic.kind = parse_instr_name(instr);
+  ic.kind = asm_parse_instr_name(a, t);
+  size_t kindlen = strlen(instrname[ic.kind]);
+  ic.cond = asm_parse_cond(a, str_trim_start(t->source, kindlen), t);
+  size_t condlen = strlen(condname[ic.cond]);
+  assert(condlen + kindlen == t->source.len);
+
   return ic;
 }
 
@@ -192,6 +226,7 @@ static AsmFn asm_fn[] = {
     [INSTR_SUB] = asm_dp,
     [INSTR_TEQ] = asm_dp,
     [INSTR_TST] = asm_dp,
+    [INSTR_LSL] = asm_dp,
     // Not DP
     [INSTR_B] = asm_br,
     [INSTR_MLA] = asm_mul,
@@ -205,19 +240,28 @@ static void asm_reset(Assembler *a) {
   a->current = lexer_next(&a->lexer);
 }
 
-static void asm_instr(Assembler *a, Token *t, Instr ino) {
-  InstrCommon c = instr_common_parse(t->source);
-  Instr i = asm_fn[c.kind](a, c, ino);
-  i |= c.cond << 28;
-  DBG;
+static void asm_write_word(Assembler *a, Instr i) {
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
-  fflush(a->out);       // Temp hack so during abort we get some output.
   assert(written == 1); // TODO: Handle better.
 }
 
-static size_t asm_n_instrs(Assembler *a) {
+static void asm_instr(Assembler *a, Token *t, Instr ino) {
+  InstrCommon c = asm_parse_instr_common(a, t);
+  Instr i = asm_fn[c.kind](a, c, ino);
+  i |= c.cond << 28;
+  asm_write_word(a, i);
+}
 
+#ifdef AEMU_TRACE
+static void st_dbg(SymTabEntry *ste) {
+  printf("   \"%.*s\"  -> %lu\n", (int)ste->name.len, ste->name.ptr,
+         ste->offset);
+}
+#endif
+
+static size_t asm_pass1(Assembler *a) {
   asm_reset(a);
+  a->symtab = sym_tab_new();
   size_t n_instr = 0;
   Token t;
   for (;;) {
@@ -232,11 +276,14 @@ static size_t asm_n_instrs(Assembler *a) {
         goto done;
       break;
     case TOKEN_LABEL:
+      sym_tab_insert(&a->symtab, str_trim_end(t.source, 1), n_instr);
       // TODO: Add to symbol table here.
       asm_expect(a, TOKEN_NEWLINE);
       break;
     case TOKEN_EOF:
       goto done;
+    case TOKEN_NEWLINE:
+      break;
     default:
       asm_err(a, &t, "Expected line instruction name, got %s",
               token_kind_name(t.kind));
@@ -247,11 +294,13 @@ done:
   return n_instr;
 }
 
+static void asm_free(Assembler a) { sym_tab_free(a.symtab); }
+
 void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
   a.lexer = lexer_new(src, filename);
   a.out = out;
-  a.n_instrs = asm_n_instrs(&a);
+  a.n_instrs = asm_pass1(&a);
   a.consts = NULL;
   a.n_consts = 0;
 
@@ -263,25 +312,43 @@ void assemble(char *src, char *filename, FILE *out) {
     printf("%ld:%ld %20s `%.*s`\n", t.line + 1, t.column,
            token_kind_name(tkind), (int)t.source.len, t.source.ptr);
   } while (t.kind != TOKEN_EOF);
+
+  printf("\n{\n");
+  sym_tab_foreach(&a.symtab, st_dbg);
+  printf("}\n");
 #endif
   asm_reset(&a);
 
-  for (Instr ino = 0;; ino++) {
+  Instr ino = 0;
+  for (;;) {
     Token t = asm_advance(&a);
     switch (t.kind) {
     case TOKEN_IDENT:
       asm_instr(&a, &t, ino);
+      ino++;
+      break;
+    case TOKEN_LABEL:
+      asm_expect(&a, TOKEN_NEWLINE);
       break;
     case TOKEN_EOF:
-      return; // TODO: Cleanup?
+      goto done;
+    case TOKEN_NEWLINE:
+      break;
     default:
-      asm_err(&a, &t, "Expected identifier, but got `%.*s` (%s)",
+      asm_err(&a, &t, "Expected identifier or label, but got `%.*s` (%s)",
               (int)t.source.len, t.source.ptr, token_kind_name(t.kind));
     }
   }
+done:
+  assert(ino == a.n_instrs);
+  for (size_t i = 0; i < a.n_consts; i++)
+    asm_write_word(&a, a.consts[i]);
+
+  asm_free(a);
 }
 
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
+  // TODO: Take token by value, here and everywhere.
   // TODO: Use current?
   va_list fmt_args;
   va_start(fmt_args, fmt);
