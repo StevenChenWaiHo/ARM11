@@ -99,7 +99,7 @@ Instr parse_op2(Assembler *a, Instr *i) {
       }
       break;
     default:
-      assert(0);
+      assert(0); // Unknown shift type instr
       break;
     }
     return op2;
@@ -154,7 +154,7 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     return bit_asm_dp(i, ik_to_dpk(c.kind), s, rn, rd, op2);
     break;
   default:
-    assert(0);
+    assert(0); // Unknown instr
     break;
   }
 
