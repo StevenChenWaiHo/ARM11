@@ -19,12 +19,6 @@ static const char *instrname[] = {
     [INSTR_SUB] = "sub", [INSTR_TEQ] = "teq", [INSTR_TST] = "tst",
 };
 
-#define IMMEDIATE_SIZE 8
-#define ROTATE_SIZE 4
-#define ROTATE_START_BIT 8
-#define DP_OPERAND2_SIZE 32
-#define ROTATE_LIMIT 16
-
 static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
   if (str_eq(cname, "eq"))
     return COND_EQ;
@@ -120,39 +114,6 @@ Reg parse_reg_name(Token t) {
     assert(0); // TODO: Nice error
 }
 
-Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
-
-bool check_valid_imm(Instr imm) {
-  for (int i = 0; i < ROTATE_LIMIT; i++) {
-    // Valid for value that only uses lowest 8 bits
-    if (bit_width(imm) <= IMMEDIATE_SIZE) {
-      return true;
-    }
-
-    // Valid for value that only uses 8 bits (without rotating)
-    int lowest_bit = ffs(imm);
-    if (bit_width(imm >> lowest_bit) <= IMMEDIATE_SIZE) {
-      return true;
-    }
-
-    i = rotate_instr(i);
-  }
-  return false;
-}
-
-Instr imm_encode(Instr n) {
-  // PRE: n is valid imm
-  int shift = 1;
-  while (shift < ROTATE_LIMIT) {
-    n = rotate_instr(n);
-    if (bit_width(n) <= IMMEDIATE_SIZE) {
-      return shift << ROTATE_START_BIT | n;
-    }
-    shift++;
-  }
-  assert(0); // n is not a valid imm
-}
-
 Instr asm_parse_number(Assembler *a, Token t) {
   assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
   Str s = t.source;
@@ -169,13 +130,6 @@ Instr asm_parse_number(Assembler *a, Token t) {
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
   } else {
     assert(0); // Token and str not match
-  }
-  if (!check_valid_imm(n)) {
-    perror("Immediate not valid");
-    assert(0);
-  }
-  if (n > 0xFF) {
-    n = imm_encode(n);
   }
   return n;
 }
@@ -218,14 +172,17 @@ static void asm_reset(Assembler *a) {
   a->current = lexer_next(&a->lexer);
 }
 
+static void asm_write_word(Assembler *a, Instr i) {
+  size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
+  fflush(a->out);       // Temp hack so during abort we get some output.
+  assert(written == 1); // TODO: Handle better.
+}
+
 static void asm_instr(Assembler *a, Token *t, Instr ino) {
   InstrCommon c = asm_parse_instr_common(a, t);
   Instr i = asm_fn[c.kind](a, c, ino);
   i |= c.cond << 28;
-  DBG;
-  size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
-  fflush(a->out);       // Temp hack so during abort we get some output.
-  assert(written == 1); // TODO: Handle better.
+  asm_write_word(a, i);
 }
 
 #ifdef AEMU_TRACE
@@ -303,12 +260,17 @@ void assemble(char *src, char *filename, FILE *out) {
       asm_expect(&a, TOKEN_NEWLINE);
       break;
     case TOKEN_EOF:
-      return; // TODO: Cleanup?
+      goto done;
+    case TOKEN_NEWLINE:
+      break;
     default:
       asm_err(&a, &t, "Expected identifier or label, but got `%.*s` (%s)",
               (int)t.source.len, t.source.ptr, token_kind_name(t.kind));
     }
   }
+done:
+  for (size_t i = 0; i < a.n_consts; i++)
+    asm_write_word(&a, a.consts[i]);
 }
 
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {

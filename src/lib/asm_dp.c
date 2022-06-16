@@ -9,8 +9,9 @@
 #define DP_SHIFT_REG_START_BIT 8
 #define DP_SHIFT_TYPE_START_BIT 5
 #define DP_REG_SHIFT_FLAG_TYPE_START_BIT 4
-
-#define I_START_BIT 25
+#define IMMEDIATE_SIZE 8
+#define ROTATE_START_BIT 8
+#define ROTATE_LIMIT 16
 
 static DpKind ik_to_dpk(InstrKind ik) {
   switch (ik) {
@@ -58,13 +59,52 @@ static DpShiftKind ik_to_dpsk(Instr ik) {
   }
 }
 
+static Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
+
+bool is_valid_imm(Instr imm) {
+  for (int i = 0; i < ROTATE_LIMIT; i++) {
+    // Valid for value that only uses lowest 8 bits
+    if (bit_width(imm) <= IMMEDIATE_SIZE)
+      return true;
+
+    // Valid for value that only uses 8 bits (without rotating)
+    int lowest_bit = ffs(imm);
+    if (bit_width(imm >> lowest_bit) <= IMMEDIATE_SIZE)
+      return true;
+
+    i = rotate_instr(i);
+  }
+  return false;
+}
+
+Instr imm_encode(Instr n) {
+  // PRE: n is valid imm
+  assert(is_valid_imm(n));
+  for (int shift = 1; shift < ROTATE_LIMIT; shift++) {
+    n = rotate_instr(n);
+    if (bit_width(n) <= IMMEDIATE_SIZE)
+      return shift << ROTATE_START_BIT | n;
+  }
+  assert(0); // n is not a valid imm
+}
+
+static Instr asm_parse_imm(Assembler *a, Token t) {
+  Instr n = asm_parse_number(a, t);
+  if (!is_valid_imm(n))
+    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
+            t.source.ptr);
+  if (n > 0xFF)
+    n = imm_encode(n);
+  return n;
+}
+
 Instr parse_op2(Assembler *a, Instr *i) {
   Instr op2 = 0;
   Token out;
   // Immediate
   if (asm_match(a, TOKEN_HASH_NUM, &out)) {
     *i = 1;
-    op2 = asm_parse_number(a, out);
+    op2 = asm_parse_imm(a, out);
     return op2;
   } else if (asm_match(a, TOKEN_IDENT, &out)) {
     // Register
@@ -90,7 +130,7 @@ Instr parse_op2(Assembler *a, Instr *i) {
         op2 |= parse_reg_name(out) << DP_SHIFT_REG_START_BIT;
       } else {
         // Shift by integer
-        op2 |= asm_parse_number(a, out) << DP_SHIFT_CONST_START_BIT;
+        op2 |= asm_parse_imm(a, out) << DP_SHIFT_CONST_START_BIT;
       }
       break;
     default:
@@ -145,7 +185,7 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     if (asm_match(a, TOKEN_HASH_NUM, &out)) {
       // Shift by integer
       op2 |= rd;
-      op2 |= asm_parse_number(a, out) << DP_SHIFT_CONST_START_BIT;
+      op2 |= asm_parse_imm(a, out) << DP_SHIFT_CONST_START_BIT;
     }
     asm_expect(a, TOKEN_NEWLINE);
     return bit_asm_dp(i, ik_to_dpk(c.kind), s, rn, rd, op2);
