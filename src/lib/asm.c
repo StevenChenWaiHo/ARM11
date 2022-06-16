@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "asm.h"
+#include "bit_asm.h"
 #include "cond.h"
 #include "core.h"
 #include "dis.h"
@@ -17,6 +18,12 @@ static const char *instrname[] = {
     [INSTR_ORR] = "orr", [INSTR_RSB] = "rsb", [INSTR_STR] = "str",
     [INSTR_SUB] = "sub", [INSTR_TEQ] = "teq", [INSTR_TST] = "tst",
 };
+
+#define IMMEDIATE_SIZE 8
+#define ROTATE_SIZE 4
+#define ROTATE_START_BIT 8
+#define DP_OPERAND2_SIZE 32
+#define ROTATE_LIMIT 16
 
 static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
   if (str_eq(cname, "eq"))
@@ -68,6 +75,16 @@ InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
     return INSTR_TEQ;
   else if (str_starts_with(t->source, "tst"))
     return INSTR_TST;
+  else if (str_eq(instr, "andeq"))
+    return INSTR_ANDEQ;
+  else if (str_eq(instr, "lsl"))
+    return INSTR_LSL;
+  else if (str_eq(instr, "lsr"))
+    return INSTR_LSR;
+  else if (str_eq(instr, "asr"))
+    return INSTR_ASR;
+  else if (str_eq(instr, "ror"))
+    return INSTR_ROR;
   else
     asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,
             t->source.ptr);
@@ -105,25 +122,64 @@ Reg parse_reg_name(Token t) {
     assert(0); // TODO: Nice error
 }
 
+Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
+
+bool check_valid_imm(Instr imm) {
+  for (int i = 0; i < ROTATE_LIMIT; i++) {
+    // Valid for value that only uses lowest 8 bits
+    if (bit_width(imm) <= IMMEDIATE_SIZE) {
+      return true;
+    }
+
+    // Valid for value that only uses 8 bits (without rotating)
+    int lowest_bit = ffs(imm);
+    if (bit_width(imm >> lowest_bit) <= IMMEDIATE_SIZE) {
+      return true;
+    }
+
+    i = rotate_instr(i);
+  }
+  return false;
+}
+
+Instr imm_encode(Instr n) {
+  // PRE: n is valid imm
+  int shift = 1;
+  while (shift < ROTATE_LIMIT) {
+    n = rotate_instr(n);
+    if (bit_width(n) <= IMMEDIATE_SIZE) {
+      return shift << ROTATE_START_BIT | n;
+    }
+    shift++;
+  }
+  assert(0); // n is not a valid imm
+}
+
 Instr asm_parse_number(Assembler *a, Token t) {
   assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
   Str s = t.source;
+  Instr n;
   if (str_starts_with(s, "=0x") || str_starts_with(s, "#0x")) {
     s.ptr += 3;
     s.len -= 3;
-    Instr n;
     if (!str_parse_hex(s, &n))
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
-    return n;
   } else if (str_starts_with(s, "#")) {
     s.ptr += 1;
     s.len -= 1;
-    Instr n;
     if (!str_parse_dec(s, &n))
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
-    return n;
+  } else {
+    assert(0); // Token and str not match
   }
-  assert(0);
+  if (!check_valid_imm(n)) {
+    perror("Immediate not valid");
+    assert(0);
+  }
+  if (n > 0xFF) {
+    n = imm_encode(n);
+  }
+  return n;
 }
 
 InstrCommon asm_parse_instr_common(Assembler *a, Token *t) {
@@ -149,6 +205,8 @@ static AsmFn asm_fn[] = {
     [INSTR_SUB] = asm_dp,
     [INSTR_TEQ] = asm_dp,
     [INSTR_TST] = asm_dp,
+    [INSTR_ANDEQ] = asm_dp,
+    [INSTR_LSL] = asm_dp,
     // Not DP
     [INSTR_B] = asm_br,
     [INSTR_MLA] = asm_mul,

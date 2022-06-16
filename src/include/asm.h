@@ -27,6 +27,11 @@ typedef enum {
   INSTR_SUB,
   INSTR_TEQ,
   INSTR_TST,
+  INSTR_ANDEQ,
+  INSTR_LSL,
+  INSTR_ASR,
+  INSTR_LSR,
+  INSTR_ROR
 } InstrKind;
 
 typedef struct {
