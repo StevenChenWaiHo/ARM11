@@ -3,21 +3,24 @@
 
 #include <stdint.h>
 
-#include "strmap.h"
+#include "str.h"
 
+//map of string as key to int as value
 
 // Internal
-typedef struct {
-  Str name;
-  size_t offset;
-} SymTabEntry;
+typedef struct Node {
+	Str key;
+	size_t value;
+	struct Node *left;
+	struct Node *right;
+	size_t height;
+} TreeNode;
 
 typedef struct {
-  SymTabEntry *ptr;
-  size_t len;
-  size_t cap;
-} SymTab;
+	TreeNode *root;
+} Tree;
 
+size_t height(TreeNode *node);
 Tree sym_tab_new();
 // If found, returns true, and writes to val
 bool sym_tab_get(Tree *st, Str key, size_t *val);

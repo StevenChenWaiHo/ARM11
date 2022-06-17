@@ -1,6 +1,5 @@
 #include <assert.h>
 
-#include "str.h"
 #include "symtab.h"
 
 static void incnode(TreeNode *node) {
