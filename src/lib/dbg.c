@@ -31,7 +31,7 @@ void dbg(CpuState *cpu) {
       int line_no = atoi(input + 2) - 1;
       if (!cpu->mem[line_no]) {
         printf("Such line not found.\n");
-        break;
+        continue;
       }
       breakpoint[bpt_ptr] = line_no;
       printf("Breakpoint %d set at line %d.\n", bpt_ptr + 1, line_no + 1);
