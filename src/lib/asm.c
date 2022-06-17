@@ -175,12 +175,16 @@ Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
 }
 
 // Check Instruction uses shift, if used used_shift will be true
+// Basically checks {, <shift>} in spec
+// Output: operand2 instruction
+// Changes: use_shift is set if {, <shift>} is found
 Instr check_use_shift(Assembler *a, Reg rm, bool *use_shift) {
   // Check if using Shift
   if (!asm_match(a, TOKEN_COMMA, NULL)) {
     *use_shift = false;
     return rm;
   }
+  *use_shift = true;
   ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
   Token rs;
   if (asm_match(a, TOKEN_IDENT, &rs))

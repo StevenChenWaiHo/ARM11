@@ -41,7 +41,8 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
         offset = asm_parse_simm(a, shtok, &neg);
       else {
         Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-        offset = check_use_shift(a, reg, &offset_reg);
+        bool use_shift;
+        offset = check_use_shift(a, reg, &use_shift);
         offset_reg = true;
       }
     }
@@ -56,7 +57,8 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
         offset = asm_parse_simm(a, shtok, &neg);
       else {
         Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-        offset = check_use_shift(a, reg, &offset_reg);
+        bool use_shift;
+        offset = check_use_shift(a, reg, &use_shift);
         offset_reg = true;
       }
     }

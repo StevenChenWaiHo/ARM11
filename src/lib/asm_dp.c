@@ -48,9 +48,9 @@ Instr parse_op2(Assembler *a, Instr *i) {
   Token rmt;
   if (asm_match(a, TOKEN_IDENT, &rmt)) {
     // Register
-    *i = 0;
     Reg rm = parse_reg_name(rmt);
-    bool use_shift;
+    bool use_shift = false;
+    *i = 0;
     return check_use_shift(a, rm, &use_shift);
   }
   assert(0);
