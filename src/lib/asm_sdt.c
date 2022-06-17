@@ -8,10 +8,9 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
 
   Reg rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
   asm_expect(a, TOKEN_COMMA);
-
   Token num;
-
   Instr ret;
+  bool use_shift = false;
 
   if (asm_match(a, TOKEN_EQ_NUM, &num)) {
     assert(c.kind == INSTR_LDR);
@@ -41,7 +40,6 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
         offset = asm_parse_simm(a, shtok, &neg);
       else {
         Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-        bool use_shift;
         offset = check_use_shift(a, reg, &use_shift);
         offset_reg = true;
       }
@@ -57,7 +55,6 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
         offset = asm_parse_simm(a, shtok, &neg);
       else {
         Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-        bool use_shift;
         offset = check_use_shift(a, reg, &use_shift);
         offset_reg = true;
       }

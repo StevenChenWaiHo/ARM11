@@ -180,6 +180,9 @@ Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
 // Changes: use_shift is set if {, <shift>} is found
 Instr check_use_shift(Assembler *a, Reg rm, bool *use_shift) {
   // Check if using Shift
+  if (*use_shift == true) {
+    asm_err(a, NULL, "TRUE use_shift is passed");
+  }
   if (!asm_match(a, TOKEN_COMMA, NULL)) {
     *use_shift = false;
     return rm;
