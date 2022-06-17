@@ -135,4 +135,5 @@ int main() {
   assert(n == 13);
   assert(!sym_tab_get(&st, str_lit("Xl12_"), &n));
 
+  sym_tab_free(st);
 }
