@@ -72,6 +72,7 @@ ShiftKind asm_parse_shift_kind(Assembler *a, Token);
 InstrCommon asm_parse_instr_common(Assembler *a, Token *t);
 Instr asm_parse_imm(Assembler *a, Token t);
 Instr asm_parse_simm(Assembler *a, Token t, bool *neg);
+Instr check_use_shift(Assembler *a, Reg rm, bool *use_shift);
 
 Instr asm_add_const(Assembler *, Instr);
 
