@@ -19,7 +19,7 @@ static CpuCondFn condfns[] = {
 };
 
 void dbg(CpuState *cpu) {
-  int breakpoint[20];
+  int breakpoint[BREAKPOINT_NUMBER];
   int bpt_ptr = 0;
   bool is_run;
 
@@ -28,6 +28,10 @@ void dbg(CpuState *cpu) {
     char input[20];
     fgets(input, 20, stdin);
     if (input[0] == 'b' && input[1] == ' ') { // command break
+      if (bpt_ptr >= BREAKPOINT_NUMBER) {
+        printf("Amount of breakpoints possible is (for now) limited to %d", BREAKPOINT_NUMBER);
+        continue;
+      }
       int line_no = atoi(input + 2) - 1;
       if (!cpu->mem[line_no]) {
         printf("Such line not found.\n");
