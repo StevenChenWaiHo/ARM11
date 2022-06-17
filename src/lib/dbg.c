@@ -23,6 +23,8 @@ void dbg(CpuState *cpu) {
   int bpt_ptr = 0;
   bool is_run;
 
+  // TODO : implement word commands such as 'break' or 'step'
+
   for (;;) {
     printf("> ");
     char input[20];
@@ -37,7 +39,7 @@ void dbg(CpuState *cpu) {
       printf("Breakpoint %d set at line %d.\n", bpt_ptr + 1, line_no + 1);
       bpt_ptr++;
     }
-    if (input[0] == 'r') { // command run
+    if (input[0] == 'r') { // command run / continue
       is_run = true;
       if (sequence(cpu, breakpoint, bpt_ptr, false)) {
         break;
