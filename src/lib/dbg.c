@@ -35,7 +35,7 @@ void dbg(CpuState *cpu) {
         continue;
       }
       int line_no = atoi(input + 2) - 1;
-      if (!cpu->mem[line_no]) {
+      if (line_no < 0 || line_no >= MEMORY_SIZE / 4 || !cpu->mem[line_no]) {
         printf("Such line not found.\n");
         continue;
       }
