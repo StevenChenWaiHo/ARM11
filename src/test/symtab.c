@@ -2,9 +2,7 @@
 
 #include "symtab.h"
 
-static void incnode(TreeNode *node) {
-  node->value++;
-}
+static void incnode(TreeNode *node) { node->value++; }
 
 static bool maintain_invariant(Tree tree) {
   int inv;
@@ -12,11 +10,7 @@ static bool maintain_invariant(Tree tree) {
     inv = 0;
   }
   inv = height(tree.root->left) - height(tree.root->right);
-  if (inv >= -1 && inv <= 1)
-  {
-    return true;
-  }
-  return false;
+  return inv >= -1 && inv <= 1;
 }
 
 int main() {
