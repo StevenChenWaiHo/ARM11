@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   in_wo_ext[innamelen] = '\0';
 
   char in_ext[2];
-  strcpy(in_ext, input + innamelen);
+  strncpy(in_ext, input + innamelen, 2);
   int is_s = strncmp(in_ext, ".s", 2);
   
   if (is_s == 0) {
