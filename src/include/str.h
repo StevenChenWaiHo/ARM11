@@ -29,6 +29,8 @@ bool str_eqs(Str s1, Str s2);
 Str str_new(const char *, size_t);
 Str str_lit(const char *);
 
+int str_cmp(Str str1, Str str2);
+
 // TODO: Flesh out, no raw access to str outside str.c
 
 // s[:-n]

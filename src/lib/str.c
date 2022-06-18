@@ -34,6 +34,23 @@ Str str_new(const char *s, size_t l) {
 }
 Str str_lit(const char *s) { return str_new(s, strlen(s)); }
 
+static size_t min(size_t a, size_t b) { return (a < b) ? a : b; }
+
+// return < 0 if str1 < str2, > 0 if str2 < str1, = 0 if str1 = str2
+int str_cmp(Str str1, Str str2) {
+  size_t len = min(str1.len, str2.len);
+  int cmp = strncmp(str1.ptr, str2.ptr, len);
+  if (cmp == 0 && str1.len != str2.len) {
+    if (str1.len < str2.len) {
+      return -1;
+    } else {
+      return 1;
+    }
+  } else {
+    return cmp;
+  }
+}
+
 Str str_trim_end(Str s, size_t n) {
   assert(n <= s.len);
   s.len -= n;
