@@ -3,7 +3,6 @@ CFLAGS  = -Wall -Wextra -Wpedantic -pedantic -g -D_POSIX_SOURCE -D_DEFAULT_SOURC
           -Werror=incompatible-pointer-types -Werror=return-type
 
 CMD_SRC = assemble.c emulate.c disassemble.c
-
 LIB_SRC = asm.c      asm_sdt.c  dis_dp.c   emu_br.c    emu_sdt.c    str.c    \
           asm_br.c   bit_asm.c  dis_mul.c  emu_cond.c  emu_shift.c  symtab.c \
           asm_dp.c   dis.c      dis_sdt.c  emu_dp.c    lexer.c               \
