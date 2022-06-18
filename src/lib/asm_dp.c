@@ -5,9 +5,6 @@
 #include "asm.h"
 #include "bit_asm.h"
 
-#define DP_SHIFT_CONST_START_BIT 7
-#define DP_SHIFT_CONST_MAX 0x1F
-
 static DpKind ik_to_dpk(InstrKind ik) {
   switch (ik) {
   case INSTR_AND:
@@ -37,6 +34,7 @@ static DpKind ik_to_dpk(InstrKind ik) {
   }
 }
 
+// Up to 12 bits.
 Instr parse_op2(Assembler *a, Instr *i) {
   Token num;
   // Immediate
@@ -61,10 +59,7 @@ Instr parse_op2(Assembler *a, Instr *i) {
       return bit_asm_op2_shift_reg(rm, shift_type, parse_reg_name(rs)); // reg
     else {
       Token imm = asm_expect(a, TOKEN_HASH_NUM);
-      Instr imm_instr = asm_parse_imm(a, imm);
-      if (imm_instr > DP_SHIFT_CONST_MAX) {
-        asm_err(a, &imm, "Const too large for a shift const: %d", imm_instr);
-      }
+      Instr imm_instr = asm_parse_shift_imm(a, imm);
       return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
     }
     // Shift by integer
@@ -112,10 +107,7 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     asm_expect(a, TOKEN_COMMA);
     if (asm_match(a, TOKEN_HASH_NUM, &imm)) {
       // Shift by integer
-      Instr imm_instr = asm_parse_imm(a, imm);
-      if (imm_instr > DP_SHIFT_CONST_MAX) {
-        asm_err(a, &imm, "Const too large for a shift const: %d", imm_instr);
-      }
+      Instr imm_instr = asm_parse_shift_imm(a, imm);
       op2 = bit_asm_op2_shift_imm(rd, SHIFT_LSL, imm_instr);
     }
     asm_expect(a, TOKEN_NEWLINE);

@@ -12,6 +12,7 @@
 #include "dis.h"
 
 #define LOWEST_8_BIT_MASK 0xFF
+#define DP_SHIFT_CONST_MAX 0x1F
 #define ROTATE_START_BIT 8
 #define ROTATE_LIMIT 16
 
@@ -154,6 +155,7 @@ Instr imm_encode(Instr n) {
   assert(0); // n is not a valid imm
 }
 
+// Up to 12 bits
 Instr asm_parse_imm(Assembler *a, Token t) {
   bool neg;
   Instr n = asm_parse_number(a, t, &neg);
@@ -163,12 +165,19 @@ Instr asm_parse_imm(Assembler *a, Token t) {
   if (!is_valid_imm(n))
     asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
             t.source.ptr);
-  if (n > LOWEST_8_BIT_MASK) {
+  if (n > LOWEST_8_BIT_MASK)
     n = imm_encode(n);
-  }
   return n;
 }
-Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
+Instr asm_parse_shift_imm(Assembler *a, Token t) {
+  Instr n = asm_parse_imm(a, t);
+  if (n > DP_SHIFT_CONST_MAX)
+    asm_err(a, &t, "Const too large for a shift const: %d (max is %d)", n,
+            DP_SHIFT_CONST_MAX);
+  return n;
+}
+// Up to 12 bits
+Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
   Instr n = asm_parse_number(a, t, neg);
   if (!is_valid_imm(n))
     asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
