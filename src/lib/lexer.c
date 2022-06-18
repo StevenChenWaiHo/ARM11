@@ -102,7 +102,11 @@ Token lexer_next(Lexer *l) {
     return eq_num(l);
   }
   fprintf(stderr, "Unexpected character: %c\n", c);
-  exit(-1);
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  exit(0);
+#else
+  exit(1);
+#endif
 }
 
 Lexer lexer_new(const char *source, const char *filename) {
