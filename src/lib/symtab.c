@@ -86,14 +86,11 @@ static SymTabEntry *node_get(SymTabEntry *node, Str key) {
 
 // If found, returns true, and writes to val
 bool sym_tab_get(SymTab *st, Str key, size_t *val) {
-  SymTab newtree;
-  newtree.root = node_get(st->root, key);
-  if (newtree.root == NULL) {
-    return false;
-  } else {
-    *val = newtree.root->value;
-    return true;
+  SymTabEntry *node = node_get(st->root, key);
+  if (node) {
+    *val = node->value;
   }
+  return node;
 }
 
 static SymTabEntry *node_insert(SymTabEntry *node, Str key, size_t value) {
@@ -144,14 +141,10 @@ bool sym_tab_insert(SymTab *st, Str key, size_t val) {
 }
 
 static void node_free(SymTabEntry *node) {
-  if (node->left == NULL) {
-    free(node->left);
-  } else {
+  if (node->left != NULL) {
     node_free(node->left);
   }
-  if (node->right == NULL) {
-    free(node->right);
-  } else {
+  if (node->right != NULL) {
     node_free(node->right);
   }
   free(node);
