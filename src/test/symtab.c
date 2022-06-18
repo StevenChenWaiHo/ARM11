@@ -2,19 +2,19 @@
 
 #include "symtab.h"
 
-static void incnode(TreeNode *node) { node->value++; }
+static void incnode(SymTabEntry *node) { node->value++; }
 
-static bool maintain_invariant(Tree tree) {
+static bool maintain_invariant(SymTab st) {
   int inv;
-  if (tree.root == NULL) {
+  if (st.root == NULL) {
     inv = 0;
   }
-  inv = height(tree.root->left) - height(tree.root->right);
+  inv = height(st.root->left) - height(st.root->right);
   return inv >= -1 && inv <= 1;
 }
 
 int main() {
-  Tree st = sym_tab_new();
+  SymTab st = sym_tab_new();
   assert(sym_tab_insert(&st, str_lit("l1"), 1));
   assert(maintain_invariant(st));
   assert(sym_tab_insert(&st, str_lit("l2"), 2));
