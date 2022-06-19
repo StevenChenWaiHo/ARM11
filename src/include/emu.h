@@ -12,6 +12,7 @@ typedef struct {
   uint32_t *mem;
 } CpuState;
 
+void entry(CpuState *, Instr);
 void emu(CpuState *);
 void print_state(CpuState *);
 

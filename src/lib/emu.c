@@ -6,17 +6,35 @@
 
 #include "cond.h"
 #include "emu.h"
+#include "emu_condfn.h"
 #ifdef AEMU_TRACE
 #include "dis.h"
 #endif
 
-typedef bool (*CpuCondFn)(CpuState *);
-
-static CpuCondFn condfns[] = {
-    [COND_EQ] = emu_cond_eq, [COND_NE] = emu_cond_ne, [COND_GE] = emu_cond_ge,
-    [COND_LT] = emu_cond_lt, [COND_GT] = emu_cond_gt, [COND_LE] = emu_cond_le,
-    [COND_AL] = emu_cond_al,
-};
+void entry(CpuState *cpu, Instr i) {
+  Instr type = type_mask(i);
+  Instr type_mul = type_mul_mask(i);
+  Instr type_mul2 = type_mul2_mask(i);
+  switch (type) {
+  case 0: // Data processing or multiply
+    if (type_mul == 0 && type_mul2 == 9)
+      emu_mul(cpu, i);
+    else
+      emu_dp(cpu, i);
+    cpu->regs[REG_PC] += 4;
+    break;
+  case 1: // Single data transfer
+    emu_sdt(cpu, i);
+    cpu->regs[REG_PC] += 4;
+    break;
+  case 2: // Branch
+    emu_br(cpu, i);
+    break;
+  default:
+    fprintf(stderr, "Unknown type %x\n", type);
+    exit(EXIT_FAILURE);
+  }
+}
 
 void emu(CpuState *cpu) {
   uint32_t *imem = cpu->mem;
@@ -29,36 +47,13 @@ void emu(CpuState *cpu) {
 #endif
     if (!i) // HLT special case
       break;
-
     Instr condno = cond_mask(i);
     CpuCondFn cond = condfns[condno];
     if (!cond(cpu)) {
       cpu->regs[REG_PC] += 4;
       continue;
     }
-
-    Instr type = type_mask(i);
-    Instr type_mul = type_mul_mask(i);
-    Instr type_mul2 = type_mul2_mask(i);
-    switch (type) {
-    case 0: // Data processing or multiply
-      if (type_mul == 0 && type_mul2 == 9)
-        emu_mul(cpu, i);
-      else
-        emu_dp(cpu, i);
-      cpu->regs[REG_PC] += 4;
-      break;
-    case 1: // Single data transfer
-      emu_sdt(cpu, i);
-      cpu->regs[REG_PC] += 4;
-      break;
-    case 2: // Branch
-      emu_br(cpu, i);
-      break;
-    default:
-      fprintf(stderr, "Unknown type %x\n", type);
-      exit(EXIT_FAILURE);
-    }
+    entry(cpu, i);
   }
 }
 
