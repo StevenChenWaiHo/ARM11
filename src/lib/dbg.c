@@ -1,4 +1,4 @@
-#include <byteswap.h> // TODO: Can we use GNU extension.
+#include <byteswap.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -31,11 +31,13 @@ void dbg(CpuState *cpu) {
     fgets(input, 20, stdin);
     if (input[0] == 'b' && input[1] == ' ') { // command break
       if (bpt_ptr >= BREAKPOINT_NUMBER) {
-        printf("Amount of breakpoints possible is (for now) limited to %d", BREAKPOINT_NUMBER);
+        printf("Amount of breakpoints possible is limited to %d",
+               BREAKPOINT_NUMBER);
         continue;
       }
       int line_no = atoi(input + 2);
-      if (line_no <= 0 || line_no >= MEMORY_SIZE / 4 || !cpu->mem[line_no - 1]) {
+      if (line_no <= 0 || line_no >= MEMORY_SIZE / 4 ||
+          !cpu->mem[line_no - 1]) {
         printf("Such line not found.\n");
         continue;
       }
@@ -59,7 +61,7 @@ void dbg(CpuState *cpu) {
     }
     if (input[0] == 'r') { // command run / continue
       is_run = true;
-      if (sequence(cpu, breakpoint, bpt_ptr, false)) {
+      if (sequence(cpu, breakpoint, bpt_ptr, false)) { // terminates
         break;
       }
     }
@@ -76,6 +78,7 @@ void dbg(CpuState *cpu) {
       }
     }
   }
+  free(breakpoint);
 }
 
 bool sequence(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
@@ -85,12 +88,10 @@ bool sequence(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
     for (int i = 0; i < bpt_ptr; i++) {
       if (breakpoint[i] - 1 == curr && !step) {
         printf("Breakpoint %d at line %d\n", i + 1, curr + 1);
-        print_state(cpu);       
-        cpu->regs[REG_PC] += 4;
+        print_state(cpu);
         return false;
       }
     }
-    // printf("%d\n", curr);
     Instr i = imem[curr];
 #ifdef AEMU_TRACE
     dis(cpu->regs[REG_PC] / 4, i);

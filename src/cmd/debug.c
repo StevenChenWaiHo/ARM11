@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
   char in_ext[2];
   strncpy(in_ext, input + innamelen, 2);
   int is_s = strncmp(in_ext, ".s", 2);
-  
+
   if (is_s == 0) {
     FILE *in = fopen(input, "r");
     if (!in) {
@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
     char *buff = malloc(lenb + 1);
     fread(buff, 1, lenb, in);
     buff[lenb] = '\0';
-    
+
     FILE *out = fopen(in_wo_ext, "w");
     if (!out) {
       printf("Failed to create %s\n", in_wo_ext);
