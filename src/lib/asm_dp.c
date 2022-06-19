@@ -49,9 +49,8 @@ Instr parse_op2(Assembler *a, Instr *i) {
   if (asm_match(a, TOKEN_IDENT, &rmt)) {
     // Register
     Reg rm = parse_reg_name(rmt);
-    bool use_shift = false;
     *i = 0;
-    return check_use_shift(a, rm, &use_shift);
+    return parse_shift_reg(a, rm);
   }
   assert(0);
 }
@@ -91,7 +90,6 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
     // Special Case, Convert LSL to MOV
   case INSTR_LSL:
     rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-    bool use_shift = false;
     Token imm;
     asm_expect(a, TOKEN_COMMA);
     if (asm_match(a, TOKEN_HASH_NUM, &imm)) {

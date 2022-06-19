@@ -3,6 +3,29 @@
 #include "asm.h"
 #include "bit_asm.h"
 
+Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
+  Token shtok;
+  if (asm_match(a, TOKEN_HASH_NUM, &shtok)) // <#expression>
+    return asm_parse_simm(a, shtok, neg);
+  else {
+    Token sign;
+    if (asm_match(a, TOKEN_SIGN, &sign)) { // [Rn, {+/-}
+      if (str_eq(sign.source, "-")) {
+        *neg = 1;
+      } else if (str_eq(sign.source, "+")) {
+        assert(*neg == 0);
+        *neg = 0;
+      }
+      asm_err(a, &sign, "Unknown token for TOKEN_SIGN");
+    }
+
+    Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT)); // [Rn, {+/-}Rm
+    *offset_reg = true;
+    return parse_shift_reg(a, reg); // [Rn, {+/-}Rm{,<shift>}]
+  }
+  return 0; // No offset
+}
+
 Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   assert(c.kind == INSTR_STR || c.kind == INSTR_LDR);
 
@@ -10,7 +33,6 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   asm_expect(a, TOKEN_COMMA);
   Token num;
   Instr ret;
-  bool use_shift = false;
 
   if (asm_match(a, TOKEN_EQ_NUM, &num)) {
     assert(c.kind == INSTR_LDR);
@@ -34,30 +56,16 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     bool offset_reg = false;
     bool pre_index = true;
     bool neg = false;
-    if (asm_match(a, TOKEN_COMMA, NULL)) {
-      Token shtok;
-      if (asm_match(a, TOKEN_HASH_NUM, &shtok))
-        offset = asm_parse_simm(a, shtok, &neg);
-      else {
-        Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-        offset = check_use_shift(a, reg, &use_shift);
-        offset_reg = true;
-      }
+    if (asm_match(a, TOKEN_COMMA, NULL)) {         // [Rn,
+      offset = parse_offset(a, &offset_reg, &neg); // [Rn, {+/-}Rm{, <shift>}
     }
 
     asm_expect(a, TOKEN_RSQUARE);
-    if (asm_match(a, TOKEN_COMMA, NULL)) {
+    if (asm_match(a, TOKEN_COMMA, NULL)) { // [Rn],
       assert(offset == 0);
       assert(offset_reg == false);
       pre_index = false;
-      Token shtok;
-      if (asm_match(a, TOKEN_HASH_NUM, &shtok))
-        offset = asm_parse_simm(a, shtok, &neg);
-      else {
-        Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-        offset = check_use_shift(a, reg, &use_shift);
-        offset_reg = true;
-      }
+      offset = parse_offset(a, &offset_reg, &neg); // [Rn], {+/-}Rm{, <shift>}
     }
 
     ret = bit_asm_sdt(/*offset_reg=*/offset_reg, pre_index, /*up=*/!neg,
