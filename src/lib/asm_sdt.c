@@ -5,7 +5,7 @@
 
 Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
   Token shtok;
-  if (asm_match(a, TOKEN_HASH_NUM, &shtok)) // <#expression>
+  if (asm_match(a, TOKEN_HASH_NUM, &shtok)) // [Rn, <#expression>
     return asm_parse_signed_imm(a, shtok, neg);
   else {
     Token sign;
@@ -34,7 +34,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   Token num;
   Instr ret;
 
-  if (asm_match(a, TOKEN_EQ_NUM, &num)) {
+  if (asm_match(a, TOKEN_EQ_NUM, &num)) { // <=expression> (signed)
     assert(c.kind == INSTR_LDR);
     // ldr r0,=0x02
     bool neg;

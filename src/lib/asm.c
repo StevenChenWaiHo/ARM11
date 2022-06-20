@@ -45,6 +45,7 @@ static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
   else
     asm_err(a, t, "Expected cond, got `%.*s`", (int)cname.len, cname.ptr);
 }
+
 ShiftKind asm_parse_shift_kind(Assembler *a, Token t) {
   if (str_eq(t.source, "lsl"))
     return SHIFT_LSL;
@@ -94,6 +95,7 @@ InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
     asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,
             t->source.ptr);
 }
+
 Reg asm_parse_reg_name(Token t) {
   assert(t.kind == TOKEN_IDENT);
   Str regname = t.source;
@@ -146,6 +148,7 @@ bool is_valid_imm(Instr imm) {
   return false;
 }
 
+// Return a encoded unsigned immediate
 Instr imm_encode(Assembler *a, Token t, Instr n) {
   if (!is_valid_imm(n)) {
     asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
@@ -162,39 +165,7 @@ Instr imm_encode(Assembler *a, Token t, Instr n) {
   asm_err(a, &t, "`%.*s` Invalid immediate", (int)t.source.len, t.source.ptr);
 }
 
-// Up to 12 bits
-Instr asm_parse_imm(Assembler *a, Token t) {
-  bool neg;
-  Instr n = asm_parse_number(a, t, &neg);
-  if (neg)
-    asm_err(a, &t, "Unexpected negitive `%.*s`", (int)t.source.len,
-            t.source.ptr);
-  return imm_encode(a, t, n);
-}
-Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
-  Instr n = asm_parse_number(a, t, neg);
-  return imm_encode(a, t, n);
-}
-
-// Basically checks {, <shift>} in spec
-// Output: operand2 instruction
-Instr asm_parse_shift_reg(Assembler *a, Reg rm) {
-  if (!asm_match(a, TOKEN_COMMA, NULL)) {
-    return rm;
-  }
-  ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
-  Token rs;
-  // Shift by Register
-  if (asm_match(a, TOKEN_IDENT, &rs))
-    return bit_asm_op2_shift_reg(rm, shift_type, asm_parse_reg_name(rs)); // reg
-  else {
-    // Shift by Integer Constant
-    Token imm = asm_expect(a, TOKEN_HASH_NUM);
-    Instr imm_instr = asm_parse_shift_imm(a, imm);
-    return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
-  }
-}
-
+// Parser for numbers
 Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
   assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
   Str s = t.source;
@@ -219,6 +190,41 @@ Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
     assert(0); // Token and str not match
   }
   return n;
+}
+
+// Return unsigned immediate up to 12 bits
+Instr asm_parse_imm(Assembler *a, Token t) {
+  bool neg;
+  Instr n = asm_parse_number(a, t, &neg);
+  if (neg)
+    asm_err(a, &t, "Unexpected negitive `%.*s`", (int)t.source.len,
+            t.source.ptr);
+  return imm_encode(a, t, n);
+}
+
+// Return a signed immediate and change the neg flag
+Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
+  Instr n = asm_parse_number(a, t, neg);
+  return imm_encode(a, t, n);
+}
+
+// Basically checks {, <shift>} in spec
+// Output: operand2 instruction
+Instr asm_parse_shift_reg(Assembler *a, Reg rm) {
+  if (!asm_match(a, TOKEN_COMMA, NULL)) {
+    return rm;
+  }
+  ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
+  Token rs;
+  // Shift by Register
+  if (asm_match(a, TOKEN_IDENT, &rs))
+    return bit_asm_op2_shift_reg(rm, shift_type, asm_parse_reg_name(rs)); // reg
+  else {
+    // Shift by Integer Constant
+    Token imm = asm_expect(a, TOKEN_HASH_NUM);
+    Instr imm_instr = asm_parse_shift_imm(a, imm);
+    return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
+  }
 }
 
 Instr asm_parse_shift_imm(Assembler *a, Token t) {
