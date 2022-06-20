@@ -35,42 +35,36 @@ static DpKind ik_to_dpk(InstrKind ik) {
 }
 
 // Up to 12 bits.
-Instr parse_op2(Assembler *a, Instr *i) {
+Instr parse_op2(Assembler *a, bool *i) {
   Token num;
   // Immediate
   if (asm_match(a, TOKEN_HASH_NUM, &num)) {
-    *i = 1;
+    *i = true;
     return asm_parse_imm(a, num);
   }
 
-  Token rmt;
-  if (asm_match(a, TOKEN_IDENT, &rmt)) {
-    // Register
-    *i = 0;
-    Reg rm = parse_reg_name(rmt);
-    // Check if using Shift
-    if (!asm_match(a, TOKEN_COMMA, NULL))
-      return rm;
+  *i = false;
+  Reg rm = asm_expect_reg(a);
+  // Check if using Shift
+  if (!asm_match(a, TOKEN_COMMA, NULL))
+    return rm;
 
-    ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
+  ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
 
-    Token rs;
-    if (asm_match(a, TOKEN_IDENT, &rs))
-      return bit_asm_op2_shift_reg(rm, shift_type, parse_reg_name(rs)); // reg
-    else {
-      Token imm = asm_expect(a, TOKEN_HASH_NUM);
-      Instr imm_instr = asm_parse_shift_imm(a, imm);
-      return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
-    }
+  Token rs;
+  if (asm_match(a, TOKEN_IDENT, &rs))
+    return bit_asm_op2_shift_reg(rm, shift_type,
+                                 asm_parse_reg_name(a, rs)); // reg
+  else
     // Shift by integer
-    // imm
-  }
-  assert(0);
+    return bit_asm_op2_shift_imm(
+        rm, shift_type,
+        asm_parse_shift_imm(a, asm_expect(a, TOKEN_HASH_NUM))); // imm
 }
 
 Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
-  Instr i = 0;
-  Instr s = 0;
+  bool i = false;
+  bool s = false;
   Instr rn = 0;
   Instr rd = 0;
   Instr op2 = 0;
@@ -83,28 +77,28 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
   case INSTR_RSB:
   case INSTR_ADD:
   case INSTR_ORR:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_expect_reg(a);
     asm_expect(a, TOKEN_COMMA);
-    rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rn = asm_expect_reg(a);
     break;
 
     // Single Operand Assignment
   case INSTR_MOV:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_expect_reg(a);
     break;
 
     //  Flag Setting Instructions
   case INSTR_TST:
   case INSTR_TEQ:
   case INSTR_CMP:
-    rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-    s = 1;
+    rn = asm_expect_reg(a);
+    s = true;
     break;
     // Special Case, Convert LSL to MOV
   case INSTR_LSL:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
-    Token imm;
+    rd = asm_expect_reg(a);
     asm_expect(a, TOKEN_COMMA);
+    Token imm;
     if (asm_match(a, TOKEN_HASH_NUM, &imm)) {
       // Shift by integer
       Instr imm_instr = asm_parse_shift_imm(a, imm);
