@@ -5,8 +5,6 @@
 #include "bit_asm.h"
 
 Instr asm_mul(Assembler *a, InstrCommon c, Instr ino) {
-  // Cond should be 1110 for all dp
-  assert(c.cond == COND_AL);
   Instr a_flag = 0;
   Instr s = 0;
   Reg rd = 0;
