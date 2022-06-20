@@ -100,6 +100,10 @@ Token lexer_next(Lexer *l) {
     return make_token(l, TOKEN_RSQUARE);
   case '=':
     return eq_num(l);
+  case '+':
+    return make_token(l, TOKEN_SIGN);
+  case '-':
+    return make_token(l, TOKEN_SIGN);
   }
   fprintf(stderr, "Unexpected character: %c\n", c);
   exit(-1);
@@ -138,6 +142,8 @@ const char *token_kind_name(TokenKind tk) {
     return "TOKEN_NEWLINE";
   case TOKEN_RSQUARE:
     return "TOKEN_RSQUARE";
+  case TOKEN_SIGN:
+    return "TOKEN_SIGN";
   default:
     assert(0);
   }
