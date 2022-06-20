@@ -35,27 +35,21 @@ static DpKind ik_to_dpk(InstrKind ik) {
 }
 
 // Up to 12 bits.
-Instr parse_op2(Assembler *a, Instr *i) {
+Instr parse_op2(Assembler *a, bool *i) {
   Token num;
   // Immediate
   if (asm_match(a, TOKEN_HASH_NUM, &num)) {
-    *i = 1;
+    *i = true;
     return asm_parse_imm(a, num);
   }
-
-  Token rmt;
-  if (asm_match(a, TOKEN_IDENT, &rmt)) {
-    // Register
-    Reg rm = asm_parse_reg_name(rmt);
-    *i = 0;
-    return asm_parse_shift_reg(a, rm);
-  }
-  assert(0);
+  *i = false;
+  Reg rm = asm_expect_reg(a);
+  return asm_parse_shift_reg(a, rm);
 }
 
 Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
-  Instr i = 0;
-  Instr s = 0;
+  bool i = false;
+  bool s = false;
   Instr rn = 0;
   Instr rd = 0;
   Instr op2 = 0;
@@ -68,28 +62,28 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
   case INSTR_RSB:
   case INSTR_ADD:
   case INSTR_ORR:
-    rd = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_expect_reg(a);
     asm_expect(a, TOKEN_COMMA);
-    rn = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rn = asm_expect_reg(a);
     break;
 
     // Single Operand Assignment
   case INSTR_MOV:
-    rd = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_expect_reg(a);
     break;
 
     //  Flag Setting Instructions
   case INSTR_TST:
   case INSTR_TEQ:
   case INSTR_CMP:
-    rn = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
-    s = 1;
+    rn = asm_expect_reg(a);
+    s = true;
     break;
     // Special Case, Convert LSL to MOV
   case INSTR_LSL:
-    rd = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
-    Token imm;
+    rd = asm_expect_reg(a);
     asm_expect(a, TOKEN_COMMA);
+    Token imm;
     if (asm_match(a, TOKEN_HASH_NUM, &imm)) {
       // Shift by integer
       Instr imm_instr = asm_parse_shift_imm(a, imm);

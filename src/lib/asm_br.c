@@ -13,7 +13,8 @@ Instr asm_br(Assembler *a, InstrCommon c, Instr ino) {
   size_t jno;
 
   if (!sym_tab_get(&a->symtab, label.source, &jno))
-    assert(0); // TODO: Good error
+    asm_err(a, &label, "Unknown label `%.*s`", (int)label.source.len,
+            label.source.ptr);
 
   Instr off;
   if (ino + 2 <= jno)

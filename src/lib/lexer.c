@@ -40,8 +40,8 @@ static void skip_whitespace(Lexer *l) {
       break;
     case ';':
       // Comment
-      // TODO: skip_comment
-      assert(0);
+      while (!is_at_end(l) && peak(l) != '\n')
+        advance(l);
       break;
     default:
       return;
@@ -106,7 +106,11 @@ Token lexer_next(Lexer *l) {
     return make_token(l, TOKEN_SIGN);
   }
   fprintf(stderr, "Unexpected character: %c\n", c);
-  exit(-1);
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  exit(0);
+#else
+  exit(1);
+#endif
 }
 
 Lexer lexer_new(const char *source, const char *filename) {

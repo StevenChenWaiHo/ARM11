@@ -96,7 +96,11 @@ InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
             t->source.ptr);
 }
 
-Reg asm_parse_reg_name(Token t) {
+Reg asm_expect_reg(Assembler *a) {
+  return asm_parse_reg_name(a, asm_expect(a, TOKEN_IDENT));
+}
+
+Reg asm_parse_reg_name(Assembler *a, Token t) {
   assert(t.kind == TOKEN_IDENT);
   Str regname = t.source;
   if (str_eq(regname, "r0"))
@@ -126,7 +130,8 @@ Reg asm_parse_reg_name(Token t) {
   else if (str_eq(regname, "r12"))
     return REG_12;
   else
-    assert(0); // TODO: Nice error
+    asm_err(a, &t, "Expected register, got `%.*s`", (int)t.source.len,
+            t.source.ptr);
 }
 
 static Instr rotate_instr(Instr n) { return (n << 2) | (n >> (32 - 2)); }
@@ -180,7 +185,7 @@ Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
     if (!str_parse_hex(s, &n))
       asm_err(a, &t, "Invalid number %.*s", (int)t.source.len, t.source.ptr);
     *neg = true;
-  } else if (str_starts_with(s, "#")) {
+  } else if (str_starts_with(s, "#") || str_starts_with(s, "=")) {
     s.ptr += 1;
     s.len -= 1;
 
@@ -218,7 +223,8 @@ Instr asm_parse_shift_reg(Assembler *a, Reg rm) {
   Token rs;
   // Shift by Register
   if (asm_match(a, TOKEN_IDENT, &rs))
-    return bit_asm_op2_shift_reg(rm, shift_type, asm_parse_reg_name(rs)); // reg
+    return bit_asm_op2_shift_reg(rm, shift_type,
+                                 asm_parse_reg_name(a, rs)); // reg
   else {
     // Shift by Integer Constant
     Token imm = asm_expect(a, TOKEN_HASH_NUM);
@@ -393,7 +399,11 @@ noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
 
   fprintf(stderr, "%s:%ld:%ld: %s\n", a->lexer.filename, loc->line + 1,
           loc->column + 1, msg);
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+  exit(0);
+#else
   exit(1);
+#endif
 }
 
 Token asm_expect(Assembler *a, TokenKind kind) {

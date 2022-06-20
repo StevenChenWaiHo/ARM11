@@ -19,7 +19,7 @@ Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
       }
     }
 
-    Reg reg = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT)); // [Rn, {+/-}Rm
+    Reg reg = asm_expect_reg(a); // [Rn, {+/-}Rm
     *offset_reg = true;
     return asm_parse_shift_reg(a, reg); // [Rn, {+/-}Rm{,<shift>}]
   }
@@ -29,13 +29,16 @@ Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
 Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   assert(c.kind == INSTR_STR || c.kind == INSTR_LDR);
 
-  Reg rd = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
+  Reg rd = asm_expect_reg(a);
   asm_expect(a, TOKEN_COMMA);
   Token num;
   Instr ret;
 
-  if (asm_match(a, TOKEN_EQ_NUM, &num)) { // <=expression> (signed)
-    assert(c.kind == INSTR_LDR);
+  if (asm_match(a, TOKEN_EQ_NUM, &num)) {
+    // assert(c.kind == INSTR_LDR);
+    if (c.kind != INSTR_LDR)
+      asm_err(a, &num, "Cannot use str with immediate number");
+
     // ldr r0,=0x02
     bool neg;
     Instr imm_val = asm_parse_number(a, num, &neg);
@@ -45,13 +48,15 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
           /*i=*/true, DP_MOV, /*s=*/false, 0, rd, imm_val);
     else {
       Instr constno = asm_add_const(a, imm_val);
-      Instr const_off = (constno + a->n_instrs - ino - 2) * 4;
+      int64_t const_off = ((int64_t)constno + a->n_instrs - ino - 2) * 4;
 
-      ret = bit_asm_sdt(/*offset_reg=*/false, /*pre_index=*/true, /*up=*/true,
-                        /*ldr=*/true, REG_PC, rd, const_off);
+      ret = bit_asm_sdt(/*offset_reg=*/false, /*pre_index=*/true,
+                        /*up=*/const_off >= 0,
+                        /*ldr=*/true, REG_PC, rd,
+                        const_off >= 0 ? const_off : -const_off);
     }
   } else if (asm_match(a, TOKEN_LSQUARE, NULL)) {
-    Reg rn = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    Reg rn = asm_expect_reg(a);
     Instr offset = 0;
     bool offset_reg = false;
     bool pre_index = true;
@@ -61,7 +66,12 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     }
 
     asm_expect(a, TOKEN_RSQUARE);
-    if (asm_match(a, TOKEN_COMMA, NULL)) { // [Rn],
+    Token tcomma;
+    if (asm_match(a, TOKEN_COMMA, &tcomma)) { // [Rn],
+      if (offset || offset_reg)
+        asm_err(a, &tcomma,
+                "Already seen extra pre index arguments, cannot use post index "
+                "arguments");
       assert(offset == 0);
       assert(offset_reg == false);
       pre_index = false;
@@ -71,7 +81,9 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     ret = bit_asm_sdt(/*offset_reg=*/offset_reg, pre_index, /*up=*/!neg,
                       /*ldr=*/c.kind == INSTR_LDR, rn, rd, offset);
   } else {
-    assert(0); // TODO: Good error.
+    Token t = asm_advance(a);
+    asm_err(a, &t, "Expected `[` or `=0x...`, but got `%.*s`",
+            (int)t.source.len, t.source.ptr);
   }
 
   asm_expect(a, TOKEN_NEWLINE);
