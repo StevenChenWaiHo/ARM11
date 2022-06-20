@@ -19,9 +19,9 @@ Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
       asm_err(a, &sign, "Unknown token for TOKEN_SIGN");
     }
 
-    Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT)); // [Rn, {+/-}Rm
+    Reg reg = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT)); // [Rn, {+/-}Rm
     *offset_reg = true;
-    return parse_shift_reg(a, reg); // [Rn, {+/-}Rm{,<shift>}]
+    return asm_parse_shift_reg(a, reg); // [Rn, {+/-}Rm{,<shift>}]
   }
   return 0; // No offset
 }
@@ -29,7 +29,7 @@ Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
 Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   assert(c.kind == INSTR_STR || c.kind == INSTR_LDR);
 
-  Reg rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+  Reg rd = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
   asm_expect(a, TOKEN_COMMA);
   Token num;
   Instr ret;
@@ -51,7 +51,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
                         /*ldr=*/true, REG_PC, rd, const_off);
     }
   } else if (asm_match(a, TOKEN_LSQUARE, NULL)) {
-    Reg rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    Reg rn = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
     Instr offset = 0;
     bool offset_reg = false;
     bool pre_index = true;

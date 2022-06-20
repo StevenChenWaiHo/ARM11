@@ -46,9 +46,9 @@ Instr parse_op2(Assembler *a, Instr *i) {
   Token rmt;
   if (asm_match(a, TOKEN_IDENT, &rmt)) {
     // Register
-    Reg rm = parse_reg_name(rmt);
+    Reg rm = asm_parse_reg_name(rmt);
     *i = 0;
-    return parse_shift_reg(a, rm);
+    return asm_parse_shift_reg(a, rm);
   }
   assert(0);
 }
@@ -68,26 +68,26 @@ Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
   case INSTR_RSB:
   case INSTR_ADD:
   case INSTR_ORR:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
     asm_expect(a, TOKEN_COMMA);
-    rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rn = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
     break;
 
     // Single Operand Assignment
   case INSTR_MOV:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
     break;
 
     //  Flag Setting Instructions
   case INSTR_TST:
   case INSTR_TEQ:
   case INSTR_CMP:
-    rn = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rn = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
     s = 1;
     break;
     // Special Case, Convert LSL to MOV
   case INSTR_LSL:
-    rd = parse_reg_name(asm_expect(a, TOKEN_IDENT));
+    rd = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT));
     Token imm;
     asm_expect(a, TOKEN_COMMA);
     if (asm_match(a, TOKEN_HASH_NUM, &imm)) {

@@ -94,7 +94,7 @@ InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
     asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,
             t->source.ptr);
 }
-Reg parse_reg_name(Token t) {
+Reg asm_parse_reg_name(Token t) {
   assert(t.kind == TOKEN_IDENT);
   Str regname = t.source;
   if (str_eq(regname, "r0"))
@@ -178,7 +178,7 @@ Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
 
 // Basically checks {, <shift>} in spec
 // Output: operand2 instruction
-Instr parse_shift_reg(Assembler *a, Reg rm) {
+Instr asm_parse_shift_reg(Assembler *a, Reg rm) {
   if (!asm_match(a, TOKEN_COMMA, NULL)) {
     return rm;
   }
@@ -186,7 +186,7 @@ Instr parse_shift_reg(Assembler *a, Reg rm) {
   Token rs;
   // Shift by Register
   if (asm_match(a, TOKEN_IDENT, &rs))
-    return bit_asm_op2_shift_reg(rm, shift_type, parse_reg_name(rs)); // reg
+    return bit_asm_op2_shift_reg(rm, shift_type, asm_parse_reg_name(rs)); // reg
   else {
     // Shift by Integer Constant
     Token imm = asm_expect(a, TOKEN_HASH_NUM);

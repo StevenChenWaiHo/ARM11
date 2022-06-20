@@ -14,15 +14,15 @@ Instr asm_mul(Assembler *asmb, InstrCommon c, Instr ino) {
   Instr rs = 0;
   Instr rm = 0;
 
-  rd = parse_reg_name(asm_expect(asmb, TOKEN_IDENT));
+  rd = asm_parse_reg_name(asm_expect(asmb, TOKEN_IDENT));
   asm_expect(asmb, TOKEN_COMMA);
-  rm = parse_reg_name(asm_expect(asmb, TOKEN_IDENT));
+  rm = asm_parse_reg_name(asm_expect(asmb, TOKEN_IDENT));
   asm_expect(asmb, TOKEN_COMMA);
-  rs = parse_reg_name(asm_expect(asmb, TOKEN_IDENT));
+  rs = asm_parse_reg_name(asm_expect(asmb, TOKEN_IDENT));
 
   if (c.kind == INSTR_MLA) {
     asm_expect(asmb, TOKEN_COMMA);
-    rn = parse_reg_name(asm_expect(asmb, TOKEN_IDENT));
+    rn = asm_parse_reg_name(asm_expect(asmb, TOKEN_IDENT));
     a = 1;
   }
 
