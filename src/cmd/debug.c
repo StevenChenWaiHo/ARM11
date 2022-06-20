@@ -7,7 +7,7 @@
 #include "dis.h"
 
 // TODO: share with assemble in asm.c if possible, move asm helpers if not
-
+// returns an array with instr_no as index, corresponding line_no as element
 static int *assemble_debug(char *src, char *filename, FILE *out,
                            int *total_line_no, int *total_instr_no) {
   Assembler a;
