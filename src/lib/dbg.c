@@ -6,15 +6,16 @@
 
 #include "cond.h"
 #include "dbg.h"
+#include "dis.h"
 #include "emu_condfn.h"
 #ifdef AEMU_TRACE
-#include "dis.h"
 #endif
 
-void dbg(CpuState *cpu) {
+void dbg(CpuState *cpu, int total_instr_no, int *instr_to_line_no) {
   int *breakpoint = calloc(BREAKPOINT_NUMBER, sizeof(int));
   int bpt_ptr = 0;
   bool is_run;
+  bool found_line_no;
 
   // TODO : implement word commands such as 'break' or 'step'
 
@@ -29,23 +30,28 @@ void dbg(CpuState *cpu) {
         continue;
       }
       int line_no = atoi(input + 2);
-      if (line_no <= 0 || line_no >= MEMORY_SIZE / 4 ||
-          !cpu->mem[line_no - 1]) {
+      found_line_no = false;
+      for (int i = 0; i < total_instr_no && !found_line_no; i++) {
+        if (instr_to_line_no[i] == line_no - 1) {
+          breakpoint[bpt_ptr] = i + 1; // breakpoint contains instrs
+          found_line_no = true;
+        }
+      }
+      if (!found_line_no) {
         printf("Such line not found.\n");
         continue;
       }
-      breakpoint[bpt_ptr] = line_no;
       printf("Breakpoint %d set at line %d.\n", bpt_ptr + 1, line_no);
       bpt_ptr++;
     }
     if (input[0] == 'd' && input[1] == ' ') { // command delete
-      int bpt_no = atoi(input + 2) - 1;
+      int bpt_no = atoi(input + 2) - 1;       // TODO: change to start from 1
       if (bpt_no < 0 || bpt_no >= BREAKPOINT_NUMBER) {
         printf("Such breakpoint not found.\n");
         continue;
       }
       int line_no = breakpoint[bpt_no];
-      if (line_no == 0) {
+      if (line_no <= 0) {
         printf("Such breakpoint not found.\n");
         continue;
       }
@@ -74,13 +80,17 @@ void dbg(CpuState *cpu) {
   free(breakpoint);
 }
 
+// TODO: decide if prev instr, next instr or both be shown
 bool sequence(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
   uint32_t *imem = cpu->mem;
   for (;;) {
     int curr = cpu->regs[REG_PC] >> 2;
     for (int i = 0; i < bpt_ptr; i++) {
       if (breakpoint[i] - 1 == curr && !step) {
-        printf("Breakpoint %d at line %d\n", i + 1, curr + 1);
+        printf("Breakpoint %d at Line %d\n", i + 1, curr + 1);
+        printf("Next Instruction at Line %d: \n", curr + 1);
+        dis(stdout, curr, cpu->mem[curr]);
+        printf("\n");
         print_state(cpu);
         return false;
       }
@@ -104,7 +114,16 @@ bool sequence(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
     }
     entry(cpu, i);
     if (step) {
-      printf("Line %d:\n", curr + 1);
+      printf("Previous Instruction at Line %d: \n", curr + 1);
+      dis(stdout, curr, cpu->mem[curr]);
+      curr = cpu->regs[REG_PC] >> 2;
+      if (cpu->mem[curr]) {
+        printf("Next Instruction at Line %d: \n", curr + 1);
+        dis(stdout, curr, cpu->mem[curr]);
+      } else {
+        printf("No Next Instruction\n");
+      }
+      printf("\n");
       print_state(cpu);
       return false;
     }

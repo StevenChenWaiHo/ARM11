@@ -52,6 +52,14 @@ typedef struct {
   size_t n_consts;
 } Assembler;
 
+// temporary, to be used in assemble_debug
+// TODO: remove after code sharing with assemble
+void asm_reset(Assembler *a);
+void asm_write_word(Assembler *a, Instr i);
+void asm_instr(Assembler *a, Token *t, Instr ino);
+size_t asm_pass1(Assembler *a);
+void asm_free(Assembler a);
+
 void assemble(char *src, char *filename, FILE *);
 
 typedef Instr (*AsmFn)(Assembler *, InstrCommon, Instr);

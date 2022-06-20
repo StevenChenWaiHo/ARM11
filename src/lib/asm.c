@@ -235,17 +235,17 @@ static AsmFn asm_fn[] = {
     [INSTR_LDR] = asm_sdt,
 };
 
-static void asm_reset(Assembler *a) {
+void asm_reset(Assembler *a) {
   a->lexer = lexer_new(a->lexer.source, a->lexer.filename);
   a->current = lexer_next(&a->lexer);
 }
 
-static void asm_write_word(Assembler *a, Instr i) {
+void asm_write_word(Assembler *a, Instr i) {
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
   assert(written == 1); // TODO: Handle better.
 }
 
-static void asm_instr(Assembler *a, Token *t, Instr ino) {
+void asm_instr(Assembler *a, Token *t, Instr ino) {
   InstrCommon c = asm_parse_instr_common(a, t);
   Instr i = asm_fn[c.kind](a, c, ino);
   i |= c.cond << 28;
@@ -259,7 +259,7 @@ static void st_dbg(SymTabEntry *ste) {
 }
 #endif
 
-static size_t asm_pass1(Assembler *a) {
+size_t asm_pass1(Assembler *a) {
   asm_reset(a);
   a->symtab = sym_tab_new();
   size_t n_instr = 0;
@@ -294,7 +294,7 @@ done:
   return n_instr;
 }
 
-static void asm_free(Assembler a) { sym_tab_free(a.symtab); }
+void asm_free(Assembler a) { sym_tab_free(a.symtab); }
 
 void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
