@@ -188,10 +188,7 @@ Instr parse_shift_reg(Assembler *a, Reg rm) {
   else {
     // Shift by Integer Constant
     Token imm = asm_expect(a, TOKEN_HASH_NUM);
-    Instr imm_instr = asm_parse_imm(a, imm);
-    if (imm_instr > SHIFT_CONST_MAX) {
-      asm_err(a, &imm, "Const too large for a shift const: %d", imm_instr);
-    }
+    Instr imm_instr = asm_parse_shift_imm(a, imm);
     return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
   }
 }
