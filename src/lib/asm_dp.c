@@ -58,7 +58,8 @@ Instr parse_op2(Assembler *a, bool *i) {
   else
     // Shift by integer
     return bit_asm_op2_shift_imm(
-        rm, shift_type, asm_parse_imm(a, asm_expect(a, TOKEN_HASH_NUM))); // imm
+        rm, shift_type,
+        asm_parse_shift_imm(a, asm_expect(a, TOKEN_HASH_NUM))); // imm
 }
 
 Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
