@@ -13,10 +13,10 @@ Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
       if (str_eq(sign.source, "-")) {
         *neg = 1;
       } else if (str_eq(sign.source, "+")) {
-        assert(*neg == 0);
         *neg = 0;
+      } else {
+        asm_err(a, &sign, "Unknown token for TOKEN_SIGN");
       }
-      asm_err(a, &sign, "Unknown token for TOKEN_SIGN");
     }
 
     Reg reg = asm_parse_reg_name(asm_expect(a, TOKEN_IDENT)); // [Rn, {+/-}Rm
