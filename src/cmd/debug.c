@@ -149,6 +149,8 @@ int main(int argc, char **argv) {
 
   dbg(&cpu, total_instr_no, instr_to_line_no);
 
+  fclose(in);
+  free(instr_to_line_no);
   free(mem);
 
   return EXIT_SUCCESS;
