@@ -169,7 +169,7 @@ Instr asm_parse_imm(Assembler *a, Token t) {
             t.source.ptr);
   return imm_encode(a, t, n);
 }
-Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
+Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
   Instr n = asm_parse_number(a, t, neg);
   return imm_encode(a, t, n);
 }

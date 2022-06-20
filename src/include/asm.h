@@ -71,7 +71,7 @@ Reg parse_reg_name(Token); // TODO: Put on asm
 ShiftKind asm_parse_shift_kind(Assembler *a, Token);
 InstrCommon asm_parse_instr_common(Assembler *a, Token *t);
 Instr asm_parse_imm(Assembler *a, Token t);
-Instr asm_parse_simm(Assembler *a, Token t, bool *neg);
+Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg);
 Instr parse_shift_reg(Assembler *a, Reg rm);
 
 Instr asm_add_const(Assembler *, Instr);

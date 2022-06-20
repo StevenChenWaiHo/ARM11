@@ -6,7 +6,7 @@
 Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
   Token shtok;
   if (asm_match(a, TOKEN_HASH_NUM, &shtok)) // <#expression>
-    return asm_parse_simm(a, shtok, neg);
+    return asm_parse_signed_imm(a, shtok, neg);
   else {
     Token sign;
     if (asm_match(a, TOKEN_SIGN, &sign)) { // [Rn, {+/-}
