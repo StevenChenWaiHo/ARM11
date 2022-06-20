@@ -73,6 +73,7 @@ InstrCommon asm_parse_instr_common(Assembler *a, Token *t);
 Instr asm_parse_imm(Assembler *a, Token t);
 Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg);
 Instr parse_shift_reg(Assembler *a, Reg rm);
+Instr asm_parse_shift_imm(Assembler *a, Token t);
 
 Instr asm_add_const(Assembler *, Instr);
 

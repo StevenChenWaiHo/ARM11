@@ -5,9 +5,6 @@
 #include "asm.h"
 #include "bit_asm.h"
 
-#define DP_SHIFT_CONST_START_BIT 7
-#define DP_SHIFT_CONST_MAX 0x1F
-
 static DpKind ik_to_dpk(InstrKind ik) {
   switch (ik) {
   case INSTR_AND:
@@ -37,6 +34,7 @@ static DpKind ik_to_dpk(InstrKind ik) {
   }
 }
 
+// Up to 12 bits.
 Instr parse_op2(Assembler *a, Instr *i) {
   Token num;
   // Immediate

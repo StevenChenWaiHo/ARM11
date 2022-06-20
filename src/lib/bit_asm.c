@@ -11,7 +11,6 @@ Instr bit_width(Instr i) { return i == 0 ? 0 : 32 - __builtin_clz(i); }
 
 static void check_reg(Reg r) { assert(bit_width(r) <= 4); }
 
-// TODO: Check values are in bounds
 Instr bit_asm_sdt(bool i, bool p, bool u, bool l, Reg rn, Reg rd,
                   Instr offset) {
   check_reg(rn);

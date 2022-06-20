@@ -12,6 +12,7 @@
 #include "dis.h"
 
 #define LOWEST_8_BIT_MASK 0xFF
+#define DP_SHIFT_CONST_MAX 0x1F
 #define ROTATE_START_BIT 8
 #define ROTATE_LIMIT 16
 
@@ -161,6 +162,7 @@ Instr imm_encode(Assembler *a, Token t, Instr n) {
   asm_err(a, &t, "`%.*s` Invalid immediate", (int)t.source.len, t.source.ptr);
 }
 
+// Up to 12 bits
 Instr asm_parse_imm(Assembler *a, Token t) {
   bool neg;
   Instr n = asm_parse_number(a, t, &neg);
