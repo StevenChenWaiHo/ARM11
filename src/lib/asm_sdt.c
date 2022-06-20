@@ -38,7 +38,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     if (asm_match(a, TOKEN_COMMA, NULL)) {
       Token shtok;
       if (asm_match(a, TOKEN_HASH_NUM, &shtok))
-        offset = asm_parse_simm(a, shtok, &neg);
+        offset = asm_parse_signed_imm(a, shtok, &neg);
       else {
         Reg reg = parse_reg_name(asm_expect(a, TOKEN_IDENT));
         ShiftKind sk = 0;
@@ -46,7 +46,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
         if (asm_match(a, TOKEN_COMMA, NULL)) {
           Token skt = asm_expect(a, TOKEN_IDENT);
           sk = asm_parse_shift_kind(a, skt);
-          shift_by = asm_parse_imm(a, asm_expect(a, TOKEN_HASH_NUM));
+          shift_by = asm_parse_shift_imm(a, asm_expect(a, TOKEN_HASH_NUM));
         }
         offset = bit_asm_op2_shift_imm(reg, sk, shift_by);
         offset_reg = true;
@@ -65,7 +65,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
         offset_reg = true;
       } else {
         Token im = asm_expect(a, TOKEN_HASH_NUM);
-        offset = asm_parse_simm(a, im, &neg);
+        offset = asm_parse_signed_imm(a, im, &neg);
       }
     }
 
