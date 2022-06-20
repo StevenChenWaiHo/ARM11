@@ -221,6 +221,14 @@ Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
   return n;
 }
 
+Instr asm_parse_shift_imm(Assembler *a, Token t) {
+  Instr n = asm_parse_imm(a, t);
+  if (n > DP_SHIFT_CONST_MAX)
+    asm_err(a, &t, "Const too large for a shift const: %d (max is %d)", n,
+            DP_SHIFT_CONST_MAX);
+  return n;
+}
+
 InstrCommon asm_parse_instr_common(Assembler *a, Token *t) {
   assert(t->kind == TOKEN_IDENT);
   InstrCommon ic;
