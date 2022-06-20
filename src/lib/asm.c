@@ -12,6 +12,7 @@
 #include "dis.h"
 
 #define LOWEST_8_BIT_MASK 0xFF
+#define DP_SHIFT_CONST_MAX 0x1F
 #define ROTATE_START_BIT 8
 #define ROTATE_LIMIT 16
 
@@ -159,6 +160,7 @@ Instr imm_encode(Instr n) {
   assert(0); // n is not a valid imm
 }
 
+// Up to 12 bits
 Instr asm_parse_imm(Assembler *a, Token t) {
   bool neg;
   Instr n = asm_parse_number(a, t, &neg);
@@ -172,7 +174,15 @@ Instr asm_parse_imm(Assembler *a, Token t) {
     n = imm_encode(n);
   return n;
 }
-Instr asm_parse_simm(Assembler *a, Token t, bool *neg) {
+Instr asm_parse_shift_imm(Assembler *a, Token t) {
+  Instr n = asm_parse_imm(a, t);
+  if (n > DP_SHIFT_CONST_MAX)
+    asm_err(a, &t, "Const too large for a shift const: %d (max is %d)", n,
+            DP_SHIFT_CONST_MAX);
+  return n;
+}
+// Up to 12 bits
+Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
   Instr n = asm_parse_number(a, t, neg);
   if (!is_valid_imm(n))
     asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
@@ -247,7 +257,6 @@ static void asm_reset(Assembler *a) {
 
 static void asm_write_word(Assembler *a, Instr i) {
   size_t written = fwrite(&i, sizeof(Instr), 1, a->out);
-  fflush(a->out);       // Temp hack so during abort we get some output.
   assert(written == 1); // TODO: Handle better.
 }
 
@@ -300,6 +309,8 @@ done:
   return n_instr;
 }
 
+static void asm_free(Assembler a) { sym_tab_free(a.symtab); }
+
 void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
   a.lexer = lexer_new(src, filename);
@@ -347,6 +358,8 @@ done:
   assert(ino == a.n_instrs);
   for (size_t i = 0; i < a.n_consts; i++)
     asm_write_word(&a, a.consts[i]);
+
+  asm_free(a);
 }
 
 noreturn void asm_err(Assembler *a, Token *loc, char *fmt, ...) {
