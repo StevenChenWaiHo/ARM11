@@ -4,13 +4,31 @@
 
 static void incnode(SymTabEntry *node) { node->value++; }
 
-static bool maintain_invariant(SymTab st) {
+static bool node_maintain_invariant(SymTabEntry *node) {
   int inv;
-  if (st.root == NULL) {
+  bool maintain;
+  if (!node) {
     inv = 0;
+    maintain = true;
+  } else if (!node->left && !node->right) {
+    inv = 0;
+    maintain = true;
+  } else if (!node->left) {
+    inv = height(node->right);
+    maintain = node_maintain_invariant(node->right);
+  } else if (!node->right) {
+    inv = height(node->left);
+    maintain = node_maintain_invariant(node->left);
+  } else {
+    inv = height(node->left) - height(node->right);
+    maintain = node_maintain_invariant(node->left) &&
+               node_maintain_invariant(node->right);
   }
-  inv = height(st.root->left) - height(st.root->right);
-  return inv >= -1 && inv <= 1;
+  return inv >= -1 && inv <= 1 && maintain;
+}
+
+static bool maintain_invariant(SymTab st) {
+  return node_maintain_invariant(st.root);
 }
 
 int main() {

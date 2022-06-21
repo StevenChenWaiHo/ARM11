@@ -55,6 +55,7 @@ static SymTabEntry *rotate_right(SymTabEntry *node) {
 
 SymTab sym_tab_new() {
   SymTab st;
+  /*
   SymTabEntry *root = malloc(sizeof(SymTabEntry));
   Str key;
   key.ptr = NULL;
@@ -63,6 +64,8 @@ SymTab sym_tab_new() {
   root->height = root->value = 0;
   root->key = key;
   st.root = root;
+  */
+  st.root = NULL;
   return st;
 }
 
