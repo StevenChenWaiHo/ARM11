@@ -101,9 +101,9 @@ Token lexer_next(Lexer *l) {
   case '=':
     return eq_num(l);
   case '+':
-    return make_token(l, TOKEN_SIGN);
+    return make_token(l, TOKEN_PLUS);
   case '-':
-    return make_token(l, TOKEN_SIGN);
+    return make_token(l, TOKEN_MINUS);
   }
   fprintf(stderr, "Unexpected character: %c\n", c);
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
@@ -146,8 +146,10 @@ const char *token_kind_name(TokenKind tk) {
     return "TOKEN_NEWLINE";
   case TOKEN_RSQUARE:
     return "TOKEN_RSQUARE";
-  case TOKEN_SIGN:
-    return "TOKEN_SIGN";
+  case TOKEN_PLUS:
+    return "TOKEN_PLUS";
+  case TOKEN_MINUS:
+    return "TOKEN_MINUS";
   default:
     assert(0);
   }

@@ -9,14 +9,10 @@ Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
     return asm_parse_signed_imm(a, shtok, neg);
   else {
     Token sign;
-    if (asm_match(a, TOKEN_SIGN, &sign)) { // [Rn, {+/-}
-      if (str_eq(sign.source, "-")) {
-        *neg = 1;
-      } else if (str_eq(sign.source, "+")) {
-        *neg = 0;
-      } else {
-        asm_err(a, &sign, "Unknown token for TOKEN_SIGN");
-      }
+    if (asm_match(a, TOKEN_MINUS, &sign)) { // [Rn, {+/-}
+      *neg = true;
+    } else if (asm_match(a, TOKEN_PLUS, &sign)) {
+      *neg = false;
     }
 
     Reg reg = asm_expect_reg(a); // [Rn, {+/-}Rm
