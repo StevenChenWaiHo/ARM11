@@ -8,16 +8,9 @@ Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
   if (asm_match(a, TOKEN_HASH_NUM, &shtok)) // [Rn, <#expression>
     return asm_parse_signed_imm(a, shtok, neg);
   else {
-    Token sign;
-    if (asm_match(a, TOKEN_MINUS, &sign)) { // [Rn, {+/-}
-      *neg = true;
-    } else if (asm_match(a, TOKEN_PLUS, &sign)) {
-      *neg = false;
-    }
-
-    Reg reg = asm_expect_reg(a); // [Rn, {+/-}Rm
+    Reg reg = asm_expect_reg(a); // [Rn, Rm
     *offset_reg = true;
-    return asm_parse_shift_reg(a, reg); // [Rn, {+/-}Rm{,<shift>}]
+    return asm_parse_shift_reg(a, reg); // [Rn, Rm{,<shift>}]
   }
   return 0; // No offset
 }
@@ -58,7 +51,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     bool pre_index = true;
     bool neg = false;
     if (asm_match(a, TOKEN_COMMA, NULL)) {         // [Rn,
-      offset = parse_offset(a, &offset_reg, &neg); // [Rn, {+/-}Rm{, <shift>}
+      offset = parse_offset(a, &offset_reg, &neg); // [Rn, Rm{, <shift>}
     }
 
     asm_expect(a, TOKEN_RSQUARE);
@@ -71,7 +64,7 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
       assert(offset == 0);
       assert(offset_reg == false);
       pre_index = false;
-      offset = parse_offset(a, &offset_reg, &neg); // [Rn], {+/-}Rm{, <shift>}
+      offset = parse_offset(a, &offset_reg, &neg); // [Rn], Rm{, <shift>}
     }
 
     ret = bit_asm_sdt(/*offset_reg=*/offset_reg, pre_index, /*up=*/!neg,

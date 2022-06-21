@@ -15,9 +15,7 @@ typedef enum {
   TOKEN_LABEL,
   TOKEN_LSQUARE,
   TOKEN_NEWLINE,
-  TOKEN_RSQUARE,
-  TOKEN_PLUS,
-  TOKEN_MINUS
+  TOKEN_RSQUARE
 } TokenKind;
 
 typedef struct {
