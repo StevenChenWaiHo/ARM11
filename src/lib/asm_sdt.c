@@ -68,8 +68,6 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
         asm_err(a, &tcomma,
                 "Already seen extra pre index arguments, cannot use post index "
                 "arguments");
-      assert(offset == 0);
-      assert(offset_reg == false);
       pre_index = false;
       offset = parse_offset(a, &offset_reg, &neg); // [Rn], {+/-}Rm{, <shift>}
     }
