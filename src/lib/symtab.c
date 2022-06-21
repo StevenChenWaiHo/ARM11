@@ -144,12 +144,10 @@ bool sym_tab_insert(SymTab *st, Str key, size_t val) {
 }
 
 static void node_free(SymTabEntry *node) {
-  if (node->left != NULL) {
-    node_free(node->left);
-  }
-  if (node->right != NULL) {
-    node_free(node->right);
-  }
+  if (node == NULL)
+    return;
+  node_free(node->left);
+  node_free(node->right);
   free(node);
 }
 
