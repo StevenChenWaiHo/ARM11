@@ -268,9 +268,9 @@ static void asm_instr(Assembler *a, Token *t, Instr ino) {
 }
 
 #ifdef AEMU_TRACE
-static void st_dbg(SymTabEntry *ste) {
-  printf("   \"%.*s\"  -> %lu\n", (int)ste->name.len, ste->name.ptr,
-         ste->offset);
+static void st_dbg(TreeNode *node) {
+  printf("   \"%.*s\"  -> %lu\n", (int)node->key.len, node->key.ptr,
+         node->value);
 }
 #endif
 
