@@ -180,6 +180,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
     if (input[0] == 'r') { // command run / continue
       is_run = true;
       if (terminate(cpu, breakpoint, bpt_ptr, false)) { // terminates
+        is_run = false;
         cpu = cpu_reset(mem);
         continue;
       }
@@ -193,6 +194,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         continue;
       }
       if (terminate(cpu, breakpoint, bpt_ptr, true)) {
+        is_run = false;
         cpu = cpu_reset(mem);
         continue;
       }
