@@ -109,7 +109,6 @@ static bool terminate(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
       } else {
         printf("No Next Instruction\n");
       }
-      printf("\n");
       // print_state(cpu);
       return false;
     }
@@ -162,7 +161,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       bpt_ptr++;
     }
     if (input[0] == 'd' && input[1] == ' ') { // command delete
-      int bpt_no = atoi(input + 2) - 1;       // TODO: change to start from 1
+      int bpt_no = atoi(input + 2) - 1;
       if (bpt_no < 0 || bpt_no >= BREAKPOINT_NUMBER) {
         printf("Such breakpoint not found.\n");
         continue;
@@ -179,11 +178,13 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       is_run = true;
       if (terminate(cpu, breakpoint, bpt_ptr, false)) { // terminates
         is_run = false;
+        free(cpu);
         cpu = cpu_reset(mem);
         continue;
       }
     }
     if (input[0] == 'q') { // command quit
+      free(cpu);
       break;
     }
     if (input[0] == 's') { // command step
@@ -193,6 +194,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       }
       if (terminate(cpu, breakpoint, bpt_ptr, true)) {
         is_run = false;
+        free(cpu);
         cpu = cpu_reset(mem);
         continue;
       }
