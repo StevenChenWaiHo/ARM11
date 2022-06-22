@@ -4,7 +4,6 @@
 
 #define BREAKPOINT_NUMBER 50
 
-void dbg(CpuState *cpu, int total_instr_no, int *instr_to_line_no);
-bool terminate(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step);
+void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no);
 
 #endif

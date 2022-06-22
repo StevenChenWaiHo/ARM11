@@ -31,7 +31,8 @@ static int *assemble_debug(char *src, char *filename, FILE *out,
   printf("}\n");
 #endif
 
-  int *instr_to_line_no = malloc(a.n_instrs * sizeof(int)); // create the mapping array
+  int *instr_to_line_no =
+      malloc(a.n_instrs * sizeof(int)); // create the mapping array
 
   if (!instr_to_line_no) {
     printf("The instruction_no to line_no array cannot be created");
@@ -118,7 +119,6 @@ int main(int argc, char **argv) {
   fclose(in);
   free(buff);
 
-
   fseek(out, 0, SEEK_END);
   lenb = ftell(out);
   fseek(out, 0, SEEK_SET);
@@ -130,16 +130,7 @@ int main(int argc, char **argv) {
   fread(mem, 4, lenb / 4, out);
   // TODO: Handle Read error
 
-  uint32_t regs[17] = {0};
-  memset(regs, 0, sizeof(regs));
-
-  CpuState cpu;
-  cpu.mem = mem;
-  memmove(cpu.regs, regs, sizeof(regs));
-
-  print_state(&cpu);
-
-  dbg(&cpu, total_instr_no, instr_to_line_no);
+  dbg(mem, total_instr_no, instr_to_line_no);
 
   fclose(out);
   free(instr_to_line_no);
