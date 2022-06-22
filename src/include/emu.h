@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "cond.h"
 #include "core.h"
 #include "mask.h"
 
@@ -11,6 +12,10 @@ typedef struct {
   uint32_t regs[REGISTER_NUMBER];
   uint32_t *mem;
 } CpuState;
+
+typedef bool (*CpuCondFn)(CpuState *);
+
+CpuCondFn condfns[15];
 
 void entry(CpuState *, Instr);
 void emu(CpuState *);

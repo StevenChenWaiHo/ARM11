@@ -4,10 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cond.h"
 #include "dbg.h"
 #include "dis.h"
-#include "emu_condfn.h"
 
 void dbg(CpuState *cpu, int total_instr_no, int *instr_to_line_no) {
   int *breakpoint = calloc(BREAKPOINT_NUMBER, sizeof(int));
