@@ -145,20 +145,20 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
                BREAKPOINT_NUMBER);
         continue;
       }
-      int line_no = atoi(input + 2);
+      int line_no = atoi(input + 2); // instr_no
       found_line_no = false;
       for (int i = 0; i < total_instr_no && !found_line_no; i++) {
         if (instr_to_line_no[i] == line_no - 1) {
-          breakpoint[bpt_ptr] = i + 1; // breakpoint contains instrs
+          breakpoint[bpt_ptr] =
+              i + 1; // breakpoint contains instrs start from 1
           found_line_no = true;
         }
       }
       if (!found_line_no) {
-        printf("Such line not found.\n");
+        printf("Cannot set breakpoint on such line.\n");
         continue;
       }
-      printf("Breakpoint %d set at line %d.\n", bpt_ptr + 1,
-             breakpoint[bpt_ptr]);
+      printf("Breakpoint %d set at line %d.\n", bpt_ptr + 1, line_no);
       bpt_ptr++;
     }
     if (input[0] == 'd' && input[1] == ' ') { // command delete
@@ -167,13 +167,15 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         printf("Such breakpoint not found.\n");
         continue;
       }
-      int line_no = breakpoint[bpt_no];
-      if (line_no <= 0) {
+      int instr_no =
+          breakpoint[bpt_no] - 1; // instr_no as index in instr_to_line_no
+      if (instr_no < 0) {
         printf("Such breakpoint not found.\n");
         continue;
       }
       breakpoint[bpt_no] = 0;
-      printf("Breakpoint %d removed from line %d.\n", bpt_no + 1, line_no);
+      printf("Breakpoint %d removed from line %d.\n", bpt_no + 1,
+             instr_to_line_no[instr_no] + 1);
     }
     if (input[0] == 'r') { // command run / continue
       is_run = true;
