@@ -16,7 +16,7 @@ CpuCondFn condfns[] = {
     [COND_AL] = emu_cond_al,
 };
 
-void entry(CpuState *cpu, Instr i) {
+void select_func(CpuState *cpu, Instr i) {
   Instr type = type_mask(i);
   Instr type_mul = type_mul_mask(i);
   Instr type_mul2 = type_mul2_mask(i);
@@ -58,7 +58,7 @@ void emu(CpuState *cpu) {
       cpu->regs[REG_PC] += 4;
       continue;
     }
-    entry(cpu, i);
+    select_func(cpu, i);
   }
 }
 

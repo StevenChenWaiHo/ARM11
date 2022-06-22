@@ -71,7 +71,7 @@ static void print_line(CpuState *cpu, int curr, bool next) {
 }
 
 // TODO: decide if prev instr, next instr or both be shown
-static bool terminate(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
+static bool run(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
   uint32_t *imem = cpu->mem;
   for (;;) {
     int curr = cpu->regs[REG_PC] >> 2;
@@ -100,7 +100,7 @@ static bool terminate(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
       cpu->regs[REG_PC] += 4;
       continue;
     }
-    entry(cpu, i);
+    select_func(cpu, i);
     if (step) {
       print_line(cpu, curr, false);
       curr = cpu->regs[REG_PC] >> 2;
@@ -130,8 +130,6 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
   bool is_run;
   bool found_line_no;
   CpuState *cpu = cpu_reset(mem);
-
-  // TODO : implement word commands such as 'break' or 'step'
 
   for (;;) {
     // print_state(cpu);
@@ -176,7 +174,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
     }
     if (input[0] == 'r') { // command run / continue
       is_run = true;
-      if (terminate(cpu, breakpoint, bpt_ptr, false)) { // terminates
+      if (run(cpu, breakpoint, bpt_ptr, false)) { // terminates
         is_run = false;
         free(cpu);
         cpu = cpu_reset(mem);
@@ -192,7 +190,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         printf("No program is running.\n");
         continue;
       }
-      if (terminate(cpu, breakpoint, bpt_ptr, true)) {
+      if (run(cpu, breakpoint, bpt_ptr, true)) {
         is_run = false;
         free(cpu);
         cpu = cpu_reset(mem);
@@ -206,7 +204,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       bool valid = parse_regname(regname, reg);
       if (valid) {
         if (*reg == REG_PC) {
-          printf("%d\n", cpu->regs[*reg] + 8); // can we not start with PC = 8?
+          printf("%d\n", cpu->regs[*reg] + 8);
         } else {
           printf("%d\n", cpu->regs[*reg]);
         }

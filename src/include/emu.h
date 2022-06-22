@@ -17,7 +17,7 @@ typedef bool (*CpuCondFn)(CpuState *);
 
 extern CpuCondFn condfns[15];
 
-void entry(CpuState *, Instr);
+void select_func(CpuState *, Instr);
 void emu(CpuState *);
 void print_state(CpuState *);
 
