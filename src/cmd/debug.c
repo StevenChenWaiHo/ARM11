@@ -31,8 +31,7 @@ static int *assemble_debug(char *src, char *filename, FILE *out,
   printf("}\n");
 #endif
 
-  int *instr_to_line_no =
-      (int *)malloc(a.n_instrs * sizeof(int)); // create the mapping array
+  int *instr_to_line_no = malloc(a.n_instrs * sizeof(int)); // create the mapping array
 
   if (!instr_to_line_no) {
     printf("The instruction_no to line_no array cannot be created");
@@ -83,7 +82,7 @@ done:
 int main(int argc, char **argv) {
 
   if (argc != 2) {
-    fprintf(stderr, "Usage: %s <input>", argv[0]);
+    fprintf(stderr, "Usage: %s <input.s>", argv[0]);
     return EXIT_FAILURE;
   }
   char *input = argv[1];
@@ -108,7 +107,7 @@ int main(int argc, char **argv) {
   fread(buff, 1, lenb, in);
   buff[lenb] = '\0';
 
-  FILE *out = fopen(in_wo_ext, "w");
+  FILE *out = fopen(in_wo_ext, "w+");
   if (!out) {
     printf("Failed to create %s\n", in_wo_ext);
     return EXIT_FAILURE;
@@ -116,26 +115,19 @@ int main(int argc, char **argv) {
   int total_line_no, total_instr_no;
   int *instr_to_line_no =
       assemble_debug(buff, input, out, &total_line_no, &total_instr_no);
-  fclose(out);
   fclose(in);
   free(buff);
 
-  input = in_wo_ext;
 
-  in = fopen(input, "r");
-  if (!in) {
-    fprintf(stderr, "Failed to open %s\n", input);
-    return EXIT_FAILURE;
-  }
-  fseek(in, 0, SEEK_END);
-  lenb = ftell(in);
-  fseek(in, 0, SEEK_SET);
+  fseek(out, 0, SEEK_END);
+  lenb = ftell(out);
+  fseek(out, 0, SEEK_SET);
   // TODO: Handle errors
 
   uint32_t *mem = calloc(MEMORY_SIZE / 4, 4);
   // TODO: Handle alloc failure
 
-  fread(mem, 4, lenb / 4, in);
+  fread(mem, 4, lenb / 4, out);
   // TODO: Handle Read error
 
   uint32_t regs[17] = {0};
@@ -149,7 +141,7 @@ int main(int argc, char **argv) {
 
   dbg(&cpu, total_instr_no, instr_to_line_no);
 
-  fclose(in);
+  fclose(out);
   free(instr_to_line_no);
   free(mem);
 

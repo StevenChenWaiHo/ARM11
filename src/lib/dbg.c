@@ -8,8 +8,6 @@
 #include "dbg.h"
 #include "dis.h"
 #include "emu_condfn.h"
-#ifdef AEMU_TRACE
-#endif
 
 void dbg(CpuState *cpu, int total_instr_no, int *instr_to_line_no) {
   int *breakpoint = calloc(BREAKPOINT_NUMBER, sizeof(int));
@@ -60,7 +58,7 @@ void dbg(CpuState *cpu, int total_instr_no, int *instr_to_line_no) {
     }
     if (input[0] == 'r') { // command run / continue
       is_run = true;
-      if (sequence(cpu, breakpoint, bpt_ptr, false)) { // terminates
+      if (terminate(cpu, breakpoint, bpt_ptr, false)) { // terminates
         break;
       }
     }
@@ -72,7 +70,7 @@ void dbg(CpuState *cpu, int total_instr_no, int *instr_to_line_no) {
         printf("No program is running.\n");
         continue;
       }
-      if (sequence(cpu, breakpoint, bpt_ptr, true)) {
+      if (terminate(cpu, breakpoint, bpt_ptr, true)) {
         break;
       }
     }
@@ -81,7 +79,7 @@ void dbg(CpuState *cpu, int total_instr_no, int *instr_to_line_no) {
 }
 
 // TODO: decide if prev instr, next instr or both be shown
-bool sequence(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
+bool terminate(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
   uint32_t *imem = cpu->mem;
   for (;;) {
     int curr = cpu->regs[REG_PC] >> 2;
