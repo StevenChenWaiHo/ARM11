@@ -39,7 +39,7 @@ void dbg(CpuState *cpu, int total_instr_no, int *instr_to_line_no) {
         printf("Such line not found.\n");
         continue;
       }
-      printf("Breakpoint %d set at line %d.\n", bpt_ptr + 1, line_no);
+      printf("Breakpoint %d set at line %d.\n", bpt_ptr + 1, breakpoint[bpt_ptr]);
       bpt_ptr++;
     }
     if (input[0] == 'd' && input[1] == ' ') { // command delete
