@@ -15,7 +15,7 @@ typedef struct {
 
 typedef bool (*CpuCondFn)(CpuState *);
 
-CpuCondFn condfns[15];
+extern CpuCondFn condfns[15];
 
 void entry(CpuState *, Instr);
 void emu(CpuState *);
