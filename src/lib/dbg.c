@@ -62,6 +62,14 @@ static bool parse_regname(char *regname, Reg *reg) { // adapted from asm.c
   } else
     return false;
 }
+
+static void print_line(CpuState *cpu, int curr, bool next) {
+  char seq[9];
+  next ? strcpy(seq, "Next") : strcpy(seq, "Previous");
+  printf("%s Instruction at Line %d: \n", seq, curr + 1);
+  dis(stdout, curr, cpu->mem[curr]);
+}
+
 // TODO: decide if prev instr, next instr or both be shown
 static bool terminate(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
   uint32_t *imem = cpu->mem;
@@ -70,9 +78,7 @@ static bool terminate(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
     for (int i = 0; i < bpt_ptr; i++) {
       if (breakpoint[i] - 1 == curr && !step) {
         printf("Breakpoint %d at Line %d\n", i + 1, curr + 1);
-        printf("Next Instruction at Line %d: \n", curr + 1);
-        dis(stdout, curr, cpu->mem[curr]);
-        printf("\n");
+        print_line(cpu, curr, true);
         // print_state(cpu);
         return false;
       }
@@ -96,12 +102,10 @@ static bool terminate(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
     }
     entry(cpu, i);
     if (step) {
-      printf("Previous Instruction at Line %d: \n", curr + 1);
-      dis(stdout, curr, cpu->mem[curr]);
+      print_line(cpu, curr, false);
       curr = cpu->regs[REG_PC] >> 2;
       if (cpu->mem[curr]) {
-        printf("Next Instruction at Line %d: \n", curr + 1);
-        dis(stdout, curr, cpu->mem[curr]);
+        print_line(cpu, curr, true);
       } else {
         printf("No Next Instruction\n");
       }
@@ -206,14 +210,18 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         printf("Register input invalid\n");
       }
     }
-    if (input[0] == 'l') { // command print next line
+    if (input[0] == 'l' && input[1] == ' ') { // command print prev/next line
       if (!is_run) {
         printf("No program is running.\n");
         continue;
       }
-      int curr = cpu->regs[REG_PC] >> 2;
-      printf("Next Instruction at Line %d: \n", curr + 1);
-      dis(stdout, curr, cpu->mem[curr]);
+      int curr = cpu->regs[REG_PC];
+      if (input[2] == 'p') {
+        print_line(cpu, curr, false);
+      } else if (input[2] == 'n') {
+        curr >>= 2;
+        print_line(cpu, curr, true);
+      }
     }
   }
   free(breakpoint);
