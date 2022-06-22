@@ -1,5 +1,6 @@
 #include <assert.h>
 
+#include "str.h"
 #include "symtab.h"
 
 static void incnode(SymTabEntry *node) { node->value++; }
@@ -7,6 +8,11 @@ static void incnode(SymTabEntry *node) { node->value++; }
 static bool node_maintain_invariant(SymTabEntry *node) {
   int inv;
   bool maintain;
+  if (node->left && str_cmp(node->key, node->left->key) <= 0)
+    return false;
+  if (node->right && str_cmp(node->key, node->right->key) >= 0)
+    return false;
+
   if (!node) {
     inv = 0;
     maintain = true;
