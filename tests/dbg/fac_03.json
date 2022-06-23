@@ -1,0 +1,14 @@
+{
+  "File": "./factorial.s",
+  "Steps": [
+    {
+      "Input": "s",
+      "Output": "No program is running.\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}

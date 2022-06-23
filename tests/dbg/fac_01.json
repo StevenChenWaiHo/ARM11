@@ -1,0 +1,54 @@
+{
+  "File": "./factorial.s",
+  "Steps": [
+    {
+      "Input": "b 2",
+      "Output": "Breakpoint 1 set at line 2 (instruction 2).\n"
+    },
+    {
+      "Input": "b 4",
+      "Output": "Breakpoint 2 set at line 4 (instruction 3).\n"
+    },
+    {
+      "Input": "b 6",
+      "Output": "Breakpoint 3 set at line 6 (instruction 5).\n"
+    },
+    {
+      "Input": "b 8",
+      "Output": "Breakpoint 4 set at line 8 (instruction 7).\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 2\nNext Instruction at Line 2: \n001: e3a01005\nmov r1, #0x5\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Previous Instruction at Line 2: \n001: e3a01005\nmov r1, #0x5\nNext Instruction at Line 3: \n002: e0020091\nmul  r2, r1, r0\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 2 at Line 4\nNext Instruction at Line 4: \n003: e1a00002\nmov r0, r2\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Previous Instruction at Line 4: \n003: e1a00002\nmov r0, r2\nNext Instruction at Line 5: \n004: e2411001\nsub r1, r1, #0x1\n"
+    },
+    {
+      "Input": "d 1",
+      "Output": "Breakpoint 1 removed from line 2.\n"
+    },
+    {
+      "Input": "p r0",
+      "Output": "5\n"
+    },
+    {
+      "Input": "p pc",
+      "Output": "24\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}

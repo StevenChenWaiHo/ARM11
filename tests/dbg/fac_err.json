@@ -1,0 +1,34 @@
+{
+  "File": "./factorial.s",
+  "Steps": [
+    {
+      "Input": "b 0",
+      "Output": "Such line not found.\n"
+    },
+    {
+      "Input": "b 11",
+      "Output": "Such line not found.\n"
+    },
+    {
+      "Input": "d 0",
+      "Output": "Such breakpoint not found.\n"
+    },
+    {
+      "Input": "d 1",
+      "Output": "Such breakpoint not found.\n"
+    },
+    {
+      "Input": "l n",
+      "Output": "No program is running.\n"
+    },
+    {
+      "Input": "p r5",
+      "Output": "0\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}
