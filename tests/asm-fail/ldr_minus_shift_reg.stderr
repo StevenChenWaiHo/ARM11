@@ -1,1 +1,1 @@
-tests/asm-fail/ldr_minus_shift_reg.s:1:25: Shift by register not supported in LDR instructions
+tests/asm-fail/ldr_minus_shift_reg.s:1:25: Shift by register not supported in SDT instructions
