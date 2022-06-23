@@ -221,16 +221,11 @@ Instr asm_parse_shift_reg(Assembler *a, Reg rm) {
   }
   ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
   Token rs;
-  // Shift by Register
-  if (asm_match(a, TOKEN_IDENT, &rs))
-    return bit_asm_op2_shift_reg(rm, shift_type,
-                                 asm_parse_reg_name(a, rs)); // reg
-  else {
-    // Shift by Integer Constant
-    Token imm = asm_expect(a, TOKEN_HASH_NUM);
-    Instr imm_instr = asm_parse_shift_imm(a, imm);
-    return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
-  }
+  // Shift by Register not supported
+  // Shift by Integer Constant
+  Token imm = asm_expect(a, TOKEN_HASH_NUM);
+  Instr imm_instr = asm_parse_shift_imm(a, imm);
+  return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
 }
 
 Instr asm_parse_shift_imm(Assembler *a, Token t) {

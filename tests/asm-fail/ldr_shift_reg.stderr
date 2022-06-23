@@ -1,0 +1,1 @@
+tests/asm-fail/ldr_shift_reg.s:1:24: Expected TOKEN_HASH_NUM, but got TOKEN_IDENT(r2)

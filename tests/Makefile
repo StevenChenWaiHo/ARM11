@@ -1,4 +1,6 @@
+GO=go1.18
+
 test:
-	go run runner.go
+	$(GO) run runner.go
 bless:
-	AEMU_BLESS=1 go run runner.go
+	AEMU_BLESS=1 $(GO) run runner.go
