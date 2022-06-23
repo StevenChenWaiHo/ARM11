@@ -1,0 +1,26 @@
+{
+  "File": "./factorial.s",
+  "Steps": [
+    {
+      "Input": "b 10",
+      "Output": "Breakpoint 1 set at line 10 (instruction 9).\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 10\nNo Next Instruction\n"
+    },
+    {
+      "Input": "l n",
+      "Output": "No Next Instruction\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Terminating...\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}
