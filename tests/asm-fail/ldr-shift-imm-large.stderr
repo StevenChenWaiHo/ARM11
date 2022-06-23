@@ -1,0 +1,1 @@
+tests/asm-fail/ldr-shift-imm-large.s:1:23: Const too large for a shift const: 58 (max is 31)

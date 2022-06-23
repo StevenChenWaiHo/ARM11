@@ -1,0 +1,1 @@
+tests/asm-fail/lsl-imm-ff.s:1:13: Const too large for a shift const: 255 (max is 31)

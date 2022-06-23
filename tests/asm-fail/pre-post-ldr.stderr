@@ -1,0 +1,1 @@
+tests/asm-fail/pre-post-ldr.s:1:16: Already seen extra pre index arguments, cannot use post index arguments

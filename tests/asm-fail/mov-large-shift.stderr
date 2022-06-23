@@ -1,0 +1,1 @@
+tests/asm-fail/mov-large-shift.s:1:21: Const too large for a shift const: 222 (max is 31)
