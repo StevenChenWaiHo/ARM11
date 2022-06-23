@@ -334,7 +334,10 @@ done:
   return n_instr;
 }
 
-void asm_free(Assembler a) { sym_tab_free(a.symtab); }
+void asm_free(Assembler a) {
+  sym_tab_free(a.symtab);
+  free(a.consts);
+}
 
 void assemble(char *src, char *filename, FILE *out) {
   Assembler a;
