@@ -52,7 +52,7 @@ func RunDbg(jsonPath string) (DbgSpec, error) {
 
 	asmPath := path.Join(path.Dir(jsonPath), spec.File)
 
-	cmd := exec.Command("./src/build/bin/debug", asmPath)
+	cmd := exec.Command(debug, asmPath)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	// stdout, err := cmd.StdoutPipe()

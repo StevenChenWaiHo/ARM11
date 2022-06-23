@@ -39,6 +39,10 @@ else ifdef FUZZ
 	CFLAGS += -DAEMU_FUZZ
 	BUILD_DIR = build-fuzz
 	CC = afl-clang-fast
+else ifdef LEAK
+	CC = clang
+	BUILD_DIR = build-leak
+	CFLAGS += -fsanitize=leak
 endif
 
 CMD_OBJ = $(CMD_SRC:%.c=$(BUILD_DIR)/cmd/%.o)
@@ -114,6 +118,8 @@ trace:
 	$(MAKE) TRACE=1
 fuzz:
 	$(MAKE) FUZZ=1
+leak:
+	$(MAKE) LEAK=1
 .PHONY: fuzz
 assemble: $(BUILD_DIR)/bin/assemble
 disassemble: $(BUILD_DIR)/bin/disassemble

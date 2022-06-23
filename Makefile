@@ -7,8 +7,10 @@ msan:
 	$(MAKE) -C src msan
 ubsan:
 	$(MAKE) -C src ubsan
+leak:
+	$(MAKE) -C src leak
 
-world: all asan msan ubsan
+world: all asan msan ubsan leak
 
 .PHONY: clean-world
 clean-world:
@@ -22,8 +24,9 @@ server-msan: msan
 	ruby arm11_testsuite/testserver.rb src/build-msan/bin/
 server-ubsan: ubsan
 	ruby arm11_testsuite/testserver.rb src/build-ubsan/bin/
+server-leak: leak
+	ruby arm11_testsuite/testserver.rb src/build-leak/bin/
 
-test:
-	make -C src
+test: world
 	make -C src test
 	make -C tests test

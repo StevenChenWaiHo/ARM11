@@ -8,7 +8,7 @@ import (
 func AemuDis(path string) (string, error) {
 	// TODO: Run makefile
 	// TODO: Allow asan/msan/ubsan
-	cmd := exec.Command("./src/build/bin/disassemble", path)
+	cmd := exec.Command(disassemble, path)
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	err := cmd.Run()

@@ -12,7 +12,7 @@ func RunAsm(path string) ([]byte, string) {
 	Must(err)
 	defer os.Remove(tmp.Name())
 
-	cmd := exec.Command("./src/build/bin/assemble", path, tmp.Name())
+	cmd := exec.Command(assemble, path, tmp.Name())
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -33,7 +33,7 @@ func RunAsmFail(path string) ([]byte, bool) {
 	Must(err)
 	defer os.Remove(tmp.Name())
 
-	cmd := exec.Command("./src/build/bin/assemble", path, tmp.Name())
+	cmd := exec.Command(assemble, path, tmp.Name())
 	cmd.Stdout = os.Stdout
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

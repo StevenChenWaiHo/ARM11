@@ -12,7 +12,7 @@
 #include "linenoise.h"
 
 static bool parse_reg_name(char *reg_name, Reg *reg) { // adapted from asm.c
-  for (size_t i = 0; i < strlen(reg_name); i++) {     // ignores case
+  for (size_t i = 0; i < strlen(reg_name); i++) {      // ignores case
     reg_name[i] = tolower(reg_name[i]);
   }
   if (strncmp(reg_name, "r0\0", 3) == 0) {
@@ -128,7 +128,7 @@ static CpuState *cpu_reset(uint32_t *mem) {
 void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
   int *breakpoint = calloc(BREAKPOINT_NUMBER, sizeof(int));
   int bpt_ptr = 0;
-  bool is_run;
+  bool is_run = false;
   bool found_line_no;
   CpuState *cpu = cpu_reset(mem);
 
@@ -155,7 +155,8 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       for (int i = 0; i < total_instr_no && !found_line_no; i++) {
         if (instr_to_line_no[i] == line_no - 1) {
           instr_no = i + 1;
-          breakpoint[bpt_ptr] = instr_to_line_no[i] + 1; // breakpoint contains instrs
+          breakpoint[bpt_ptr] =
+              instr_to_line_no[i] + 1; // breakpoint contains instrs
           found_line_no = true;
         }
       }
@@ -163,8 +164,8 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         printf("Such line not found.\n");
         goto cintinue;
       }
-      printf("Breakpoint %d set at line %d (instruction %d).\n", bpt_ptr + 1, breakpoint[bpt_ptr],
-             instr_no);
+      printf("Breakpoint %d set at line %d (instruction %d).\n", bpt_ptr + 1,
+             breakpoint[bpt_ptr], instr_no);
       bpt_ptr++;
     }
     if (input[0] == 'd' && input[1] == ' ') { // command delete
@@ -209,19 +210,20 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
     if (input[0] == 'p' && input[1] == ' ') { // command print register
       char reg_name[5];
       strncpy(reg_name, input + 2, 5);
-      Reg *reg = malloc(sizeof(Reg));
-      bool valid = parse_reg_name(reg_name, reg);
+      Reg reg;
+      bool valid = parse_reg_name(reg_name, &reg);
       if (valid) {
-        if (*reg == REG_PC) {
-          printf("%d\n", cpu->regs[*reg] + 8);
+        if (reg == REG_PC) {
+          printf("%d\n", cpu->regs[reg] + 8);
         } else {
-          printf("%d\n", cpu->regs[*reg]);
+          printf("%d\n", cpu->regs[reg]);
         }
       } else {
         printf("Register input invalid.\n");
       }
     }
-    if (input[0] == 'l' && input[1] == ' ' && input[2] == 'n' && input[3] == '\0') { // command print next line
+    if (input[0] == 'l' && input[1] == ' ' && input[2] == 'n' &&
+        input[3] == '\0') { // command print next line
       if (!is_run) {
         printf("No program is running.\n");
         goto cintinue;
