@@ -137,7 +137,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
     char *input = linenoise("> ");
     if (!input) {
       free(cpu);
-      break;
+      goto breek;
     }
     linenoiseHistoryAdd(input);
     // defer linenoiseFree(line);  // TODO
@@ -146,7 +146,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       if (bpt_ptr >= BREAKPOINT_NUMBER) {
         printf("Amount of breakpoints possible is limited to %d",
                BREAKPOINT_NUMBER);
-        continue;
+        goto cintinue;
       }
       int line_no = atoi(input + 2);
       found_line_no = false;
@@ -158,7 +158,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       }
       if (!found_line_no) {
         printf("Such line not found.\n");
-        continue;
+        goto cintinue;
       }
       printf("Breakpoint %d set at line %d (instruction %d).\n", bpt_ptr + 1,
              line_no, breakpoint[bpt_ptr]);
@@ -168,12 +168,12 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       int bpt_no = atoi(input + 2) - 1;
       if (bpt_no < 0 || bpt_no >= BREAKPOINT_NUMBER) {
         printf("Such breakpoint not found.\n");
-        continue;
+        goto cintinue;
       }
       int line_no = breakpoint[bpt_no];
       if (line_no <= 0) {
         printf("Such breakpoint not found.\n");
-        continue;
+        goto cintinue;
       }
       breakpoint[bpt_no] = 0;
       printf("Breakpoint %d removed from line %d.\n", bpt_no + 1, line_no);
@@ -184,23 +184,23 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         is_run = false;
         free(cpu);
         cpu = cpu_reset(mem);
-        continue;
+        goto cintinue;
       }
     }
     if (input[0] == 'q') { // command quit
       free(cpu);
-      break;
+      goto breek;
     }
     if (input[0] == 's') { // command step
       if (!is_run) {
         printf("No program is running.\n");
-        continue;
+        goto cintinue;
       }
       if (run(cpu, breakpoint, bpt_ptr, true)) {
         is_run = false;
         free(cpu);
         cpu = cpu_reset(mem);
-        continue;
+        goto cintinue;
       }
     }
     if (input[0] == 'p' && input[1] == ' ') { // command print register
@@ -221,7 +221,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
     if (input[0] == 'l' && input[1] == ' ') { // command print prev/next line
       if (!is_run) {
         printf("No program is running.\n");
-        continue;
+        goto cintinue;
       }
       int curr = cpu->regs[REG_PC];
       if (input[2] == 'p') {
@@ -231,6 +231,13 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         print_line(cpu, curr, true);
       }
     }
+    // Awful, deplorable hack do make up for not having continue
+  cintinue:
+    linenoiseFree(input);
+    continue;
+  breek:
+    linenoiseFree(input);
+    break;
   }
   free(breakpoint);
 }
