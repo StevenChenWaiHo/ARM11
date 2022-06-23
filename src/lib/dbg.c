@@ -9,6 +9,7 @@
 
 #include "dbg.h"
 #include "dis.h"
+#include "linenoise.h"
 
 static bool parse_regname(char *regname, Reg *reg) { // adapted from asm.c
   for (size_t i = 0; i < strlen(regname); i++) {     // ignores case
@@ -133,13 +134,13 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
 
   for (;;) {
     // print_state(cpu);
-    printf("> ");
-    char input[20];
-    if (!fgets(input, 20, stdin)) {
+    char *input = linenoise("> ");
+    if (!input) {
       free(cpu);
-      putchar('\n');
       break;
     }
+    linenoiseHistoryAdd(input);
+    // defer linenoiseFree(line);  // TODO
 
     if (input[0] == 'b' && input[1] == ' ') { // command break
       if (bpt_ptr >= BREAKPOINT_NUMBER) {
