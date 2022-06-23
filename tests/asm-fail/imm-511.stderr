@@ -1,0 +1,1 @@
+tests/asm-fail/imm-511.s:1:13: `#511` out of range for immediate

@@ -1,0 +1,1 @@
+tests/asm-fail/str-imm.s:1:11: Cannot use str with immediate number
