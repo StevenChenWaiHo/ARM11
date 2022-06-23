@@ -181,7 +181,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       breakpoint[bpt_no] = 0;
       printf("Breakpoint %d removed from line %d.\n", bpt_no + 1, line_no);
     }
-    if (input[0] == 'r') { // command run / continue
+    if (input[0] == 'r' && input[1] == '\0') { // command run / continue
       is_run = true;
       if (run(cpu, breakpoint, bpt_ptr, false)) { // terminates
         is_run = false;
@@ -190,11 +190,11 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         goto cintinue;
       }
     }
-    if (input[0] == 'q') { // command quit
+    if (input[0] == 'q' && input[1] == '\0') { // command quit
       free(cpu);
       goto breek;
     }
-    if (input[0] == 's') { // command step
+    if (input[0] == 's' && input[1] == '\0') { // command step
       if (!is_run) {
         printf("No program is running.\n");
         goto cintinue;
@@ -218,21 +218,16 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
           printf("%d\n", cpu->regs[*reg]);
         }
       } else {
-        printf("Register input invalid\n");
+        printf("Register input invalid.\n");
       }
     }
-    if (input[0] == 'l' && input[1] == ' ') { // command print prev/next line
+    if (input[0] == 'l' && input[1] == ' ' && input[2] == 'n' && input[3] == '\0') { // command print next line
       if (!is_run) {
         printf("No program is running.\n");
         goto cintinue;
       }
-      int curr = cpu->regs[REG_PC];
-      if (input[2] == 'p') { // never output correctly, consider deletion
-        print_line(cpu, curr, false);
-      } else if (input[2] == 'n') {
-        curr >>= 2;
-        print_line(cpu, curr, true);
-      }
+      int curr = cpu->regs[REG_PC] >> 2;
+      print_line(cpu, curr, true);
     }
     // Awful, deplorable hack do make up for not having continue
   cintinue:
