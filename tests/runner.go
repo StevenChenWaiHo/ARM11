@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -99,10 +100,18 @@ func testAsmPass() {
 				failed = true
 				continue
 			}
+			outFile := withExt(pname, ".out")
 			if bless {
-				os.WriteFile(withExt(pname, ".out"), asmed, 0o644)
+				os.WriteFile(outFile, asmed, 0o644)
 			} else {
-				panic("?")
+				expected, err := os.ReadFile(outFile)
+				runner.Must(err)
+				nTest++
+				if bytes.Equal(asmed, expected) {
+					fmt.Printf("PASS asm-pass/%s\n", pname)
+				} else {
+					fmt.Printf("FAIL asm-pass/%s\n", pname)
+				}
 			}
 		}
 	}

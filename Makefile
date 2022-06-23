@@ -22,3 +22,8 @@ server-msan: msan
 	ruby arm11_testsuite/testserver.rb src/build-msan/bin/
 server-ubsan: ubsan
 	ruby arm11_testsuite/testserver.rb src/build-ubsan/bin/
+
+test:
+	make -C src
+	make -C src test
+	make -C tests test
