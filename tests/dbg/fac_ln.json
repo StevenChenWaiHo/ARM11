@@ -1,0 +1,14 @@
+{
+  "File": "./factorial.s",
+  "Steps": [
+    {
+      "Input": "b 3",
+      "Output": "Such line not found.\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}

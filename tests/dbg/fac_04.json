@@ -1,0 +1,26 @@
+{
+  "File": "./factorial.s",
+  "Steps": [
+    {
+      "Input": "b 2",
+      "Output": "Breakpoint 1 set at line 2 (instruction 2).\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 2\nNext Instruction at Line 2: \n001: e3a01005\nmov r1, #0x5\n"
+    },
+    {
+      "Input": "d 1",
+      "Output": "Breakpoint 1 removed from line 2.\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Terminating...\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}

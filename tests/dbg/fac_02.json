@@ -1,0 +1,74 @@
+{
+  "File": "./factorial.s",
+  "Steps": [
+    {
+      "Input": "b 7",
+      "Output": "Breakpoint 1 set at line 7 (instruction 6).\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 7\nNext Instruction at Line 7: \n006: 1afffffa\nbne #0x8\n"
+    },
+    {
+      "Input": "l n",
+      "Output": "Next Instruction at Line 7: \n006: 1afffffa\nbne #0x8\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Previous Instruction at Line 7: \n006: 1afffffa\nbne #0x8\nNext Instruction at Line 3: \n002: e0020091\nmul  r2, r1, r0\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 7\nNext Instruction at Line 7: \n006: 1afffffa\nbne #0x8\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Previous Instruction at Line 7: \n006: 1afffffa\nbne #0x8\nNext Instruction at Line 3: \n002: e0020091\nmul  r2, r1, r0\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 7\nNext Instruction at Line 7: \n006: 1afffffa\nbne #0x8\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Previous Instruction at Line 7: \n006: 1afffffa\nbne #0x8\nNext Instruction at Line 3: \n002: e0020091\nmul  r2, r1, r0\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 7\nNext Instruction at Line 7: \n006: 1afffffa\nbne #0x8\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Previous Instruction at Line 7: \n006: 1afffffa\nbne #0x8\nNext Instruction at Line 3: \n002: e0020091\nmul  r2, r1, r0\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 7\nNext Instruction at Line 7: \n006: 1afffffa\nbne #0x8\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Previous Instruction at Line 8: \n007: e3a03c01\nmov r3, #0x100\nNext Instruction at Line 9: \n008: e5832000\nstr r2, [r3]\n"
+    },
+    {
+      "Input": "p r20",
+      "Output": "Register input invalid.\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Terminating...\n"
+    },
+    {
+      "Input": "p r16",
+      "Output": "Register input invalid.\n"
+    },
+    {
+      "Input": "p r0",
+      "Output": "0\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}

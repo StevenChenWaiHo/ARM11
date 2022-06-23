@@ -1,0 +1,30 @@
+{
+  "File": "./opt_ldr12.s",
+  "Steps": [
+    {
+      "Input": "b 3",
+      "Output": "Breakpoint 1 set at line 3 (instruction 3).\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Error: Out of bounds memory access at address 0x003f0000\nBreakpoint 1 at Line 3\nNext Instruction at Line 3: \n002: e7913122\nldr r3, [r1, r2, lsr #2]\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Error: Out of bounds memory access at address 0x003f0000\nPrevious Instruction at Line 3: \n002: e7913122\nldr r3, [r1, r2, lsr #2]\nNo Next Instruction\n"
+    },
+    {
+      "Input": "p r1",
+      "Output": "4128768\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Terminating...\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}
