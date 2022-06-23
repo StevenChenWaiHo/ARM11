@@ -128,7 +128,7 @@ static CpuState *cpu_reset(uint32_t *mem) {
 void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
   int *breakpoint = calloc(BREAKPOINT_NUMBER, sizeof(int));
   int bpt_ptr = 0;
-  bool is_run;
+  bool is_run = false;
   bool found_line_no;
   CpuState *cpu = cpu_reset(mem);
 
