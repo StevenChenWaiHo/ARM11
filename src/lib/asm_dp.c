@@ -4,6 +4,7 @@
 
 #include "asm.h"
 #include "bit_asm.h"
+#include "unused.h"
 
 static DpKind ik_to_dpk(InstrKind ik) {
   switch (ik) {
@@ -47,7 +48,7 @@ Instr parse_op2(Assembler *a, bool *i) {
   return asm_parse_shift_reg(a, rm, true);
 }
 
-Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
+Instr asm_dp(Assembler *a, InstrCommon c, UNUSED Instr ino) {
   bool i = false;
   bool s = false;
   Instr rn = 0;
