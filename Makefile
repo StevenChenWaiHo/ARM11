@@ -27,7 +27,6 @@ server-ubsan: ubsan
 server-leak: leak
 	ruby arm11_testsuite/testserver.rb src/build-leak/bin/
 
-test:
-	make -C src
+test: world
 	make -C src test
 	make -C tests test
