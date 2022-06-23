@@ -133,7 +133,8 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
   CpuState *cpu = cpu_reset(mem);
 
   for (;;) {
-    // print_state(cpu);
+    fflush(stdout); // Keep things moving, for DBG tests
+
     char *input = linenoise("> ");
     if (!input) {
       free(cpu);
@@ -239,5 +240,6 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
     linenoiseFree(input);
     break;
   }
+  fflush(stdout);
   free(breakpoint);
 }

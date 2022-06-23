@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -28,6 +29,7 @@ func main() {
 	testDis()
 	testAsmPass()
 	testAsmFail()
+	testDbg()
 	taken := time.Since(start)
 	fmt.Printf("Ran %d tests in %s\n", nTest, taken)
 	if failed {
@@ -146,6 +148,28 @@ func testAsmFail() {
 					failed = true
 					fmt.Printf("FAIL %s\n", pname)
 				}
+			}
+		}
+	}
+}
+
+func testDbg() {
+	paths, err := ioutil.ReadDir("tests/dbg")
+	runner.Must(err)
+	for _, p := range paths {
+		if !p.IsDir() && path.Ext(p.Name()) == ".json" {
+			pname := "tests/dbg/" + p.Name()
+			dbgOut, err := runner.RunDbg(pname)
+			if err != nil {
+				panic(err)
+			}
+			nTest++
+			if bless {
+				out, err := json.MarshalIndent(dbgOut, "", "  ")
+				runner.Must(err)
+				runner.Must(os.WriteFile(pname, out, 0o644))
+			} else {
+				panic("TODO")
 			}
 		}
 	}
