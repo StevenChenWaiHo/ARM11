@@ -1,3 +1,5 @@
+// Modifed from upstream: Include <stddef.h> for size_t
+
 /* linenoise.h -- VERSION 1.0
  *
  * Guerrilla line editing library against the idea that a line editing lib
@@ -43,13 +45,15 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
+
 typedef struct linenoiseCompletions {
   size_t len;
   char **cvec;
 } linenoiseCompletions;
 
 typedef void(linenoiseCompletionCallback)(const char *, linenoiseCompletions *);
-typedef char*(linenoiseHintsCallback)(const char *, int *color, int *bold);
+typedef char *(linenoiseHintsCallback)(const char *, int *color, int *bold);
 typedef void(linenoiseFreeHintsCallback)(void *);
 void linenoiseSetCompletionCallback(linenoiseCompletionCallback *);
 void linenoiseSetHintsCallback(linenoiseHintsCallback *);
