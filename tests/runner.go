@@ -27,6 +27,7 @@ func main() {
 	start := time.Now()
 	testDis()
 	testAsmPass()
+	testAsmFail()
 	taken := time.Since(start)
 	fmt.Printf("Ran %d tests in %s\n", nTest, taken)
 	if failed {
@@ -67,21 +68,22 @@ func testDis() {
 	} else {
 		for _, p := range paths {
 			if !p.IsDir() && path.Ext(p.Name()) == "" {
-				aemuDis, err := os.ReadFile("tests/dis/" + p.Name() + ".aemudis")
+				pname := "tests/dis/" + p.Name()
+				aemuDis, err := os.ReadFile(pname + ".aemudis")
 				if err != nil {
 					log.Printf("Fail to get output for `%s`", p.Name())
 					continue
 				}
-				csDis, err := os.ReadFile("tests/dis/" + p.Name() + ".csdis")
+				csDis, err := os.ReadFile(pname + ".csdis")
 				if err != nil {
 					log.Printf("CS FAIL %s", p.Name())
 					continue
 				}
 				nTest++
-				runner.CompareDis(p.Name(),
+				runner.CompareDis(pname,
 					strings.TrimSpace(string(aemuDis)),
 					strings.TrimSpace(string(csDis)))
-				fmt.Printf("PASS dis/%s\n", p.Name())
+				fmt.Printf("PASS %s\n", pname)
 			}
 		}
 	}
@@ -108,9 +110,41 @@ func testAsmPass() {
 				runner.Must(err)
 				nTest++
 				if bytes.Equal(asmed, expected) {
-					fmt.Printf("PASS asm-pass/%s\n", pname)
+					fmt.Printf("PASS %s\n", pname)
 				} else {
-					fmt.Printf("FAIL asm-pass/%s\n", pname)
+					fmt.Printf("FAIL %s\n", pname)
+					failed = true
+				}
+			}
+		}
+	}
+}
+
+func testAsmFail() {
+	paths, err := ioutil.ReadDir("tests/asm-fail")
+	runner.Must(err)
+	for _, p := range paths {
+		if !p.IsDir() && path.Ext(p.Name()) == ".s" {
+			pname := "tests/asm-fail/" + p.Name()
+			stderr, didFail := runner.RunAsmFail(pname)
+			nTest++
+			if !didFail {
+				failed = true
+				fmt.Printf("FAIL %s: Exited sucess\n", pname)
+				continue
+			}
+
+			stderrName := withExt(pname, ".stderr")
+			if bless {
+				os.WriteFile(stderrName, []byte(stderr), 0o644)
+			} else {
+				exprected, err := os.ReadFile(stderrName)
+				runner.Must(err)
+				if bytes.Equal(exprected, stderr) {
+					fmt.Printf("PASS %s\n", pname)
+				} else {
+					failed = true
+					fmt.Printf("FAIL %s\n", pname)
 				}
 			}
 		}

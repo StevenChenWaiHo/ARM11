@@ -26,3 +26,23 @@ func RunAsm(path string) ([]byte, string) {
 	Must(err)
 	return asm, ""
 }
+
+// Stderr, didFail
+func RunAsmFail(path string) ([]byte, bool) {
+	tmp, err := os.CreateTemp("", "aemu-out")
+	Must(err)
+	defer os.Remove(tmp.Name())
+
+	cmd := exec.Command("./src/build/bin/assemble", path, tmp.Name())
+	cmd.Stdout = os.Stdout
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	err = cmd.Run()
+	if _, ok := err.(*exec.ExitError); ok {
+		return stderr.Bytes(), true
+	} else {
+		return nil, false
+	}
+
+}
