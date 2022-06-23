@@ -3,8 +3,9 @@
 
 #include "asm.h"
 #include "bit_asm.h"
+#include "unused.h"
 
-Instr asm_mul(Assembler *a, InstrCommon c, Instr ino) {
+Instr asm_mul(Assembler *a, InstrCommon c, UNUSED Instr ino) {
   Instr a_flag = 0;
   Instr s = 0;
   Reg rd = 0;
