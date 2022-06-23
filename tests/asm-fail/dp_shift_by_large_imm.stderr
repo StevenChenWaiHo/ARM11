@@ -1,0 +1,1 @@
+tests/asm-fail/dp_shift_by_large_imm.s:1:25: Invalid number #FFF

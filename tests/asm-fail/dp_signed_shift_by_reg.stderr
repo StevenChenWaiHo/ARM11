@@ -1,0 +1,1 @@
+tests/asm-fail/dp_signed_shift_by_reg.s:2:14: Expected TOKEN_IDENT, but got TOKEN_MINUS(-)

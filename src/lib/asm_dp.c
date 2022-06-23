@@ -44,7 +44,7 @@ Instr parse_op2(Assembler *a, bool *i) {
   }
   *i = false;
   Reg rm = asm_expect_reg(a);
-  return asm_parse_shift_reg(a, rm);
+  return asm_parse_shift_reg(a, rm, true);
 }
 
 Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {

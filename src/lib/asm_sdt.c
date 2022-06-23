@@ -17,7 +17,7 @@ Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
 
     Reg reg = asm_expect_reg(a); // [Rn, {+/-}Rm
     *offset_reg = true;
-    return asm_parse_shift_reg(a, reg); // [Rn, {+/-}Rm{,<shift>}]
+    return asm_parse_shift_reg(a, reg, false); // [Rn, {+/-}Rm{,<shift>}]
   }
   return 0; // No offset
 }
