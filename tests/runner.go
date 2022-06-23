@@ -169,7 +169,17 @@ func testDbg() {
 				runner.Must(err)
 				runner.Must(os.WriteFile(pname, out, 0o644))
 			} else {
-				panic("TODO")
+				expectedJson, err := os.ReadFile(pname)
+
+				runner.Must(err)
+				var expected runner.DbgSpec
+				runner.Must(json.Unmarshal(expectedJson, &expected))
+				if expected.Eq(&dbgOut) {
+					fmt.Printf("PASS %s\n", pname)
+				} else {
+					failed = true
+					fmt.Printf("FAIL %s\n", pname)
+				}
 			}
 		}
 	}
