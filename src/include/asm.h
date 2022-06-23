@@ -10,6 +10,7 @@
 #include "core.h"
 #include "lexer.h"
 #include "symtab.h"
+#include "unused.h"
 
 typedef enum {
   INSTR_ADD,
@@ -65,8 +66,8 @@ void assemble(char *src, char *filename, FILE *);
 typedef Instr (*AsmFn)(Assembler *, InstrCommon, Instr);
 
 Instr asm_br(Assembler *a, InstrCommon c, Instr ino);
-Instr asm_mul(Assembler *a, InstrCommon c, Instr ino);
-Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino);
+Instr asm_mul(Assembler *a, InstrCommon c, UNUSED Instr ino);
+Instr asm_sdt(Assembler *a, InstrCommon c, UNUSED Instr ino);
 Instr asm_dp(Assembler *a, InstrCommon c, Instr ino);
 
 Token asm_expect(Assembler *, TokenKind);
