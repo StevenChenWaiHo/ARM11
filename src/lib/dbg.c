@@ -67,8 +67,12 @@ static bool parse_reg_name(char *reg_name, Reg *reg) { // adapted from asm.c
 static void print_line(CpuState *cpu, int curr, bool next) {
   char seq[9];
   next ? strcpy(seq, "Next") : strcpy(seq, "Previous");
-  printf("%s Instruction at Line %d: \n", seq, curr + 1);
-  dis(stdout, curr, cpu->mem[curr]);
+  if (cpu->mem[curr]) {
+    printf("%s Instruction at Line %d: \n", seq, curr + 1);
+    dis(stdout, curr, cpu->mem[curr]);
+  } else {
+    printf("No %s Instruction\n", seq);
+  }
 }
 
 // TODO: decide if prev instr, next instr or both be shown
@@ -105,11 +109,7 @@ static bool run(CpuState *cpu, int *breakpoint, int bpt_ptr, bool step) {
     if (step) {
       print_line(cpu, curr, false);
       curr = cpu->regs[REG_PC] >> 2;
-      if (cpu->mem[curr]) {
-        print_line(cpu, curr, true);
-      } else {
-        printf("No Next Instruction\n");
-      }
+      print_line(cpu, curr, true);
       // print_state(cpu);
       return false;
     }
