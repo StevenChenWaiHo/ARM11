@@ -11,53 +11,53 @@
 #include "dis.h"
 #include "linenoise.h"
 
-static bool parse_regname(char *regname, Reg *reg) { // adapted from asm.c
-  for (size_t i = 0; i < strlen(regname); i++) {     // ignores case
-    regname[i] = tolower(regname[i]);
+static bool parse_reg_name(char *reg_name, Reg *reg) { // adapted from asm.c
+  for (size_t i = 0; i < strlen(reg_name); i++) {     // ignores case
+    reg_name[i] = tolower(reg_name[i]);
   }
-  if (strncmp(regname, "r0", 2) == 0) {
+  if (strncmp(reg_name, "r0\0", 3) == 0) {
     *reg = REG_0;
     return true;
-  } else if (strncmp(regname, "r1", 2) == 0) {
+  } else if (strncmp(reg_name, "r1\0", 3) == 0) {
     *reg = REG_1;
     return true;
-  } else if (strncmp(regname, "r2", 2) == 0) {
+  } else if (strncmp(reg_name, "r2\0", 3) == 0) {
     *reg = REG_2;
     return true;
-  } else if (strncmp(regname, "r3", 2) == 0) {
+  } else if (strncmp(reg_name, "r3\0", 3) == 0) {
     *reg = REG_3;
     return true;
-  } else if (strncmp(regname, "r4", 2) == 0) {
+  } else if (strncmp(reg_name, "r4\0", 3) == 0) {
     *reg = REG_4;
     return true;
-  } else if (strncmp(regname, "r5", 2) == 0) {
+  } else if (strncmp(reg_name, "r5\0", 3) == 0) {
     *reg = REG_5;
     return true;
-  } else if (strncmp(regname, "r6", 2) == 0) {
+  } else if (strncmp(reg_name, "r6\0", 3) == 0) {
     *reg = REG_6;
     return true;
-  } else if (strncmp(regname, "r7", 2) == 0) {
+  } else if (strncmp(reg_name, "r7\0", 3) == 0) {
     *reg = REG_7;
     return true;
-  } else if (strncmp(regname, "r8", 2) == 0) {
+  } else if (strncmp(reg_name, "r8\0", 3) == 0) {
     *reg = REG_8;
     return true;
-  } else if (strncmp(regname, "r9", 2) == 0) {
+  } else if (strncmp(reg_name, "r9\0", 3) == 0) {
     *reg = REG_9;
     return true;
-  } else if (strncmp(regname, "r10", 3) == 0) {
+  } else if (strncmp(reg_name, "r10\0", 4) == 0) {
     *reg = REG_10;
     return true;
-  } else if (strncmp(regname, "r11", 3) == 0) {
+  } else if (strncmp(reg_name, "r11\0", 4) == 0) {
     *reg = REG_11;
     return true;
-  } else if (strncmp(regname, "r12", 3) == 0) {
+  } else if (strncmp(reg_name, "r12\0", 4) == 0) {
     *reg = REG_12;
     return true;
-  } else if (strncmp(regname, "pc", 2) == 0) {
+  } else if (strncmp(reg_name, "pc\0", 3) == 0) {
     *reg = REG_PC;
     return true;
-  } else if (strncmp(regname, "cpsr", 4) == 0) {
+  } else if (strncmp(reg_name, "cpsr\0", 5) == 0) {
     *reg = REG_CPSR;
     return true;
   } else
@@ -181,7 +181,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       breakpoint[bpt_no] = 0;
       printf("Breakpoint %d removed from line %d.\n", bpt_no + 1, line_no);
     }
-    if (input[0] == 'r') { // command run / continue
+    if (input[0] == 'r' && input[1] == '\0') { // command run / continue
       is_run = true;
       if (run(cpu, breakpoint, bpt_ptr, false)) { // terminates
         is_run = false;
@@ -190,11 +190,11 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         goto cintinue;
       }
     }
-    if (input[0] == 'q') { // command quit
+    if (input[0] == 'q' && input[1] == '\0') { // command quit
       free(cpu);
       goto breek;
     }
-    if (input[0] == 's') { // command step
+    if (input[0] == 's' && input[1] == '\0') { // command step
       if (!is_run) {
         printf("No program is running.\n");
         goto cintinue;
@@ -207,10 +207,10 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       }
     }
     if (input[0] == 'p' && input[1] == ' ') { // command print register
-      char regname[4];
-      strncpy(regname, input + 2, 4);
+      char reg_name[5];
+      strncpy(reg_name, input + 2, 5);
       Reg *reg = malloc(sizeof(Reg));
-      bool valid = parse_regname(regname, reg);
+      bool valid = parse_reg_name(reg_name, reg);
       if (valid) {
         if (*reg == REG_PC) {
           printf("%d\n", cpu->regs[*reg] + 8);
@@ -218,21 +218,16 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
           printf("%d\n", cpu->regs[*reg]);
         }
       } else {
-        printf("Register input invalid\n");
+        printf("Register input invalid.\n");
       }
     }
-    if (input[0] == 'l' && input[1] == ' ') { // command print prev/next line
+    if (input[0] == 'l' && input[1] == ' ' && input[2] == 'n' && input[3] == '\0') { // command print next line
       if (!is_run) {
         printf("No program is running.\n");
         goto cintinue;
       }
-      int curr = cpu->regs[REG_PC];
-      if (input[2] == 'p') { // never output correctly, consider deletion
-        print_line(cpu, curr, false);
-      } else if (input[2] == 'n') {
-        curr >>= 2;
-        print_line(cpu, curr, true);
-      }
+      int curr = cpu->regs[REG_PC] >> 2;
+      print_line(cpu, curr, true);
     }
     // Awful, deplorable hack do make up for not having continue
   cintinue:
