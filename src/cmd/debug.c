@@ -88,13 +88,6 @@ int main(int argc, char **argv) {
   }
   char *input = argv[1];
 
-  int innamelen = strlen(input) - 2;
-  char in_wo_ext[innamelen + 1];
-  strncpy(in_wo_ext, input, innamelen);
-  in_wo_ext[innamelen] = '\0';
-
-  // removed support for binary
-
   // TODO: share with main in assemble.c
   FILE *in = fopen(input, "r");
   if (!in) {
@@ -108,33 +101,39 @@ int main(int argc, char **argv) {
   fread(buff, 1, lenb, in);
   buff[lenb] = '\0';
 
-  FILE *out = fopen(in_wo_ext, "w+");
-  if (!out) {
-    printf("Failed to create %s\n", in_wo_ext);
-    return EXIT_FAILURE;
-  }
+  // FILE *out = fopen(in_wo_ext, "w+");
+  // if (!out) {
+  //   printf("Failed to create %s\n", in_wo_ext);
+  //   return EXIT_FAILURE;
+  // }
+  char *bp;
+  size_t bp_sz;
+  FILE *out = open_memstream(&bp, &bp_sz);
+
   int total_line_no, total_instr_no;
   int *instr_to_line_no =
       assemble_debug(buff, input, out, &total_line_no, &total_instr_no);
   fclose(in);
   free(buff);
+  fclose(out);
 
-  fseek(out, 0, SEEK_END);
-  lenb = ftell(out);
-  fseek(out, 0, SEEK_SET);
+  // fseek(out, 0, SEEK_END);
+  // lenb = ftell(out);
+  // fseek(out, 0, SEEK_SET);
   // TODO: Handle errors
 
   uint32_t *mem = calloc(MEMORY_SIZE / 4, 4);
   // TODO: Handle alloc failure
 
-  fread(mem, 4, lenb / 4, out);
+  memcpy(mem, bp, bp_sz);
+  // fread(mem, 4, lenb / 4, out);
   // TODO: Handle Read error
 
   dbg(mem, total_instr_no, instr_to_line_no);
 
-  fclose(out);
   free(instr_to_line_no);
   free(mem);
+  free(bp);
 
   return EXIT_SUCCESS;
 }
