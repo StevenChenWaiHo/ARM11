@@ -16,6 +16,24 @@ type DbgSpec struct {
 	Stderr string
 }
 
+func (d *DbgSpec) Eq(other *DbgSpec) bool {
+	if d.File != other.File {
+		return false
+	}
+	if d.Stderr != other.Stderr {
+		return false
+	}
+	if len(d.Steps) != len(other.Steps) {
+		return false
+	}
+	for i, ds := range d.Steps {
+		if ds != other.Steps[i] {
+			return false
+		}
+	}
+	return true
+}
+
 type DbgStep struct {
 	Input  string
 	Output string
