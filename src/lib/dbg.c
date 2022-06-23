@@ -135,7 +135,12 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
     // print_state(cpu);
     printf("> ");
     char input[20];
-    fgets(input, 20, stdin);
+    if (!fgets(input, 20, stdin)) {
+      free(cpu);
+      putchar('\n');
+      break;
+    }
+
     if (input[0] == 'b' && input[1] == ' ') { // command break
       if (bpt_ptr >= BREAKPOINT_NUMBER) {
         printf("Amount of breakpoints possible is limited to %d",
@@ -154,8 +159,8 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         printf("Such line not found.\n");
         continue;
       }
-      printf("Breakpoint %d set at line %d.\n", bpt_ptr + 1,
-             breakpoint[bpt_ptr]);
+      printf("Breakpoint %d set at line %d (instruction %d).\n", bpt_ptr + 1,
+             line_no, breakpoint[bpt_ptr]);
       bpt_ptr++;
     }
     if (input[0] == 'd' && input[1] == ' ') { // command delete
