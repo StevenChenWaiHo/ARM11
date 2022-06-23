@@ -11,53 +11,53 @@
 #include "dis.h"
 #include "linenoise.h"
 
-static bool parse_regname(char *regname, Reg *reg) { // adapted from asm.c
-  for (size_t i = 0; i < strlen(regname); i++) {     // ignores case
-    regname[i] = tolower(regname[i]);
+static bool parse_reg_name(char *reg_name, Reg *reg) { // adapted from asm.c
+  for (size_t i = 0; i < strlen(reg_name); i++) {     // ignores case
+    reg_name[i] = tolower(reg_name[i]);
   }
-  if (strncmp(regname, "r0", 2) == 0) {
+  if (strncmp(reg_name, "r0\0", 3) == 0) {
     *reg = REG_0;
     return true;
-  } else if (strncmp(regname, "r1", 2) == 0) {
+  } else if (strncmp(reg_name, "r1\0", 3) == 0) {
     *reg = REG_1;
     return true;
-  } else if (strncmp(regname, "r2", 2) == 0) {
+  } else if (strncmp(reg_name, "r2\0", 3) == 0) {
     *reg = REG_2;
     return true;
-  } else if (strncmp(regname, "r3", 2) == 0) {
+  } else if (strncmp(reg_name, "r3\0", 3) == 0) {
     *reg = REG_3;
     return true;
-  } else if (strncmp(regname, "r4", 2) == 0) {
+  } else if (strncmp(reg_name, "r4\0", 3) == 0) {
     *reg = REG_4;
     return true;
-  } else if (strncmp(regname, "r5", 2) == 0) {
+  } else if (strncmp(reg_name, "r5\0", 3) == 0) {
     *reg = REG_5;
     return true;
-  } else if (strncmp(regname, "r6", 2) == 0) {
+  } else if (strncmp(reg_name, "r6\0", 3) == 0) {
     *reg = REG_6;
     return true;
-  } else if (strncmp(regname, "r7", 2) == 0) {
+  } else if (strncmp(reg_name, "r7\0", 3) == 0) {
     *reg = REG_7;
     return true;
-  } else if (strncmp(regname, "r8", 2) == 0) {
+  } else if (strncmp(reg_name, "r8\0", 3) == 0) {
     *reg = REG_8;
     return true;
-  } else if (strncmp(regname, "r9", 2) == 0) {
+  } else if (strncmp(reg_name, "r9\0", 3) == 0) {
     *reg = REG_9;
     return true;
-  } else if (strncmp(regname, "r10", 3) == 0) {
+  } else if (strncmp(reg_name, "r10\0", 4) == 0) {
     *reg = REG_10;
     return true;
-  } else if (strncmp(regname, "r11", 3) == 0) {
+  } else if (strncmp(reg_name, "r11\0", 4) == 0) {
     *reg = REG_11;
     return true;
-  } else if (strncmp(regname, "r12", 3) == 0) {
+  } else if (strncmp(reg_name, "r12\0", 4) == 0) {
     *reg = REG_12;
     return true;
-  } else if (strncmp(regname, "pc", 2) == 0) {
+  } else if (strncmp(reg_name, "pc\0", 3) == 0) {
     *reg = REG_PC;
     return true;
-  } else if (strncmp(regname, "cpsr", 4) == 0) {
+  } else if (strncmp(reg_name, "cpsr\0", 5) == 0) {
     *reg = REG_CPSR;
     return true;
   } else
@@ -133,7 +133,8 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
   CpuState *cpu = cpu_reset(mem);
 
   for (;;) {
-    // print_state(cpu);
+    fflush(stdout); // Keep things moving, for DBG tests
+
     char *input = linenoise("> ");
     if (!input) {
       free(cpu);
@@ -206,10 +207,10 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
       }
     }
     if (input[0] == 'p' && input[1] == ' ') { // command print register
-      char regname[4];
-      strncpy(regname, input + 2, 4);
+      char reg_name[5];
+      strncpy(reg_name, input + 2, 5);
       Reg *reg = malloc(sizeof(Reg));
-      bool valid = parse_regname(regname, reg);
+      bool valid = parse_reg_name(reg_name, reg);
       if (valid) {
         if (*reg == REG_PC) {
           printf("%d\n", cpu->regs[*reg] + 8);
@@ -241,5 +242,6 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
     linenoiseFree(input);
     break;
   }
+  fflush(stdout);
   free(breakpoint);
 }
