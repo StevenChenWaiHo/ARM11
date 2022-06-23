@@ -215,7 +215,7 @@ Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
 
 // Basically checks {, <shift>} in spec
 // Output: operand2 instruction, use_reg is set if shift by register
-Instr asm_parse_shift_reg(Assembler *a, Reg rm, bool support_use_by_reg) {
+Instr asm_parse_shift_reg(Assembler *a, Reg rm, bool support_shift_by_reg) {
   if (!asm_match(a, TOKEN_COMMA, NULL)) {
     return rm;
   }
@@ -223,8 +223,8 @@ Instr asm_parse_shift_reg(Assembler *a, Reg rm, bool support_use_by_reg) {
   Token rs;
   // Shift by Register
   if (asm_match(a, TOKEN_IDENT, &rs)) {
-    if (!support_use_by_reg) {
-      asm_err(a, &rs, "Shift by register not supported in LDR instructions");
+    if (!support_shift_by_reg) {
+      asm_err(a, &rs, "Shift by register not supported in SDT instructions");
     }
     return bit_asm_op2_shift_reg(rm, shift_type, asm_parse_reg_name(a, rs));
   } else {
