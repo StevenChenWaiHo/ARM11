@@ -1,0 +1,42 @@
+{
+  "File": "./arith.s",
+  "Steps": [
+    {
+      "Input": "b 3",
+      "Output": "Breakpoint 1 set at line 3 (instruction 1).\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 1 at Line 1\nNext Instruction at Line 1: \n000: e3a01004\nmov r1, #0x4\n"
+    },
+    {
+      "Input": "s",
+      "Output": "Previous Instruction at Line 1: \n000: e3a01004\nmov r1, #0x4\nNext Instruction at Line 2: \n001: e3a02005\nmov r2, #0x5\n"
+    },
+    {
+      "Input": "b 10",
+      "Output": "Breakpoint 2 set at line 10 (instruction 5).\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 2 at Line 5\nNext Instruction at Line 5: \n004: e3550064\ncmp r5, #0x64\n"
+    },
+    {
+      "Input": "p r1",
+      "Output": "4\n"
+    },
+    {
+      "Input": "r",
+      "Output": "Breakpoint 2 at Line 5\nNext Instruction at Line 5: \n004: e3550064\ncmp r5, #0x64\n"
+    },
+    {
+      "Input": "p r4",
+      "Output": "0\n"
+    },
+    {
+      "Input": "q",
+      "Output": ""
+    }
+  ],
+  "Stderr": ""
+}
