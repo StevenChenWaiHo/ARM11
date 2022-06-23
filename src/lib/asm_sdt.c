@@ -3,14 +3,31 @@
 #include "asm.h"
 #include "bit_asm.h"
 
+Instr parse_offset(Assembler *a, bool *offset_reg, bool *neg) {
+  Token shtok;
+  if (asm_match(a, TOKEN_HASH_NUM, &shtok)) // [Rn, <#expression>
+    return asm_parse_signed_imm(a, shtok, neg);
+  else {
+    Token sign;
+    if (asm_match(a, TOKEN_MINUS, &sign)) { // [Rn, {+/-}
+      *neg = true;
+    } else if (asm_match(a, TOKEN_PLUS, &sign)) {
+      *neg = false;
+    }
+
+    Reg reg = asm_expect_reg(a); // [Rn, {+/-}Rm
+    *offset_reg = true;
+    return asm_parse_shift_reg(a, reg); // [Rn, {+/-}Rm{,<shift>}]
+  }
+  return 0; // No offset
+}
+
 Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
   assert(c.kind == INSTR_STR || c.kind == INSTR_LDR);
 
   Reg rd = asm_expect_reg(a);
   asm_expect(a, TOKEN_COMMA);
-
   Token num;
-
   Instr ret;
 
   if (asm_match(a, TOKEN_EQ_NUM, &num)) {
@@ -40,41 +57,19 @@ Instr asm_sdt(Assembler *a, InstrCommon c, Instr ino) {
     bool offset_reg = false;
     bool pre_index = true;
     bool neg = false;
-    if (asm_match(a, TOKEN_COMMA, NULL)) {
-      Token shtok;
-      if (asm_match(a, TOKEN_HASH_NUM, &shtok))
-        offset = asm_parse_signed_imm(a, shtok, &neg);
-      else {
-        Reg reg = asm_expect_reg(a);
-        ShiftKind sk = 0;
-        Instr shift_by = 0;
-        if (asm_match(a, TOKEN_COMMA, NULL)) {
-          Token skt = asm_expect(a, TOKEN_IDENT);
-          sk = asm_parse_shift_kind(a, skt);
-          shift_by = asm_parse_shift_imm(a, asm_expect(a, TOKEN_HASH_NUM));
-        }
-        offset = bit_asm_op2_shift_imm(reg, sk, shift_by);
-        offset_reg = true;
-      }
+    if (asm_match(a, TOKEN_COMMA, NULL)) {         // [Rn,
+      offset = parse_offset(a, &offset_reg, &neg); // [Rn, {+/-}Rm{, <shift>}
     }
+
     asm_expect(a, TOKEN_RSQUARE);
     Token tcomma;
-    if (asm_match(a, TOKEN_COMMA, &tcomma)) {
+    if (asm_match(a, TOKEN_COMMA, &tcomma)) { // [Rn],
       if (offset || offset_reg)
         asm_err(a, &tcomma,
                 "Already seen extra pre index arguments, cannot use post index "
                 "arguments");
       pre_index = false;
-
-      Token o_reg_2;
-
-      if (asm_match(a, TOKEN_IDENT, &o_reg_2)) {
-        offset = asm_parse_reg_name(a, o_reg_2);
-        offset_reg = true;
-      } else {
-        Token im = asm_expect(a, TOKEN_HASH_NUM);
-        offset = asm_parse_signed_imm(a, im, &neg);
-      }
+      offset = parse_offset(a, &offset_reg, &neg); // [Rn], {+/-}Rm{, <shift>}
     }
 
     ret = bit_asm_sdt(/*offset_reg=*/offset_reg, pre_index, /*up=*/!neg,

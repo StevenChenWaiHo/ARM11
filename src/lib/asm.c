@@ -16,6 +16,8 @@
 #define ROTATE_START_BIT 8
 #define ROTATE_LIMIT 16
 
+#define SHIFT_CONST_MAX 0x1F
+
 static const char *instrname[] = {
     [INSTR_ADD] = "add", [INSTR_AND] = "and", [INSTR_B] = "b",
     [INSTR_CMP] = "cmp", [INSTR_EOR] = "eor", [INSTR_LDR] = "ldr",
@@ -43,6 +45,7 @@ static Cond asm_parse_cond(Assembler *a, Str cname, Token *t) {
   else
     asm_err(a, t, "Expected cond, got `%.*s`", (int)cname.len, cname.ptr);
 }
+
 ShiftKind asm_parse_shift_kind(Assembler *a, Token t) {
   if (str_eq(t.source, "lsl"))
     return SHIFT_LSL;
@@ -92,6 +95,7 @@ InstrKind asm_parse_instr_name(Assembler *a, Token *t) {
     asm_err(a, t, "Expected instruction, but got `%.*s`", (int)t->source.len,
             t->source.ptr);
 }
+
 Reg asm_expect_reg(Assembler *a) {
   return asm_parse_reg_name(a, asm_expect(a, TOKEN_IDENT));
 }
@@ -149,49 +153,24 @@ bool is_valid_imm(Instr imm) {
   return false;
 }
 
-Instr imm_encode(Instr n) {
-  // PRE: n is valid imm
-  assert(is_valid_imm(n));
+// Return a encoded unsigned immediate
+Instr imm_encode(Assembler *a, Token t, Instr n) {
+  if (!is_valid_imm(n)) {
+    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
+            t.source.ptr);
+  }
+  if (n <= LOWEST_8_BIT_MASK) {
+    return n;
+  }
   for (int shift = 1; shift < ROTATE_LIMIT; shift++) {
     n = rotate_instr(n);
     if ((n & ~LOWEST_8_BIT_MASK) == 0)
       return shift << ROTATE_START_BIT | n;
   }
-  assert(0); // n is not a valid imm
+  asm_err(a, &t, "`%.*s` Invalid immediate", (int)t.source.len, t.source.ptr);
 }
 
-// Up to 12 bits
-Instr asm_parse_imm(Assembler *a, Token t) {
-  bool neg;
-  Instr n = asm_parse_number(a, t, &neg);
-  if (neg)
-    asm_err(a, &t, "Unexpected negitive `%.*s`", (int)t.source.len,
-            t.source.ptr);
-  if (!is_valid_imm(n))
-    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
-            t.source.ptr);
-  if (n > LOWEST_8_BIT_MASK)
-    n = imm_encode(n);
-  return n;
-}
-Instr asm_parse_shift_imm(Assembler *a, Token t) {
-  Instr n = asm_parse_imm(a, t);
-  if (n > DP_SHIFT_CONST_MAX)
-    asm_err(a, &t, "Const too large for a shift const: %d (max is %d)", n,
-            DP_SHIFT_CONST_MAX);
-  return n;
-}
-// Up to 12 bits
-Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
-  Instr n = asm_parse_number(a, t, neg);
-  if (!is_valid_imm(n))
-    asm_err(a, &t, "`%.*s` out of range for immediate", (int)t.source.len,
-            t.source.ptr);
-  if (n > LOWEST_8_BIT_MASK)
-    n = imm_encode(n);
-  return n;
-}
-
+// Parser for numbers
 Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
   assert(t.kind == TOKEN_EQ_NUM || t.kind == TOKEN_HASH_NUM);
   Str s = t.source;
@@ -215,6 +194,50 @@ Instr asm_parse_number(Assembler *a, Token t, bool *neg) {
   } else {
     assert(0); // Token and str not match
   }
+  return n;
+}
+
+// Return unsigned immediate up to 12 bits
+Instr asm_parse_imm(Assembler *a, Token t) {
+  bool neg;
+  Instr n = asm_parse_number(a, t, &neg);
+  if (neg)
+    asm_err(a, &t, "Unexpected negitive `%.*s`", (int)t.source.len,
+            t.source.ptr);
+  return imm_encode(a, t, n);
+}
+
+// Return a signed immediate and change the neg flag
+Instr asm_parse_signed_imm(Assembler *a, Token t, bool *neg) {
+  Instr n = asm_parse_number(a, t, neg);
+  return imm_encode(a, t, n);
+}
+
+// Basically checks {, <shift>} in spec
+// Output: operand2 instruction
+Instr asm_parse_shift_reg(Assembler *a, Reg rm) {
+  if (!asm_match(a, TOKEN_COMMA, NULL)) {
+    return rm;
+  }
+  ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
+  Token rs;
+  // Shift by Register
+  if (asm_match(a, TOKEN_IDENT, &rs))
+    return bit_asm_op2_shift_reg(rm, shift_type,
+                                 asm_parse_reg_name(a, rs)); // reg
+  else {
+    // Shift by Integer Constant
+    Token imm = asm_expect(a, TOKEN_HASH_NUM);
+    Instr imm_instr = asm_parse_shift_imm(a, imm);
+    return bit_asm_op2_shift_imm(rm, shift_type, imm_instr);
+  }
+}
+
+Instr asm_parse_shift_imm(Assembler *a, Token t) {
+  Instr n = asm_parse_imm(a, t);
+  if (n > DP_SHIFT_CONST_MAX)
+    asm_err(a, &t, "Const too large for a shift const: %d (max is %d)", n,
+            DP_SHIFT_CONST_MAX);
   return n;
 }
 

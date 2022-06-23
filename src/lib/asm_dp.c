@@ -42,24 +42,9 @@ Instr parse_op2(Assembler *a, bool *i) {
     *i = true;
     return asm_parse_imm(a, num);
   }
-
   *i = false;
   Reg rm = asm_expect_reg(a);
-  // Check if using Shift
-  if (!asm_match(a, TOKEN_COMMA, NULL))
-    return rm;
-
-  ShiftKind shift_type = asm_parse_shift_kind(a, asm_expect(a, TOKEN_IDENT));
-
-  Token rs;
-  if (asm_match(a, TOKEN_IDENT, &rs))
-    return bit_asm_op2_shift_reg(rm, shift_type,
-                                 asm_parse_reg_name(a, rs)); // reg
-  else
-    // Shift by integer
-    return bit_asm_op2_shift_imm(
-        rm, shift_type,
-        asm_parse_shift_imm(a, asm_expect(a, TOKEN_HASH_NUM))); // imm
+  return asm_parse_shift_reg(a, rm);
 }
 
 Instr asm_dp(Assembler *a, InstrCommon c, Instr ino) {
