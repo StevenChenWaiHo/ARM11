@@ -149,11 +149,13 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
                BREAKPOINT_NUMBER);
         goto cintinue;
       }
-      int line_no = atoi(input + 2);
+      int line_no = atoi(input + 2); // input: start from 1
       found_line_no = false;
+      int instr_no;
       for (int i = 0; i < total_instr_no && !found_line_no; i++) {
         if (instr_to_line_no[i] == line_no - 1) {
-          breakpoint[bpt_ptr] = i + 1; // breakpoint contains instrs
+          instr_no = i + 1;
+          breakpoint[bpt_ptr] = instr_to_line_no[i] + 1; // breakpoint contains instrs
           found_line_no = true;
         }
       }
@@ -161,8 +163,8 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         printf("Such line not found.\n");
         goto cintinue;
       }
-      printf("Breakpoint %d set at line %d (instruction %d).\n", bpt_ptr + 1,
-             line_no, breakpoint[bpt_ptr]);
+      printf("Breakpoint %d set at line %d (instruction %d).\n", bpt_ptr + 1, breakpoint[bpt_ptr],
+             instr_no);
       bpt_ptr++;
     }
     if (input[0] == 'd' && input[1] == ' ') { // command delete
@@ -225,7 +227,7 @@ void dbg(uint32_t *mem, int total_instr_no, int *instr_to_line_no) {
         goto cintinue;
       }
       int curr = cpu->regs[REG_PC];
-      if (input[2] == 'p') {
+      if (input[2] == 'p') { // never output correctly, consider deletion
         print_line(cpu, curr, false);
       } else if (input[2] == 'n') {
         curr >>= 2;
